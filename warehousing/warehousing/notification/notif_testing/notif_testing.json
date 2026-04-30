@@ -1,0 +1,29 @@
+{
+ "attach_files": "",
+ "attach_print": 0,
+ "channel": "System Notification",
+ "creation": "2026-01-28 19:04:22.597586",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Warehouse Location",
+ "enabled": 1,
+ "event": "New",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>Ada location baru</p>\n",
+ "message_type": "Markdown",
+ "modified": "2026-01-28 23:55:16.743440",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Notif testing",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Administrator"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "subject": "Testing Notif"
+}

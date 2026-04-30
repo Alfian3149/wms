@@ -1,0 +1,167 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:part",
+ "creation": "2026-01-02 22:52:30.372700",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "part_section",
+  "part",
+  "image",
+  "um",
+  "description",
+  "column_break_mpih",
+  "drawing_location",
+  "expire_date_required",
+  "automatic_create_lotserial",
+  "product_line",
+  "item_status",
+  "column_break_nxpp",
+  "qty_per_pallet",
+  "category",
+  "item_group",
+  "conversion_tab",
+  "um_conversion_factor",
+  "others_file_tab",
+  "file"
+ ],
+ "fields": [
+  {
+   "fieldname": "part_section",
+   "fieldtype": "Section Break",
+   "label": "Part"
+  },
+  {
+   "fieldname": "part",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Part",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "description": "smallest unit",
+   "fieldname": "um",
+   "fieldtype": "Link",
+   "label": "Origin UM",
+   "options": "Unit Of Masure",
+   "reqd": 1
+  },
+  {
+   "fieldname": "qty_per_pallet",
+   "fieldtype": "Int",
+   "label": "Qty Per Pallet",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "expire_date_required",
+   "fieldtype": "Check",
+   "label": "Expire Date Required?"
+  },
+  {
+   "fieldname": "column_break_mpih",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "automatic_create_lotserial",
+   "fieldtype": "Check",
+   "label": "Automatic create lot/serial"
+  },
+  {
+   "fieldname": "drawing_location",
+   "fieldtype": "Link",
+   "label": "Drawing Location",
+   "options": "Drawing Location"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "label": "Category",
+   "options": "INGREDIENT\nPACKAGING"
+  },
+  {
+   "fieldname": "conversion_tab",
+   "fieldtype": "Tab Break",
+   "label": "Conversion"
+  },
+  {
+   "fieldname": "column_break_nxpp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "um_conversion_factor",
+   "fieldtype": "Table",
+   "options": "Um Conversion Factor"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  },
+  {
+   "fieldname": "others_file_tab",
+   "fieldtype": "Tab Break",
+   "label": "Others File"
+  },
+  {
+   "fieldname": "file",
+   "fieldtype": "Attach",
+   "label": "File"
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Part Group Master"
+  },
+  {
+   "fieldname": "product_line",
+   "fieldtype": "Data",
+   "label": "Product Line"
+  },
+  {
+   "fieldname": "item_status",
+   "fieldtype": "Data",
+   "label": "Item Status"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-24 08:59:35.628802",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Part Master",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "part",
+ "track_changes": 1,
+ "track_seen": 1
+}

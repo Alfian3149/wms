@@ -1,0 +1,193 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:warehouse_name",
+ "creation": "2026-01-15 09:39:08.397120",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "site",
+  "warehouse_name",
+  "warehouse_type",
+  "is_group",
+  "is_active",
+  "column_break_knnd",
+  "parent_warehouse_location",
+  "total_capacity",
+  "um",
+  "total_pallet_maximum",
+  "section_break_yubr",
+  "total_reserved",
+  "can_putaway_reserved",
+  "can_picking_reserved",
+  "can_reserved_for_wo_comp_issued",
+  "section_break_izbu",
+  "status",
+  "section_break_hg9h",
+  "lft",
+  "rgt",
+  "old_parent"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_hg9h",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lft",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Left",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "rgt",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Right",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_group",
+   "fieldtype": "Check",
+   "label": "Is Group"
+  },
+  {
+   "fieldname": "old_parent",
+   "fieldtype": "Link",
+   "label": "Old Parent",
+   "options": "Warehouse Location"
+  },
+  {
+   "fieldname": "parent_warehouse_location",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Parent Warehouse Location",
+   "options": "Warehouse Location"
+  },
+  {
+   "fieldname": "warehouse_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Warehouse Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_knnd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1000",
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site",
+   "reqd": 1
+  },
+  {
+   "fieldname": "warehouse_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Warehouse Type",
+   "options": "Warehouse Location Type"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active?"
+  },
+  {
+   "fieldname": "total_capacity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Capacity"
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UM Capacity",
+   "options": "Unit Of Masure"
+  },
+  {
+   "fieldname": "section_break_izbu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Available\nReserved\nOccupied"
+  },
+  {
+   "fieldname": "section_break_yubr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_reserved",
+   "fieldtype": "Float",
+   "label": "Total Reserved"
+  },
+  {
+   "default": "0",
+   "fieldname": "can_putaway_reserved",
+   "fieldtype": "Check",
+   "label": "Can Putaway Reserved?"
+  },
+  {
+   "default": "0",
+   "fieldname": "can_picking_reserved",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Can Picking Reserved?"
+  },
+  {
+   "default": "0",
+   "fieldname": "can_reserved_for_wo_comp_issued",
+   "fieldtype": "Check",
+   "label": "can reserved for WO Comp Issued?"
+  },
+  {
+   "fieldname": "total_pallet_maximum",
+   "fieldtype": "Int",
+   "label": "Total Pallet Maximum"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_tree": 1,
+ "links": [],
+ "modified": "2026-04-09 15:53:08.606843",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Warehouse Location",
+ "naming_rule": "By fieldname",
+ "nsm_parent_field": "parent_warehouse_location",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

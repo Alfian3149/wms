@@ -1,0 +1,323 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-03 14:06:39.702935",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "form_request_tab",
+  "section_break_17lh",
+  "amended_from",
+  "naming_series",
+  "site",
+  "work_order_status",
+  "posting_date",
+  "column_break_zhaq",
+  "work_order",
+  "id",
+  "production_line",
+  "input_remarks",
+  "column_break_snzp",
+  "finish_good",
+  "fg_description",
+  "um",
+  "column_break_vfes",
+  "order_date",
+  "release_date",
+  "due_date",
+  "remarks",
+  "status",
+  "section_break_basz",
+  "quantity_to_be_produced_immediately",
+  "fg_qty_per_pallet",
+  "fg_netwt",
+  "qty_in_tonnase",
+  "column_break_icbm",
+  "quantity_ordered",
+  "column_break_spof",
+  "quantity_completed",
+  "column_break_xzhk",
+  "quantity_rejected",
+  "section_break_vvwo",
+  "shopfloor_location",
+  "column_break_mybv",
+  "required_by",
+  "is_create_mts",
+  "calculation_request_method",
+  "link_to_item_request",
+  "section_break_ufxb",
+  "work_order_split_detail",
+  "tab_2_tab",
+  "wo_tracking_html"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_17lh",
+   "fieldtype": "Section Break",
+   "label": "Work Order Master"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Work Order Split",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Work Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "finish_good",
+   "fieldtype": "Data",
+   "label": "Finish Good"
+  },
+  {
+   "fieldname": "work_order_status",
+   "fieldtype": "Data",
+   "label": "Work Order Status"
+  },
+  {
+   "fieldname": "column_break_snzp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "id",
+   "fieldtype": "Data",
+   "label": "ID"
+  },
+  {
+   "fieldname": "section_break_basz",
+   "fieldtype": "Section Break",
+   "label": "Quantity to be Produced"
+  },
+  {
+   "fieldname": "quantity_ordered",
+   "fieldtype": "Float",
+   "label": "Quantity Ordered"
+  },
+  {
+   "fieldname": "quantity_completed",
+   "fieldtype": "Float",
+   "label": "Quantity Completed"
+  },
+  {
+   "fieldname": "quantity_to_be_produced_immediately",
+   "fieldtype": "Float",
+   "label": "Quantity To Be Produced Immediately",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_spof",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zhaq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Master ID",
+   "options": "WO-.YYYY.-"
+  },
+  {
+   "fieldname": "column_break_icbm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ufxb",
+   "fieldtype": "Section Break",
+   "label": "Work order details"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "column_break_vfes",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "order_date",
+   "fieldtype": "Date",
+   "label": "Order Date"
+  },
+  {
+   "fieldname": "release_date",
+   "fieldtype": "Date",
+   "label": "Release Date"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "fieldname": "column_break_xzhk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quantity_rejected",
+   "fieldtype": "Float",
+   "label": "Quantity Rejected"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site"
+  },
+  {
+   "fieldname": "qty_in_tonnase",
+   "fieldtype": "Float",
+   "label": "Quantity In Tonnase"
+  },
+  {
+   "fieldname": "work_order_split_detail",
+   "fieldtype": "Table",
+   "options": "Work Order Split Detail"
+  },
+  {
+   "fieldname": "fg_description",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "fg_qty_per_pallet",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Qty Per Pallet"
+  },
+  {
+   "fieldname": "fg_netwt",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Net Weight"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_create_mts",
+   "fieldtype": "Check",
+   "label": "Create Material Request?"
+  },
+  {
+   "fieldname": "required_by",
+   "fieldtype": "Date",
+   "label": "Required By"
+  },
+  {
+   "fieldname": "section_break_vvwo",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_mybv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "link_to_item_request",
+   "fieldtype": "Link",
+   "label": "Link To Item request",
+   "options": "Item Request"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status WO",
+   "options": "Draft\nSubmitted\nReady For Weighing\nIn Weighing\nReady For Blending\nCompleted"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "shopfloor_location",
+   "fieldtype": "Link",
+   "label": "Destination Location",
+   "options": "Warehouse Location",
+   "reqd": 1
+  },
+  {
+   "fieldname": "calculation_request_method",
+   "fieldtype": "Int",
+   "label": "Calculation Request Method"
+  },
+  {
+   "fieldname": "production_line",
+   "fieldtype": "Select",
+   "label": "Production Line",
+   "options": "P1\nP2\nP3\nP4\nLiquid\nPastry"
+  },
+  {
+   "fieldname": "input_remarks",
+   "fieldtype": "Small Text",
+   "label": "Input Remarks"
+  },
+  {
+   "fieldname": "tab_2_tab",
+   "fieldtype": "Tab Break",
+   "label": "WO Tracking"
+  },
+  {
+   "fieldname": "form_request_tab",
+   "fieldtype": "Tab Break",
+   "label": "Form Request"
+  },
+  {
+   "fieldname": "wo_tracking_html",
+   "fieldtype": "HTML"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-16 09:55:08.681292",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Work Order Split",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "work_order,finish_good,quantity_to_be_produced_immediately",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

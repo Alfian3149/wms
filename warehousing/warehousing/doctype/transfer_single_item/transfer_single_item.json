@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-14 08:38:54.319209",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_hixs",
+  "amended_from",
+  "get_inventory",
+  "section_break_vnkc",
+  "part",
+  "um",
+  "column_break_fvij",
+  "description",
+  "from_to",
+  "site_from",
+  "location_from",
+  "lotserial_from",
+  "current_quantity",
+  "status",
+  "expire",
+  "inventory_name",
+  "column_break_nmng",
+  "quantity",
+  "location_to",
+  "reason",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_hixs",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Transfer Single Item",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "description": "Click this button first to show inventory list to select inventory ID",
+   "fieldname": "get_inventory",
+   "fieldtype": "Button",
+   "label": "Select Inventory"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity To Transfer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks (Optional)"
+  },
+  {
+   "fieldname": "from_to",
+   "fieldtype": "Section Break",
+   "label": "Transfer location from:"
+  },
+  {
+   "fieldname": "location_from",
+   "fieldtype": "Data",
+   "label": "From Location"
+  },
+  {
+   "fieldname": "lotserial_from",
+   "fieldtype": "Data",
+   "label": "From Lot/Serial"
+  },
+  {
+   "fieldname": "location_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "To Location",
+   "options": "Warehouse Location",
+   "reqd": 1
+  },
+  {
+   "fieldname": "site_from",
+   "fieldtype": "Data",
+   "label": "From Site"
+  },
+  {
+   "fieldname": "column_break_nmng",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "current_quantity",
+   "fieldtype": "Float",
+   "label": "Current Quantity"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "label": "Status"
+  },
+  {
+   "fieldname": "inventory_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Inventory Name"
+  },
+  {
+   "fieldname": "section_break_vnkc",
+   "fieldtype": "Section Break",
+   "label": "Item Information:"
+  },
+  {
+   "fieldname": "part",
+   "fieldtype": "Data",
+   "label": "Part"
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "column_break_fvij",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "expire",
+   "fieldtype": "Date",
+   "label": "expire"
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Link",
+   "label": "Reason",
+   "options": "Reason Master",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-20 11:38:04.050029",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Transfer Single Item",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

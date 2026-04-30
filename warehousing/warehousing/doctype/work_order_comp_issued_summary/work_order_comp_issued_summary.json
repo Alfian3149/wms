@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-07 14:21:23.692297",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "part",
+  "description",
+  "um",
+  "item_group",
+  "qty_full_required",
+  "qty_full_issued",
+  "qty_needed",
+  "product_line"
+ ],
+ "fields": [
+  {
+   "fieldname": "part",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Part",
+   "options": "Part Master"
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Group"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "product_line",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Line"
+  },
+  {
+   "fieldname": "qty_full_required",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Full Required"
+  },
+  {
+   "fieldname": "qty_full_issued",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Full issued"
+  },
+  {
+   "fieldname": "qty_needed",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Needed"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-08 17:14:45.738135",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Work Order Comp Issued Summary",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,206 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-02 13:02:04.078496",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_kex1",
+  "amended_from",
+  "task_type",
+  "reference_doctype",
+  "reference_name",
+  "column_break_epxl",
+  "po_number",
+  "wo_split_number",
+  "status",
+  "is_needed_handover",
+  "section_break_sfld",
+  "assign_to_user",
+  "date_instruction",
+  "column_break_suxv",
+  "assign_to_role",
+  "time_instruction",
+  "summary_result_section",
+  "date_started",
+  "time_started",
+  "users_picker",
+  "column_break_ydio",
+  "date_ending",
+  "time_ending",
+  "durations",
+  "section_break_zcmk",
+  "warehouse_task_detail"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_kex1",
+   "fieldtype": "Section Break",
+   "label": "Task Information"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Warehouse Task",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "task_type",
+   "fieldtype": "Select",
+   "label": "Task Type",
+   "options": "Picking\nPhysical Verification\nStock Transfer\nPutaway Transfer"
+  },
+  {
+   "fieldname": "section_break_sfld",
+   "fieldtype": "Section Break",
+   "label": "Instruction Details"
+  },
+  {
+   "fieldname": "assign_to_user",
+   "fieldtype": "Link",
+   "label": "Assign to User",
+   "options": "User"
+  },
+  {
+   "fieldname": "date_instruction",
+   "fieldtype": "Date",
+   "label": "Date Instruction"
+  },
+  {
+   "fieldname": "column_break_suxv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "assign_to_role",
+   "fieldtype": "Link",
+   "label": "Assign to Role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "time_instruction",
+   "fieldtype": "Time",
+   "label": "Time Instruction"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Data",
+   "label": "Reference Doctype"
+  },
+  {
+   "fieldname": "section_break_zcmk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Data",
+   "label": "Reference Name"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nIn Progress\nCompleted\nCancelled"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "warehouse_task_detail",
+   "fieldtype": "Table",
+   "options": "Warehouse Task Detail"
+  },
+  {
+   "fieldname": "po_number",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "PO Number"
+  },
+  {
+   "fieldname": "summary_result_section",
+   "fieldtype": "Section Break",
+   "label": "Summary Result"
+  },
+  {
+   "fieldname": "date_started",
+   "fieldtype": "Date",
+   "label": "Date Started"
+  },
+  {
+   "fieldname": "time_started",
+   "fieldtype": "Time",
+   "label": "Time Started"
+  },
+  {
+   "fieldname": "users_picker",
+   "fieldtype": "Data",
+   "label": "Users Picker"
+  },
+  {
+   "fieldname": "column_break_ydio",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date_ending",
+   "fieldtype": "Date",
+   "label": "Date Ending"
+  },
+  {
+   "fieldname": "time_ending",
+   "fieldtype": "Time",
+   "label": "Time Ending"
+  },
+  {
+   "fieldname": "durations",
+   "fieldtype": "Data",
+   "label": "Durations"
+  },
+  {
+   "fieldname": "column_break_epxl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "wo_split_number",
+   "fieldtype": "Data",
+   "label": "WO Split Number"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "is_needed_handover",
+   "fieldtype": "Check",
+   "label": "Is Needed Handover?"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-17 05:36:15.394010",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Warehouse Task",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

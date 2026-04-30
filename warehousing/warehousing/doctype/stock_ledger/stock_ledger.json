@@ -1,0 +1,195 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-29 11:18:40.827702",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_oapz",
+  "po_line",
+  "po_number",
+  "column_break_hewf",
+  "posting_date",
+  "section_break_yalg",
+  "amended_from",
+  "site",
+  "part",
+  "lot_serial",
+  "reference",
+  "warehouse_location",
+  "status",
+  "expire_date",
+  "column_break_ixrc",
+  "doctype_source",
+  "data_link",
+  "transaction_type",
+  "inventory_doc_link",
+  "section_break_look",
+  "actual_qty",
+  "column_break_qjvt",
+  "qty_after_transaction"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_yalg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Stock Ledger",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site",
+   "search_index": 1
+  },
+  {
+   "fieldname": "part",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Part",
+   "options": "Part Master",
+   "search_index": 1
+  },
+  {
+   "fieldname": "warehouse_location",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Loc"
+  },
+  {
+   "fieldname": "actual_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Change"
+  },
+  {
+   "fieldname": "doctype_source",
+   "fieldtype": "Link",
+   "label": "Doctype Source",
+   "options": "DocType",
+   "search_index": 1
+  },
+  {
+   "fieldname": "data_link",
+   "fieldtype": "Dynamic Link",
+   "label": "Data link",
+   "options": "doctype_source",
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_look",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_qjvt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty_after_transaction",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty After Transaction"
+  },
+  {
+   "fieldname": "lot_serial",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lot Serial",
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_ixrc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Reference"
+  },
+  {
+   "fieldname": "section_break_oapz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Data",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "column_break_hewf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "TR Type",
+   "options": "Transaction Type"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Inv Stts"
+  },
+  {
+   "fieldname": "expire_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expire"
+  },
+  {
+   "fieldname": "po_line",
+   "fieldtype": "Int",
+   "label": "PO line"
+  },
+  {
+   "fieldname": "po_number",
+   "fieldtype": "Data",
+   "label": "PO Number"
+  },
+  {
+   "fieldname": "inventory_doc_link",
+   "fieldtype": "Link",
+   "label": "Inventory Doc Link",
+   "options": "Inventory"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-09 10:23:25.459223",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Stock Ledger",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-12 17:02:24.349733",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "default_site",
+  "strict_when_qty_per_pallet_item_is_zero",
+  "storage_can_mix_item",
+  "column_break_uriu",
+  "rack_availability_threshold",
+  "qty_to_receive_tolerance",
+  "section_break_olhc",
+  "part_group"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "description": "(When this field checked the system will reject every transaction that use item with qty per pallet is zero)",
+   "fieldname": "strict_when_qty_per_pallet_item_is_zero",
+   "fieldtype": "Check",
+   "label": "Strict when Qty Per Pallet item is zero"
+  },
+  {
+   "default": "0",
+   "description": "(This field will effect on putaway suggestion item to rack)",
+   "fieldname": "storage_can_mix_item",
+   "fieldtype": "Check",
+   "label": "Storage can mix item"
+  },
+  {
+   "default": "1000",
+   "fieldname": "default_site",
+   "fieldtype": "Data",
+   "label": "Default Site"
+  },
+  {
+   "fieldname": "rack_availability_threshold",
+   "fieldtype": "Percent",
+   "label": "Rack Availability Threshold (%)"
+  },
+  {
+   "fieldname": "qty_to_receive_tolerance",
+   "fieldtype": "Percent",
+   "label": "Qty to receive tolerance (%)"
+  },
+  {
+   "fieldname": "part_group",
+   "fieldtype": "Table",
+   "label": "part_group",
+   "options": "Material Incoming Group Items"
+  },
+  {
+   "fieldname": "column_break_uriu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_olhc",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-03-09 13:33:21.763776",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Material Incoming Control",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

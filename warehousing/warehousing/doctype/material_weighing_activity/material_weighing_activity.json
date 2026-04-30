@@ -1,0 +1,81 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-10 06:50:58.630771",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "work_order",
+  "column_break_qqsu",
+  "production_qty",
+  "section_break_qksi",
+  "summary_weighing_items",
+  "section_break_xwca",
+  "detail_weighing_items"
+ ],
+ "fields": [
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Work Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_qqsu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "production_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Production Qty",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_qksi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_xwca",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "summary_weighing_items",
+   "fieldtype": "Table",
+   "options": "Work Order Comp Issued Summary"
+  },
+  {
+   "fieldname": "detail_weighing_items",
+   "fieldtype": "Table",
+   "options": "Work Order Comp Issued Items"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-10 06:58:41.035004",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Material Weighing Activity",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

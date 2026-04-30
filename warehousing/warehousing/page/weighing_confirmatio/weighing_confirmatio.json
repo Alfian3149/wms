@@ -1,0 +1,27 @@
+{
+ "content": null,
+ "creation": "2026-02-06 08:29:58.854186",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "",
+ "idx": 0,
+ "modified": "2026-02-06 08:30:30.418878",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "weighing-confirmatio",
+ "owner": "Administrator",
+ "page_name": "weighing-confirmatio",
+ "roles": [
+  {
+   "role": "Production Shopfloor"
+  },
+  {
+   "role": "Administrator"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Weighing Confirmation"
+}

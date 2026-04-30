@@ -1,0 +1,266 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-07 02:33:08.056796",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "search_by_section",
+  "part",
+  "find",
+  "column_break_isyk",
+  "lot_serial",
+  "column_break_fume",
+  "location",
+  "column_break_kcvg",
+  "incomming_date",
+  "section_break_pisy",
+  "items",
+  "section_break_so2m",
+  "amended_from",
+  "master_id",
+  "column_break_javn",
+  "purpose",
+  "reference",
+  "column_break_jqvz",
+  "requested_on",
+  "remarks",
+  "section_break_fgha",
+  "sortir_date",
+  "sortir_location__area",
+  "column_break_rydq",
+  "supplier_code",
+  "supplier_name",
+  "column_break_cbhe",
+  "part_in_sortir",
+  "description",
+  "um",
+  "column_break_ktno",
+  "total_qty_to_sort",
+  "qty_rejectreturn",
+  "qty_goodok"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_so2m",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Material Return Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "master_id",
+   "fieldtype": "Select",
+   "label": "Master ID",
+   "options": "MRR-.YYYY.-"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Material Selected",
+   "options": "Material Return Request Item"
+  },
+  {
+   "default": "Today",
+   "fieldname": "requested_on",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Requested On",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_jqvz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_javn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "label": "Purpose",
+   "options": "Return to rack\nReturn all to supplier\nReturn with sorting to supplier"
+  },
+  {
+   "fieldname": "search_by_section",
+   "fieldtype": "Section Break",
+   "label": "Search By"
+  },
+  {
+   "fieldname": "part",
+   "fieldtype": "Link",
+   "label": "Part",
+   "options": "Part Master",
+   "placeholder": "Equals"
+  },
+  {
+   "fieldname": "column_break_isyk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lot_serial",
+   "fieldtype": "Data",
+   "label": "Lot Serial",
+   "placeholder": "contains"
+  },
+  {
+   "fieldname": "column_break_fume",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Warehouse Location",
+   "placeholder": "Equals"
+  },
+  {
+   "fieldname": "column_break_kcvg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "find",
+   "fieldtype": "Button",
+   "label": "<i class=\"fa fa-search\"></i> Find It"
+  },
+  {
+   "fieldname": "section_break_pisy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "incomming_date",
+   "fieldtype": "Date",
+   "label": "Incomming Date",
+   "placeholder": "Equals"
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Reference"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "section_break_fgha",
+   "fieldtype": "Section Break",
+   "hidden": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sortir_date",
+   "fieldtype": "Date",
+   "label": "Sortir Date"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sortir_location__area",
+   "fieldtype": "Link",
+   "label": "Sortir Location / Area",
+   "options": "Warehouse Location"
+  },
+  {
+   "fieldname": "column_break_rydq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "supplier_code",
+   "fieldtype": "Data",
+   "label": "Supplier Code"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name"
+  },
+  {
+   "fieldname": "column_break_cbhe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "part_in_sortir",
+   "fieldtype": "Link",
+   "label": "Part In Sortir",
+   "options": "Part Master"
+  },
+  {
+   "allow_on_submit": 1,
+   "fetch_from": "part.description",
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "allow_on_submit": 1,
+   "fetch_from": "part.um",
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "column_break_ktno",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "total_qty_to_sort",
+   "fieldtype": "Float",
+   "label": "Total Qty To Sort"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "qty_rejectreturn",
+   "fieldtype": "Float",
+   "label": "Qty Reject/Return"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "qty_goodok",
+   "fieldtype": "Float",
+   "label": "Qty Good/Ok"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-09 00:14:17.697731",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Material Return Request",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

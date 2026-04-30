@@ -1,0 +1,145 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-18 12:02:24.703302",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "master_id",
+  "material_incoming_link",
+  "line",
+  "item",
+  "description",
+  "um",
+  "lotserial",
+  "pallet",
+  "qty",
+  "qty_per_pallet",
+  "expire",
+  "um_packaging",
+  "conversion_factor",
+  "barcode_fwrj",
+  "last_printed_on",
+  "printed_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "master_id",
+   "fieldtype": "Select",
+   "label": "Master ID",
+   "options": "MTL-LBL-.YYYY.-"
+  },
+  {
+   "fieldname": "lotserial",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lotserial",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pallet",
+   "fieldtype": "Data",
+   "label": "Pallet"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "label": "Qty",
+   "reqd": 1
+  },
+  {
+   "fieldname": "barcode_fwrj",
+   "fieldtype": "Barcode",
+   "label": "Barcode Scan"
+  },
+  {
+   "fieldname": "material_incoming_link",
+   "fieldtype": "Data",
+   "label": "Material Incoming Link"
+  },
+  {
+   "fieldname": "line",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Ln",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Part Master",
+   "reqd": 1
+  },
+  {
+   "fieldname": "last_printed_on",
+   "fieldtype": "Datetime",
+   "label": "Last Printed On"
+  },
+  {
+   "fieldname": "printed_by",
+   "fieldtype": "Link",
+   "label": "Printed By",
+   "options": "User"
+  },
+  {
+   "fieldname": "um_packaging",
+   "fieldtype": "Data",
+   "label": "UM Packaging"
+  },
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "Conversion Factor"
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "expire",
+   "fieldtype": "Date",
+   "label": "Expire"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "qty_per_pallet",
+   "fieldtype": "Float",
+   "label": "Qty Per Pallet"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-27 16:11:16.932259",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Material Label",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

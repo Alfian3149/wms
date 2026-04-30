@@ -1,0 +1,153 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-01-15 13:50:29.843534",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_vjkc",
+  "site",
+  "part",
+  "lot_serial",
+  "reference",
+  "printed_by",
+  "last_printed_on",
+  "column_break_mnqd",
+  "qty_on_hand",
+  "qty_reserverd",
+  "um",
+  "qty_per_pallet",
+  "column_break_avig",
+  "warehouse_location",
+  "inventory_status",
+  "expire_date",
+  "um_packaging",
+  "conversion_factor"
+ ],
+ "fields": [
+  {
+   "fieldname": "part",
+   "fieldtype": "Link",
+   "label": "Part",
+   "options": "Part Master"
+  },
+  {
+   "fieldname": "lot_serial",
+   "fieldtype": "Data",
+   "label": "Lot Serial"
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Reference"
+  },
+  {
+   "fieldname": "qty_on_hand",
+   "fieldtype": "Float",
+   "label": "Qty On Hand"
+  },
+  {
+   "fieldname": "expire_date",
+   "fieldtype": "Date",
+   "label": "Expire Date"
+  },
+  {
+   "fieldname": "inventory_status",
+   "fieldtype": "Data",
+   "label": "Inventory Status"
+  },
+  {
+   "fieldname": "warehouse_location",
+   "fieldtype": "Data",
+   "label": "Location",
+   "search_index": 1
+  },
+  {
+   "default": "1000",
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site",
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_vjkc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_mnqd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_avig",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "printed_by",
+   "fieldtype": "Link",
+   "label": "Last Printed By",
+   "options": "User"
+  },
+  {
+   "fieldname": "last_printed_on",
+   "fieldtype": "Datetime",
+   "label": "Last Printed On"
+  },
+  {
+   "fieldname": "qty_reserverd",
+   "fieldtype": "Float",
+   "label": "Qty Reserved"
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "um_packaging",
+   "fieldtype": "Data",
+   "label": "UM Packaging"
+  },
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "Conversion Factor"
+  },
+  {
+   "fieldname": "qty_per_pallet",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Per Pallet"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-10 08:41:15.009947",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Inventory",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "part , lot_serial , warehouse_location , qty_on_hand",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

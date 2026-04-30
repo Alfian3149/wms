@@ -1,0 +1,232 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-30 22:12:15.538233",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_on2l",
+  "amended_from",
+  "inventory_transactions",
+  "source_type",
+  "data_link",
+  "column_break_viki",
+  "posting_date",
+  "site",
+  "section_break_ddll",
+  "po_number",
+  "column_break_bwzy",
+  "po_line",
+  "section_break_yzei",
+  "part",
+  "um",
+  "description",
+  "column_break_hwkq",
+  "lot_serial",
+  "lotserial_automatic",
+  "column_break_pwrb",
+  "reference",
+  "column_break_dpaf",
+  "quantity_change",
+  "warehouse_location",
+  "section_break_cqzw",
+  "expire_date",
+  "column_break_vmic",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_on2l",
+   "fieldtype": "Section Break",
+   "label": "Select Transaction"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Stock Maintain",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "inventory_transactions",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Inventory Transactions",
+   "options": "Transaction Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_viki",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "default": "1000",
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Site",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_ddll",
+   "fieldtype": "Section Break",
+   "label": "Purchase Order Data"
+  },
+  {
+   "fieldname": "po_number",
+   "fieldtype": "Data",
+   "label": "PO number"
+  },
+  {
+   "fieldname": "column_break_bwzy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "po_line",
+   "fieldtype": "Int",
+   "label": "PO Line"
+  },
+  {
+   "fieldname": "section_break_yzei",
+   "fieldtype": "Section Break",
+   "label": "Inventory Detail"
+  },
+  {
+   "fieldname": "part",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Part",
+   "options": "Part Master",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_hwkq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lot_serial",
+   "fieldtype": "Data",
+   "label": "Lot serial"
+  },
+  {
+   "fieldname": "column_break_pwrb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dpaf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_cqzw",
+   "fieldtype": "Section Break",
+   "label": "Inventory Attribute"
+  },
+  {
+   "fieldname": "expire_date",
+   "fieldtype": "Date",
+   "label": "Expire Date"
+  },
+  {
+   "fieldname": "column_break_vmic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Link",
+   "label": "Status",
+   "options": "Inventory Status",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_type",
+   "fieldtype": "Link",
+   "label": "Source Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "data_link",
+   "fieldtype": "Dynamic Link",
+   "label": "Data Link",
+   "options": "source_type"
+  },
+  {
+   "fieldname": "warehouse_location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Warehouse Location",
+   "reqd": 1
+  },
+  {
+   "fieldname": "quantity_change",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Reference"
+  },
+  {
+   "default": "0",
+   "description": "When thicked the Lot/serial field will be readonly and auto filled",
+   "fieldname": "lotserial_automatic",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Lot/Serial Automatic"
+  },
+  {
+   "fetch_from": "part.um",
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "part.description",
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-20 12:18:31.026852",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Stock Maintain",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

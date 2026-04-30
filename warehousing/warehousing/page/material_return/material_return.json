@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2026-02-07 02:24:01.457259",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-02-07 02:24:01.457259",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "material-return",
+ "owner": "Administrator",
+ "page_name": "material-return",
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "Production Admin"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Material Return"
+}

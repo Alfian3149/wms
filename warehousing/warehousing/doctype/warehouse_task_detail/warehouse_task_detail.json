@@ -1,0 +1,335 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-02 13:09:08.077638",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_details_section",
+  "material_label_link",
+  "warehouse_task_link",
+  "executor",
+  "execution_time",
+  "verified",
+  "transferred",
+  "has_background_job",
+  "column_break_dwtr",
+  "line_po",
+  "item",
+  "um",
+  "description",
+  "lotserial",
+  "um_packaging",
+  "conversion_factor",
+  "column_break_mqaj",
+  "discrepancy_reason",
+  "remark",
+  "locationsource",
+  "locationsuggestion",
+  "locationdestination",
+  "column_break_mbpn",
+  "qty_per_pallet",
+  "amt_pallet",
+  "qty_label",
+  "qty_confirmation",
+  "expired_date",
+  "status",
+  "section_break_zryh",
+  "qty_handover",
+  "has_handovered",
+  "column_break_lzby",
+  "user_handovered",
+  "time_handovered",
+  "section_break_mezp",
+  "qty_weighing",
+  "has_weighinged",
+  "column_break_vwnm",
+  "user_weighinged",
+  "time_weighinged",
+  "this_section_is_for_blending_process_only_if_any_section",
+  "qty_blending",
+  "has_blendinged",
+  "column_break_gikq",
+  "user_blendinged",
+  "time_blendinged"
+ ],
+ "fields": [
+  {
+   "fetch_from": "material_label_link.item",
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Part Master",
+   "search_index": 1,
+   "sort_options": 1
+  },
+  {
+   "fetch_from": "material_label_link.lotserial",
+   "fieldname": "lotserial",
+   "fieldtype": "Data",
+   "label": "Lotserial",
+   "search_index": 1,
+   "sort_options": 1
+  },
+  {
+   "fieldname": "qty_confirmation",
+   "fieldtype": "Float",
+   "label": "Qty Confirmation"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nIn Progress\nCompleted\nCancelled",
+   "search_index": 1
+  },
+  {
+   "fetch_from": "material_label_link.line",
+   "fieldname": "line_po",
+   "fieldtype": "Int",
+   "label": "Line",
+   "sort_options": 1
+  },
+  {
+   "fieldname": "executor",
+   "fieldtype": "Link",
+   "label": "Executor",
+   "options": "User"
+  },
+  {
+   "fieldname": "locationsource",
+   "fieldtype": "Data",
+   "label": "Location(Source)"
+  },
+  {
+   "fieldname": "locationdestination",
+   "fieldtype": "Data",
+   "label": "Location(Destination)"
+  },
+  {
+   "fieldname": "material_label_link",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Link To Material Label",
+   "options": "Material Label"
+  },
+  {
+   "fetch_from": "item.description",
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fetch_from": "material_label_link.qty",
+   "fieldname": "qty_label",
+   "fieldtype": "Float",
+   "label": "Qty"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark"
+  },
+  {
+   "fieldname": "discrepancy_reason",
+   "fieldtype": "Link",
+   "label": "Reason",
+   "options": "Reason Master"
+  },
+  {
+   "fieldname": "expired_date",
+   "fieldtype": "Date",
+   "label": "Expired date"
+  },
+  {
+   "fieldname": "warehouse_task_link",
+   "fieldtype": "Link",
+   "label": "Warehouse Task Link",
+   "options": "Warehouse Task"
+  },
+  {
+   "fieldname": "column_break_dwtr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_mqaj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_mbpn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "locationsuggestion",
+   "fieldtype": "Link",
+   "label": "Location(Suggestion)",
+   "options": "Warehouse Location"
+  },
+  {
+   "default": "0",
+   "fieldname": "has_background_job",
+   "fieldtype": "Check",
+   "label": "Has Background Job"
+  },
+  {
+   "default": "0",
+   "fieldname": "transferred",
+   "fieldtype": "Check",
+   "label": "Transferred"
+  },
+  {
+   "fieldname": "execution_time",
+   "fieldtype": "Datetime",
+   "label": "Execution Time"
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "qty_per_pallet",
+   "fieldtype": "Float",
+   "label": "Qty Per Pallet"
+  },
+  {
+   "fieldname": "amt_pallet",
+   "fieldtype": "Float",
+   "label": "Amt Pallet"
+  },
+  {
+   "fieldname": "section_break_zryh",
+   "fieldtype": "Section Break",
+   "label": "This Section is for Handover process only if any"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "qty_handover",
+   "fieldtype": "Float",
+   "label": "Qty Handover"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "has_handovered",
+   "fieldtype": "Check",
+   "label": "Has Handovered?",
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_lzby",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "user_handovered",
+   "fieldtype": "Link",
+   "label": "User Handovered",
+   "options": "User"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "time_handovered",
+   "fieldtype": "Datetime",
+   "label": "Time Handovered"
+  },
+  {
+   "fieldname": "item_details_section",
+   "fieldtype": "Section Break",
+   "label": "Item Details"
+  },
+  {
+   "fieldname": "section_break_mezp",
+   "fieldtype": "Section Break",
+   "label": "This Section is for Weighing process only if any"
+  },
+  {
+   "fieldname": "qty_weighing",
+   "fieldtype": "Float",
+   "label": "Qty Weighing"
+  },
+  {
+   "default": "0",
+   "fieldname": "has_weighinged",
+   "fieldtype": "Check",
+   "label": "Has Weighinged"
+  },
+  {
+   "fieldname": "column_break_vwnm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user_weighinged",
+   "fieldtype": "Link",
+   "label": "User weighinged",
+   "options": "User"
+  },
+  {
+   "fieldname": "time_weighinged",
+   "fieldtype": "Datetime",
+   "label": "Time weighinged"
+  },
+  {
+   "fieldname": "this_section_is_for_blending_process_only_if_any_section",
+   "fieldtype": "Section Break",
+   "label": "This Section is for Blending process only if any"
+  },
+  {
+   "fieldname": "qty_blending",
+   "fieldtype": "Float",
+   "label": "Qty Blending"
+  },
+  {
+   "default": "0",
+   "fieldname": "has_blendinged",
+   "fieldtype": "Check",
+   "label": "Has Blendinged"
+  },
+  {
+   "fieldname": "column_break_gikq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user_blendinged",
+   "fieldtype": "Link",
+   "label": "User Blendinged",
+   "options": "User"
+  },
+  {
+   "fieldname": "time_blendinged",
+   "fieldtype": "Datetime",
+   "label": "Time Blendinged"
+  },
+  {
+   "default": "0",
+   "fieldname": "verified",
+   "fieldtype": "Check",
+   "label": "Verified"
+  },
+  {
+   "fieldname": "um_packaging",
+   "fieldtype": "Data",
+   "label": "UM Packaging"
+  },
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "Conversion Factor"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-31 07:05:04.082419",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Warehouse Task Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

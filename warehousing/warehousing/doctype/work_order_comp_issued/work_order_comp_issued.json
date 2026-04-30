@@ -1,0 +1,283 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-06 15:33:16.004398",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_wmzx",
+  "naming_series",
+  "column_break_qghv",
+  "for_material_packaging__blending",
+  "column_break_afrn",
+  "work_order_number",
+  "work_order_split_number",
+  "mts_number",
+  "section_break_whir",
+  "amended_from",
+  "site",
+  "order_date",
+  "column_break_brvy",
+  "id",
+  "work_order_status",
+  "column_break_uhig",
+  "finish_good",
+  "fg_description",
+  "um",
+  "section_break_ohjt",
+  "qty_product_completed_to_be_issued",
+  "column_break_vmkw",
+  "quantity_ordered",
+  "column_break_tlyb",
+  "quantity_completed",
+  "column_break_hikb",
+  "quantity_rejected",
+  "work_order_detail_section",
+  "wo_api",
+  "html_wo_detail",
+  "all_components_section",
+  "lotserial_has_received",
+  "section_break_plet",
+  "item_summary_to_issued",
+  "section_break_cedb",
+  "get_material_stock",
+  "item_issued"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_whir",
+   "fieldtype": "Section Break",
+   "label": "Work Order Master"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Work Order Comp Issued",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "work_order_split_number",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Work Order Split Number",
+   "options": "Work Order Split",
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_brvy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "work_order_split_number.finish_good",
+   "fieldname": "finish_good",
+   "fieldtype": "Data",
+   "label": "Finish Good",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_wmzx",
+   "fieldtype": "Section Break",
+   "label": "Data Selection "
+  },
+  {
+   "fieldname": "for_material_packaging__blending",
+   "fieldtype": "Select",
+   "label": "For Material Packaging / Blending? ",
+   "options": "\nPackaging\nBlending",
+   "reqd": 1
+  },
+  {
+   "fieldname": "work_order_number",
+   "fieldtype": "Data",
+   "label": "Work order "
+  },
+  {
+   "fieldname": "section_break_cedb",
+   "fieldtype": "Section Break",
+   "label": "Material Details to issued"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Master ID",
+   "options": "WO-COMP-ISS-.YYYY.-"
+  },
+  {
+   "fieldname": "column_break_uhig",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "work_order_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Work Order Detail"
+  },
+  {
+   "fieldname": "html_wo_detail",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "section_break_ohjt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_vmkw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "work_order_split_number.quantity_ordered",
+   "fieldname": "quantity_ordered",
+   "fieldtype": "Float",
+   "label": "Quantity Ordered",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tlyb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "work_order_split_number.quantity_completed",
+   "fieldname": "quantity_completed",
+   "fieldtype": "Float",
+   "label": "Quantity Completed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hikb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "work_order_split_number.quantity_rejected",
+   "fieldname": "quantity_rejected",
+   "fieldtype": "Float",
+   "label": "Quantity Rejected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_issued",
+   "fieldtype": "Table",
+   "options": "Work Order Comp Issued Items"
+  },
+  {
+   "fieldname": "column_break_qghv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_afrn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "work_order_split_number.id",
+   "fieldname": "id",
+   "fieldtype": "Data",
+   "label": "WO ID QAD",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "work_order_split_number.status",
+   "fieldname": "work_order_status",
+   "fieldtype": "Data",
+   "label": "WO Status"
+  },
+  {
+   "fetch_from": "work_order_split_number.fg_description",
+   "fieldname": "fg_description",
+   "fieldtype": "Small Text",
+   "label": "FG Description ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site"
+  },
+  {
+   "fieldname": "order_date",
+   "fieldtype": "Date",
+   "label": "Order Date"
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "FG UM"
+  },
+  {
+   "fetch_from": "work_order_split_number.quantity_to_be_produced_immediately",
+   "fieldname": "qty_product_completed_to_be_issued",
+   "fieldtype": "Float",
+   "label": "Qty Product Completed To be Issued"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "all_components_section",
+   "fieldtype": "Section Break",
+   "label": "Lot/serial data that has been received"
+  },
+  {
+   "fieldname": "section_break_plet",
+   "fieldtype": "Section Break",
+   "label": "Material Summary To Issued"
+  },
+  {
+   "fieldname": "item_summary_to_issued",
+   "fieldtype": "Table",
+   "options": "Work Order Comp Issued Summary"
+  },
+  {
+   "fieldname": "wo_api",
+   "fieldtype": "JSON",
+   "hidden": 1
+  },
+  {
+   "fieldname": "lotserial_has_received",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "get_material_stock",
+   "fieldtype": "Button",
+   "label": "Get Material Stock"
+  },
+  {
+   "fieldname": "mts_number",
+   "fieldtype": "Link",
+   "label": "MTS Number",
+   "options": "Work Order Split"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-17 09:32:34.492455",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Work Order Comp Issued",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

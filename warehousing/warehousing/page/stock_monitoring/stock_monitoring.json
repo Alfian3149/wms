@@ -1,0 +1,20 @@
+{
+ "content": null,
+ "creation": "2026-01-15 09:19:39.895443",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "",
+ "idx": 0,
+ "modified": "2026-01-15 09:19:39.895443",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "stock-monitoring",
+ "owner": "Administrator",
+ "page_name": "stock-monitoring",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Part Stock"
+}

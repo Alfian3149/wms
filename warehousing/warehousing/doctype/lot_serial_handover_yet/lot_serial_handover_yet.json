@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-09 21:11:28.498749",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "picklist_number",
+  "warehouse_task_number",
+  "site",
+  "part",
+  "lotserial",
+  "quantity"
+ ],
+ "fields": [
+  {
+   "fieldname": "part",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Part",
+   "options": "Part Master",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "lotserial",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Lot/Serial",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site",
+   "reqd": 1
+  },
+  {
+   "fieldname": "picklist_number",
+   "fieldtype": "Data",
+   "label": "Picklist Number"
+  },
+  {
+   "fieldname": "warehouse_task_number",
+   "fieldtype": "Data",
+   "label": "Warehouse Task Number"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-17 04:35:30.779130",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Lot Serial Handover Yet",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

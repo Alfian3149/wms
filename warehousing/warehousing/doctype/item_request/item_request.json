@@ -1,0 +1,189 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-05 07:18:41.378420",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_rgcz",
+  "amended_from",
+  "naming_series",
+  "purpose",
+  "column_break_igkz",
+  "required_by",
+  "posting_date",
+  "column_break_dvie",
+  "target_location",
+  "requestor_by",
+  "status",
+  "section_break_ngrt",
+  "doctype_source",
+  "column_break_pjnk",
+  "link",
+  "section_break_smwc",
+  "items",
+  "item_picked_tracking_section",
+  "reserved_task_entry",
+  "column_break_dpdm",
+  "picklist_history_and_status",
+  "picklist_tracking_tab"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_rgcz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Item Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Master ID",
+   "options": "IR-.YYYY.-"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Purpose",
+   "options": "Purchase\nMaterial Transfer\nMaterial Issue\nManufacture\nCustomer Provided",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_igkz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "required_by",
+   "fieldtype": "Date",
+   "label": "Required By"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "target_location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Target Location",
+   "options": "Warehouse Location",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_smwc",
+   "fieldtype": "Section Break",
+   "label": "Summary Request"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Item Request Detail"
+  },
+  {
+   "fieldname": "section_break_ngrt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "doctype_source",
+   "fieldtype": "Link",
+   "label": "Doctype Source",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "column_break_pjnk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "link",
+   "fieldtype": "Dynamic Link",
+   "label": "link",
+   "options": "doctype_source"
+  },
+  {
+   "fieldname": "picklist_tracking_tab",
+   "fieldtype": "Tab Break",
+   "label": "Picklist Tracking"
+  },
+  {
+   "fieldname": "requestor_by",
+   "fieldtype": "Link",
+   "label": "Requestor By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_dvie",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "picklist_history_and_status",
+   "fieldtype": "HTML"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Request Status",
+   "options": "Open\nPartially Picked\nFully Picked"
+  },
+  {
+   "fieldname": "reserved_task_entry",
+   "fieldtype": "HTML"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "item_picked_tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Item Picked Tracking"
+  },
+  {
+   "fieldname": "column_break_dpdm",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-31 05:40:23.494329",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Item Request",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

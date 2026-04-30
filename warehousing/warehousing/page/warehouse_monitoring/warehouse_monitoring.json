@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2026-02-02 18:02:18.411268",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-02-02 18:02:18.411268",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "warehouse-monitoring",
+ "owner": "Administrator",
+ "page_name": "warehouse-monitoring",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Warehouse Bins"
+}

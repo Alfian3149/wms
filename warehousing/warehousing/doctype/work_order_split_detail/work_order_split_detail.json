@@ -1,0 +1,133 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-03 16:21:11.784795",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "part",
+  "description",
+  "um",
+  "prod_line",
+  "item_group",
+  "column_break_dbky",
+  "qty_per_pallet",
+  "net_weight",
+  "column_break_syup",
+  "qty_required",
+  "qty_issued",
+  "actual_required",
+  "qty_confirm",
+  "column_break_mrxf",
+  "availability",
+  "availability_in_percent",
+  "is_closed"
+ ],
+ "fields": [
+  {
+   "fieldname": "part",
+   "fieldtype": "Data",
+   "label": "Part",
+   "search_index": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "qty_required",
+   "fieldtype": "Float",
+   "label": "Full Required"
+  },
+  {
+   "fieldname": "qty_issued",
+   "fieldtype": "Float",
+   "label": "Full Issued"
+  },
+  {
+   "fieldname": "qty_per_pallet",
+   "fieldtype": "Float",
+   "label": "Qty Per Pallet"
+  },
+  {
+   "fieldname": "net_weight",
+   "fieldtype": "Float",
+   "label": "Net Weight"
+  },
+  {
+   "fieldname": "prod_line",
+   "fieldtype": "Data",
+   "label": "Prod Line"
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "column_break_dbky",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_syup",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_mrxf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "availability",
+   "fieldtype": "Float",
+   "label": "Availability"
+  },
+  {
+   "fieldname": "availability_in_percent",
+   "fieldtype": "Percent",
+   "label": "In %",
+   "precision": "0"
+  },
+  {
+   "fieldname": "actual_required",
+   "fieldtype": "Float",
+   "label": "Actual Needed"
+  },
+  {
+   "fieldname": "qty_confirm",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Request",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Data",
+   "label": "Item Group"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "is_closed",
+   "fieldtype": "Check",
+   "label": "is_closed?",
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-15 16:18:41.156597",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Work Order Split Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

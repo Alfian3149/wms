@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-24 09:25:05.036910",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_j2i3",
+  "amended_from",
+  "select_request",
+  "column_break_iwes",
+  "priority",
+  "needed_date",
+  "section_break_zlyp",
+  "get_item_stock",
+  "item_picklist_summary",
+  "item_picklist_detail"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_j2i3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Item Picklist",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "select_request",
+   "fieldtype": "Table MultiSelect",
+   "label": "Select Multiple Request",
+   "options": "Item Request Selection"
+  },
+  {
+   "description": "When this action confirmed, system will search the material by FIFO to fullfill the requirement in summary request.\n(Actions via this button do not yet book stock. Booking is done when confirming the picklist.)",
+   "fieldname": "get_item_stock",
+   "fieldtype": "Button",
+   "label": "Get Item Stock"
+  },
+  {
+   "fieldname": "item_picklist_detail",
+   "fieldtype": "Table",
+   "label": "Details",
+   "options": "Item Picklist Detail"
+  },
+  {
+   "fieldname": "item_picklist_summary",
+   "fieldtype": "Table",
+   "label": "Summary",
+   "options": "Item Picklist Summary"
+  },
+  {
+   "fieldname": "column_break_iwes",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "fieldname": "section_break_zlyp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "needed_date",
+   "fieldtype": "Date",
+   "label": "Needed Date"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-16 11:18:13.242323",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Item Picklist",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

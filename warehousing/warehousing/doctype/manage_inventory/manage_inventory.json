@@ -1,0 +1,123 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-01-15 12:48:46.443238",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "inventory_transaction_type",
+  "masteri_link",
+  "reference",
+  "column_break_xdxl",
+  "site",
+  "posting_date",
+  "posting_time",
+  "column_break_omnf",
+  "edit_posting_date_and_time",
+  "section_break_nnnd",
+  "inventory_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Master ID",
+   "options": "MAT-STE-.YYYY.-"
+  },
+  {
+   "fieldname": "inventory_transaction_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Inventory Transaction Type",
+   "options": "Purchase Order Receipt\nInventory Transfer\nComponent Issued",
+   "reqd": 1
+  },
+  {
+   "fieldname": "masteri_link",
+   "fieldtype": "Data",
+   "label": "Masteri Link"
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Reference"
+  },
+  {
+   "fieldname": "column_break_xdxl",
+   "fieldtype": "Column Break",
+   "is_virtual": 1
+  },
+  {
+   "default": "1000",
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Site",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Posting Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_omnf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_posting_date_and_time",
+   "fieldtype": "Check",
+   "label": "Edit Posting Date and Time"
+  },
+  {
+   "fieldname": "section_break_nnnd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "inventory_details",
+   "fieldtype": "Table",
+   "label": "Inventory Details",
+   "options": "Manage Inventory Item"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-15 13:04:06.309515",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Manage Inventory",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

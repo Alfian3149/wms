@@ -1,0 +1,9 @@
+<h3>Dokumen Baru Telah Disubmit</h3>
+<p>Halo,</p>
+<p>Dokumen <b>{{ doc.name }}</b> telah berhasil disubmit oleh {{ doc.owner }}.</p>
+<p>Silakan klik tombol di bawah ini untuk meninjau:</p>
+
+<a href="{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}" 
+   style="padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+   Lihat Dokumen
+</a>

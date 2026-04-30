@@ -1,0 +1,159 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-12-17 15:24:49.780443",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "pod_line",
+  "qty_open",
+  "qty_order",
+  "qty_received",
+  "column_break_nubl",
+  "item_number",
+  "um",
+  "qty_to_receive",
+  "qty_per_pallet",
+  "total_label",
+  "um_conversion",
+  "conversion_factor",
+  "column_break_mjpj",
+  "item_description",
+  "expired_date",
+  "location_to_receive",
+  "requisition",
+  "label_calculation"
+ ],
+ "fields": [
+  {
+   "fieldname": "qty_open",
+   "fieldtype": "Float",
+   "label": "Qty Open",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qty_to_receive",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty to receive",
+   "reqd": 1
+  },
+  {
+   "fieldname": "label_calculation",
+   "fieldtype": "Small Text",
+   "label": "Label Calculation"
+  },
+  {
+   "fieldname": "expired_date",
+   "fieldtype": "Date",
+   "label": "Expired Date"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Master ID",
+   "options": "MTL-INC-ITM-.YYYY.-",
+   "read_only": 1
+  },
+  {
+   "fieldname": "location_to_receive",
+   "fieldtype": "Data",
+   "label": "Location to receive",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pod_line",
+   "fieldtype": "Int",
+   "label": "PO Line",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Part Number",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_description",
+   "fieldtype": "Data",
+   "label": "Description",
+   "read_only": 1
+  },
+  {
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_label",
+   "fieldtype": "Int",
+   "label": "Total Label",
+   "read_only": 1
+  },
+  {
+   "fieldname": "qty_per_pallet",
+   "fieldtype": "Int",
+   "label": "Qty Per Pallet",
+   "read_only": 1,
+   "read_only_depends_on": "doc.qty_per_pallet > 0;"
+  },
+  {
+   "fieldname": "requisition",
+   "fieldtype": "Data",
+   "label": "Requisition"
+  },
+  {
+   "fieldname": "qty_order",
+   "fieldtype": "Float",
+   "label": "Qty Order"
+  },
+  {
+   "fieldname": "qty_received",
+   "fieldtype": "Float",
+   "label": "Qty Received"
+  },
+  {
+   "fieldname": "column_break_nubl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_mjpj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "um_conversion",
+   "fieldtype": "Link",
+   "label": "UM Conversion",
+   "options": "Unit Of Masure"
+  },
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "Conversion Factor"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-02 12:08:54.349716",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Material Incoming Item",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

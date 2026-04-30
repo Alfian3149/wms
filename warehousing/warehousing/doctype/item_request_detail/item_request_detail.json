@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-05 07:24:48.502465",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "site",
+  "part",
+  "description",
+  "um",
+  "quantity_requested",
+  "quantity_picked",
+  "target_location",
+  "item_group"
+ ],
+ "fields": [
+  {
+   "fieldname": "part",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Part",
+   "options": "Part Master",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "part.um",
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "target_location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Target Location",
+   "options": "Warehouse Location",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "part.description",
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description",
+   "read_only": 1
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "quantity_requested",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Requested",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "quantity_picked",
+   "fieldtype": "Float",
+   "label": "Picked"
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Data",
+   "label": "Group"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-15 17:17:58.144745",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Item Request Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

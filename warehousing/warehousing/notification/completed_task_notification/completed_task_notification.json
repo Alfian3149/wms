@@ -1,0 +1,30 @@
+{
+ "attach_files": "",
+ "attach_print": 0,
+ "channel": "System Notification",
+ "creation": "2026-01-28 09:22:58.366633",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Warehouse Task",
+ "enabled": 1,
+ "event": "Submit",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<h3>Dokumen Baru Telah Disubmit</h3>\n<p>Halo,</p>\n<p>Dokumen <b>{{ doc.name }}</b> telah berhasil disubmit oleh {{ doc.owner }}.</p>\n<p>Silakan klik tombol di bawah ini untuk meninjau:</p>\n\n<a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\" \n   style=\"padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;\">\n   Lihat Dokumen\n</a>",
+ "message_type": "HTML",
+ "modified": "2026-03-05 17:43:39.892921",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Completed Task Notification",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_document_field": "owner",
+   "receiver_by_role": "System Manager"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "subject": "Task {{doc.name}} has been completed "
+}

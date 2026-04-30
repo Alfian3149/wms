@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-23 09:03:05.819546",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date_sortir",
+  "sortir_member",
+  "purchase_order",
+  "lotserial",
+  "location",
+  "qty_sortir",
+  "qty_release",
+  "qty_reject",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "date_sortir",
+   "fieldtype": "Date",
+   "label": "Date Sortir"
+  },
+  {
+   "fieldname": "sortir_member",
+   "fieldtype": "Int",
+   "label": "Sortir Member"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Data",
+   "label": "Purchase Order"
+  },
+  {
+   "fieldname": "lotserial",
+   "fieldtype": "Data",
+   "label": "Lotserial"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Location"
+  },
+  {
+   "fieldname": "qty_sortir",
+   "fieldtype": "Float",
+   "label": "Qty Sortir"
+  },
+  {
+   "fieldname": "qty_release",
+   "fieldtype": "Float",
+   "label": "Qty Release"
+  },
+  {
+   "fieldname": "qty_reject",
+   "fieldtype": "Float",
+   "label": "Qty Reject"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-23 09:05:14.712837",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Inspection Item Result",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

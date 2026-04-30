@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { margin: 0; }
+        }
+        .a4-page {
+            width: 210mm;
+            height: 297mm;
+            display: flex;
+            flex-direction: row; /* Ubah ke row untuk mendukung kolom */
+            flex-wrap: wrap;    /* Agar item ke-3 pindah ke baris baru */
+            align-content: flex-start;
+            page-break-after: always;
+        }
+        .label-box {
+            width: 105mm;       /* A4 lebar 210mm bagi 2 */
+            height: 99mm;       /* A4 tinggi 297mm bagi 3 */
+            box-sizing: border-box;
+            border: 1px dashed #ccc; /* Border tipis untuk panduan potong */
+            display: block;
+            padding: 2mm;       /* Padding dikurangi sedikit karena box lebih kecil */
+            align-items: center;
+            overflow: hidden;
+        }
+        .qr-section { flex: 1; text-align: center; }
+        .info-section { flex: 1;  font-family: Arial, sans-serif; text-align: center;}
+        .qr-img { width: 60mm; height: 60mm; } /* Ukuran QR diperkecil sedikit */
+        .item-name { font-size: 16pt; font-weight: bold; margin: 0; line-height: 1.1; }
+        .qty-badge {
+            display: inline-block;
+            margin-top: 3mm;
+            padding: 3px 10px;
+            /* background: #000; */
+            color: black;
+            font-weight: bold;
+            font-size: 16pt;
+        }
+        .detail-text { font-size: 10pt; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        {% for doc in docs %}
+            <div class="label-box">
+                <div class="qr-section">
+                    <img class="qr-img" src="{{ doc.qr_base64 }}" alt="QR Code">
+                    <div style="margin-top: 5px; font-size: 9pt; font-weight: bold; font-family: sans-serif;">
+                        <!-- {{ doc.name }} -->
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h1 class="item-name">{{ doc.item }}</h1>
+                    <div class="detail-text">
+                        <strong>Desc:</strong> {{ doc.item_description[:50] }}<br> <strong>Lot/Serial:</strong> {{ doc.lotserial }}
+                    </div>
+                    <div class="qty-badge">{{ frappe.utils.fmt_money(doc.qty, 3) if doc.qty % 1 != 0 else frappe.utils.fmt_money(doc.qty, 0) }} {{ doc.item_um }}</div>
+                </div>
+            </div>
+            
+            {# Pecah halaman setiap 6 label #}
+            {% if loop.index % 6 == 0 and not loop.last %}
+                </div><div class="a4-page">
+            {% endif %}
+        {% endfor %}
+    </div>
+</body>
+</html>

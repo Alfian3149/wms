@@ -1,0 +1,51 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-27 10:12:23.186709",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "in_packaging_um",
+  "conversion_factor",
+  "default"
+ ],
+ "fields": [
+  {
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Conversion Factor",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "default",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Default"
+  },
+  {
+   "fieldname": "in_packaging_um",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "In packaging Unit of Measure",
+   "options": "Unit Of Masure",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-12 14:42:37.125524",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Um Conversion Factor",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
