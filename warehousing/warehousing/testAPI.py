@@ -24,7 +24,7 @@ def get_po_from_qad():
     # Ubah dictionary ke JSON string
     json_string = json.dumps(input_data)
 
-    url = "http://smii.qad:24079/wsa/smiiwsa"
+    url = frappe.conf.get("qad_api_url")
 
     payload = f"""<?xml version=\"1.0\" encoding=\"utf-8\"?>\n
         <soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n
@@ -41,7 +41,7 @@ def get_po_from_qad():
       'SOAPAction': '""'
     }
 
-    url = "http://smii.qad:24079/wsa/smiiwsa"
+    url = frappe.conf.get("qad_api_url")
 
     payload = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <zzpsrp xmlns=\"urn:services-qad-com:smiiwsa:0001:smiiwsa\">\n      <domain>SMII</domain>\n      <parent1>ISC402</parent1>\n      <parent2>ISC402</parent2>\n    </zzpsrp>\n  </soap:Body>\n</soap:Envelope>\n"
     headers = {

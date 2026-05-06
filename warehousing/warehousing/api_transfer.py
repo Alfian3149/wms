@@ -10,7 +10,7 @@ from frappe.utils import getdate, nowdate, formatdate
 
 @frappe.whitelist()
 def transfer_submit_to_qad(details):
-    url = "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
     data = test_internal_api(url)
     if data.get("status") == "failed" : 
         return data
@@ -103,7 +103,7 @@ def transfer_submit_to_qad(details):
 
 @frappe.whitelist()
 def transfer_submit_detail_task(details, ref_doctype, doc_name):
-    url = "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = frappe.conf.get("qad_api_url")
     data = test_internal_api(url)
     if data.get("status") == "failed" : 
         return data

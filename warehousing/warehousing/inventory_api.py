@@ -11,7 +11,7 @@ from frappe.utils import flt
 
 @frappe.whitelist()
 def get_current_qad_inventory(part, bulk_insert=False):
-    url = "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
     data = test_internal_api(url)
     if data.get("status") == "failed" : 
         return data

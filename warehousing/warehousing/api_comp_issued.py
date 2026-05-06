@@ -10,7 +10,7 @@ from frappe.utils import getdate, nowdate, formatdate
 from frappe.utils import flt
 
 def component_issued_API(wo_comp_issued_name):
-    url = "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
     data = test_internal_api(url)
     if data.get("status") == "failed" : 
         return data
