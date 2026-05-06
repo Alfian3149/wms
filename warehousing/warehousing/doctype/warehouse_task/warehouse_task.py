@@ -106,7 +106,7 @@ class WarehouseTask(Document):
 
     def before_save(self): 
         if self.task_type == "Putaway Transfer" or self.task_type == "Picking" :
-            url = "http://127.0.0.1:24079/wsa/smiiwsa"
+            url = frappe.conf.get("qad_api_url")
             data = test_internal_api(url)
             if data.get("status") == "failed" :
                 frappe.throw(data.get("message"))
