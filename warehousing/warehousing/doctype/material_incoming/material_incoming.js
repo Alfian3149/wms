@@ -422,7 +422,7 @@ frappe.ui.form.on("Material Incoming", {
                                     frm.set_value('status', 'Confirmed');
 
                                     setTimeout(() => { 
-                                    frm.events.create_putaway_transfer_task(frm, "Putaway Transfer", null, "Warehouse Picker", frappe.datetime.get_today(), frappe.datetime.now_time() );
+                                    frm.events.create_putaway_transfer_task(frm, "Putaway Transfer", null, "Warehouse Operator", frappe.datetime.get_today(), frappe.datetime.now_time() );
                                     }, 1000);
 
                                     setTimeout(() => { 
@@ -771,7 +771,7 @@ frappe.ui.form.on("Material Incoming", {
     },
 
     rerun_putaway_ts: function(frm){
-        frm.events.create_putaway_transfer_task(frm, "Putaway Transfer", null, "Warehouse Picker", frappe.datetime.get_today(), frappe.datetime.now_time());    
+        frm.events.create_putaway_transfer_task(frm, "Putaway Transfer", null, "Warehouse Operator", frappe.datetime.get_today(), frappe.datetime.now_time());    
         setTimeout(() => { 
            frm.save();
         }, 500);
