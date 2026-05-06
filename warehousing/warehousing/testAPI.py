@@ -24,7 +24,7 @@ def get_po_from_qad():
     # Ubah dictionary ke JSON string
     json_string = json.dumps(input_data)
 
-    url = frappe.conf.get("qad_api_url")
+    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
 
     payload = f"""<?xml version=\"1.0\" encoding=\"utf-8\"?>\n
         <soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n

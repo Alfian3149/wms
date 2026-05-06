@@ -22,6 +22,8 @@
   "can_putaway_reserved",
   "can_picking_reserved",
   "can_reserved_for_wo_comp_issued",
+  "allowed_mixed_items",
+  "max_mixed_items",
   "section_break_izbu",
   "status",
   "section_break_hg9h",
@@ -157,13 +159,25 @@
    "fieldname": "total_pallet_maximum",
    "fieldtype": "Int",
    "label": "Total Pallet Maximum"
+  },
+  {
+   "default": "0",
+   "fieldname": "allowed_mixed_items",
+   "fieldtype": "Check",
+   "label": "Allowed Mixed Items?"
+  },
+  {
+   "default": "0",
+   "fieldname": "max_mixed_items",
+   "fieldtype": "Int",
+   "label": "Maximum mixed items"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2026-04-09 15:53:08.606843",
+ "modified": "2026-05-07 00:20:53.168435",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Warehouse Location",
