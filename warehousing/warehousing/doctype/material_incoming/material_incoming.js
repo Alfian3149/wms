@@ -257,7 +257,7 @@ frappe.ui.form.on("Material Incoming", {
                         return;
                     }
 
-                    if (frm.doc.physical_verification_id == null || frm.doc.physical_verification_id == undefined || frm.doc.physical_verification_id == "" ){ {
+                    if (frm.doc.physical_verification_id == null || frm.doc.physical_verification_id == undefined || frm.doc.physical_verification_id == "" ){ 
                         frm.set_value('status', 'Printed');
                         
                         if(!frm.doc.printed_date){    
