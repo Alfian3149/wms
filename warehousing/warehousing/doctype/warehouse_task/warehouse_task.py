@@ -40,8 +40,8 @@ class WarehouseTask(Document):
         frappe.publish_realtime(
             event="msgprint",
             message={
-                "type" : 'Warehouse Task'
-                "data" : self.name
+                "type" : 'Warehouse Task',
+                "data" : self.name,
                 "source" : self.source_id,
                 "user" : frappe.session.user,
                 "message": "Operation completed successfully!"
