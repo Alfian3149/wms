@@ -26,9 +26,9 @@
             overflow: hidden;
         }
         .qr-section { flex: 1; text-align: center; }
-        .info-section { flex: 1;  font-family: Arial, sans-serif; text-align: center;}
-        .qr-img { width: 60mm; height: 60mm; } /* Ukuran QR diperkecil sedikit */
-        .item-name { font-size: 16pt; font-weight: bold; margin: 0; line-height: 1.1; }
+        .info-section { flex: 1;  font-family: Arial, sans-serif;}
+        .qr-img { width:55mm; height: 55mm; } /* Ukuran QR diperkecil sedikit */
+        .item-name { font-size: 16pt; font-weight: bold; margin: 0; line-height: 1.1; text-align: center; }
         .qty-badge {
             display: inline-block;
             margin-top: 3mm;
@@ -37,8 +37,18 @@
             color: black;
             font-weight: bold;
             font-size: 16pt;
+            text-align: center;
         }
-        .detail-text { font-size: 10pt; margin-top: 5px; }
+        .detail-text { font-size: 10pt; margin-top: 15px; margin-bottom: 15px; margin-left: 5px; margin-right: 5px; }
+        .lot-expiry-container {
+            margin-top: 7px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+ 
+        }
+
     </style>
 </head>
 <body>
@@ -47,16 +57,24 @@
             <div class="label-box">
                 <div class="qr-section">
                     <img class="qr-img" src="{{ doc.qr_base64 }}" alt="QR Code">
-                    <div style="margin-top: 5px; font-size: 9pt; font-weight: bold; font-family: sans-serif;">
-                        <!-- {{ doc.name }} -->
+                    <div style="margin-top: 5px; font-size: 18pt; font-weight: bold; font-family: sans-serif;">
+                        {{ doc.item }}
                     </div>
                 </div>
                 <div class="info-section">
-                    <h1 class="item-name">{{ doc.item }}</h1>
+                    <!-- <h1 class="item-name">{{ doc.item }}</h1> -->
                     <div class="detail-text">
-                        <strong>Desc:</strong> {{ doc.item_description[:50] }}<br> <strong>Lot/Serial:</strong> {{ doc.lotserial }}
+                        <strong>Description :</strong> {{ doc.item_description[:50] }}<br> 
+                        <div class="lot-expiry-container">
+                            <span><strong>Lot/Serial &nbsp;&nbsp;&nbsp;:</strong> {{ doc.lotserial }}</span>
+
+                            {%if doc.ed %}
+                                <span><strong>ED:</strong> {{ doc.ed}}</span>
+                            {%endif%}
+                        </div>
                     </div>
-                    <div class="qty-badge">{{ frappe.utils.fmt_money(doc.qty, 3) if doc.qty % 1 != 0 else frappe.utils.fmt_money(doc.qty, 0) }} {{ doc.item_um }}</div>
+
+                    <h1 class="item-name">{{ frappe.utils.fmt_money(doc.qty, 3) if doc.qty % 1 != 0 else frappe.utils.fmt_money(doc.qty, 0) }} {{ doc.item_um }}</h1>
                 </div>
             </div>
             

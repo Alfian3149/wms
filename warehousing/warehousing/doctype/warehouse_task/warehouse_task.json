@@ -10,6 +10,7 @@
   "task_type",
   "reference_doctype",
   "reference_name",
+  "source_id",
   "column_break_epxl",
   "po_number",
   "wo_split_number",
@@ -173,13 +174,18 @@
    "fieldname": "is_needed_handover",
    "fieldtype": "Check",
    "label": "Is Needed Handover?"
+  },
+  {
+   "fieldname": "source_id",
+   "fieldtype": "Data",
+   "label": "Source ID"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-17 05:36:15.394010",
+ "modified": "2026-05-11 12:38:10.532332",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Warehouse Task",

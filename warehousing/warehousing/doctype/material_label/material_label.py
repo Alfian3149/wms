@@ -90,12 +90,14 @@ def generate_bulk_print_html(docnames, doctype):
         "Material Label": {
             "item": "item",
             "lot": "lotserial",
-            "qty": "qty"
+            "qty": "qty",
+            "ed": "expire"
         },
         "Inventory": {
             "item": "part", 
             "lot": "lot_serial",
-            "qty": "qty_on_hand"
+            "qty": "qty_on_hand",
+            "ed": "expire_date"
         }
     }
 
@@ -116,6 +118,7 @@ def generate_bulk_print_html(docnames, doctype):
                 "item": source_doc.get(config["item"]),
                 "lotserial": source_doc.get(config["lot"]),
                 "qty": source_doc.get(config["qty"]),
+                "ed": source_doc.get(config["ed"]),
                 "doctype": doctype
             })
 

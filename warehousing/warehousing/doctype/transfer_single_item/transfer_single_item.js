@@ -34,9 +34,10 @@ frappe.ui.form.on("Transfer Single Item", {
             },
             get_query() {
                 return {
-                    filters: {
-                        qty_on_hand: [">", 0]
-                    }
+                    filters: [{
+                        qty_on_hand: [">", 0],
+                        qty_on_hand: ["!=", null],
+                    }]
                 };
             },
             action(selections) {

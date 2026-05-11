@@ -37,6 +37,18 @@ class WarehouseTask(Document):
             'link': f'/app/warehouse-task/{self.name}'
         }, user=self.owner) """
 
+        frappe.publish_realtime(
+            event="msgprint",
+            message={
+                "type" : 'Warehouse Task'
+                "data" : self.name
+                "source" : self.source_id,
+                "user" : frappe.session.user,
+                "message": "Operation completed successfully!"
+                },
+            user=self.owner
+        )
+
     """  def on_submit(self):
          from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
          enqueue_create_notification(self.owner, {
@@ -166,8 +178,9 @@ def notify(owner) :
 def create_physical_verification_task(source_doc, task_type, assigned_to_person=None, assigned_to_role=None):
     new_task = frappe.new_doc("Warehouse Task")
     new_task.task_type = task_type
-    new_task.reference_doctype = "Material Label"
+    new_task.reference_doctype = "Material Incoming"
     new_task.reference_name = source_doc
+    new_task.source_id = source_doc
     new_task.assign_to_user = assigned_to_person
     new_task.assign_to_role = assigned_to_role
     new_task.date_instruction = frappe.utils.nowdate()
@@ -231,7 +244,9 @@ def create_putaway_transfer_task(source_doc, task_type, assigned_to_person=None,
     new_task.time_instruction = frappe.utils.nowtime()
 
     Warehouse_Task = frappe.get_doc("Warehouse Task", source_doc)
-
+    
+    new_task.source_id = Warehouse_Task.source_id if Warehouse_Task.source_id else ""
+    
     sorted_task_details = sorted(
         Warehouse_Task.warehouse_task_detail, 
         key=lambda x: (x.item, x.lotserial), 
