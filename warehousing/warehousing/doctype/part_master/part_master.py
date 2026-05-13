@@ -32,7 +32,12 @@ def get_item_stock_details(item_code):
         as_dict=1
     )
     if not item_info:
-        frappe.throw(f"Item {item_code} tidak ditemukan", frappe.DoesNotExistError)
+        return {
+            "status": "error",
+            "message": f"Item dengan kode '{item_code}' tidak ditemukan.",
+            "data": None
+        }
+
     inventory_entries = frappe.get_all("Inventory", 
         filters={"part": item_code, "qty_on_hand": [">", 0]},
         fields=["warehouse_location", "qty_on_hand","lot_serial","creation","expire_date", "site"],
@@ -55,7 +60,9 @@ def get_item_stock_details(item_code):
         })
     reserved_stock = frappe.db.get_all('Reserved Task Entry', filters={'purpose': "Picking",'site': entry.site,'part': item_code},fields=['SUM(qty) as total_reserved'])
     result = {
-        item_info.name: {
+        "status": "success",
+        "message": "Data berhasil ditemukan",
+        "data": {
             "sku": item_info.name,
             "name": item_info.description,
             "um": item_info.um,

@@ -415,6 +415,7 @@ frappe.ui.form.on("Material Incoming", {
                                 if (r.message.status === "failed") {
                                     frappe.show_alert({ message: __(r.message.message), indicator: 'red' });
                                     dialog.hide();
+                                    return;
                                 }
                                 else {
                                     frm.set_value('receiver', r.message.receiver);
@@ -423,7 +424,7 @@ frappe.ui.form.on("Material Incoming", {
 
                                     setTimeout(() => { 
                                     frm.events.create_putaway_transfer_task(frm, "Putaway Transfer", null, "Warehouse Operator", frappe.datetime.get_today(), frappe.datetime.now_time() );
-                                    }, 1000);
+                                    }, 500);
 
                                     setTimeout(() => { 
                                         frm.save().then(() => {
@@ -433,7 +434,7 @@ frappe.ui.form.on("Material Incoming", {
                                             indicator: 'green'
                                             });
                                         });
-                                    }, 1300);
+                                    }, 1000);
                                 }
                             }
                         });

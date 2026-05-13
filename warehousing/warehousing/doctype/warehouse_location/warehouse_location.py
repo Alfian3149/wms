@@ -66,9 +66,14 @@ def get_location_details(location):
         ["name", "warehouse_type", "site", "total_capacity", "um", "is_active"], 
         as_dict=1
     )
-	if not rack:
-		frappe.throw(f"Location {normalized_loc} not found", frappe.DoesNotExistError)
-	
+	if rack is None:
+		#frappe.throw(f"Location {normalized_loc} not found", frappe.DoesNotExistError)
+		return {
+		"status": "error",
+		"message": f"Lokasi {normalized_loc} tidak terdaftar di sistem.",
+		"data": None
+		}
+
 	inventory_items = frappe.get_all("Inventory", 
         filters={"warehouse_location": normalized_loc, "qty_on_hand": [">", 0]},
         fields=["part", "qty_on_hand", "lot_serial","creation","expire_date"]
@@ -105,21 +110,29 @@ def get_location_details(location):
 		items_map[sku]["lotSerials"].append(lot_info)
 	
 	return {
-        "rackId": rack.site or "N/A",
-        "location": rack.name,
-        "zone": rack.name[:1] or "N/A",
-        "capacity": rack.total_capacity or 0,
-        "um_capacity": rack.um ,
-        "active": rack.is_active,
-        "occupied": total_occupied,
-        "items": list(items_map.values()) # Ubah dictionary kembali ke list
+		"status": "success",
+        "message": "Data berhasil ditemukan",
+		"data": {
+			"rackId": rack.site or "N/A",
+			"location": rack.name,
+			"zone": rack.name[:1] or "N/A",
+			"capacity": rack.total_capacity or 0,
+			"um_capacity": rack.um ,
+			"active": rack.is_active,
+			"occupied": total_occupied,
+			"items": list(items_map.values()) # Ubah dictionary kembali ke list
+		}
     }
 
 @frappe.whitelist()
 def scan_rack_for_putaway(location):
 	loc = frappe.get_doc("Warehouse Location", location)
 	if loc.is_group: 
-		return 
+		{
+		"status": "failed",
+		"message": "Lokasi yang dipilih adalah group, bukan rack. Harap pilih lokasi yang benar.",
+		"data": None
+	}
 	slot_used = frappe.db.count("Inventory", filters={'warehouse_location':location})
 	counts_item = frappe.db.get_all("Inventory", filters={'warehouse_location':location}, fields=["part", "count(*) as total"],
 	group_by="part")
@@ -143,4 +156,8 @@ def scan_rack_for_putaway(location):
 		'itemKindCount': count_item_kind,
 		'is_active': loc.is_active,
 	}
-	return data
+	return {
+		"status": "success",
+		"message": "Data berhasil ditemukan",
+		"data": data
+	}

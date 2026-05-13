@@ -38,13 +38,14 @@ class WarehouseTask(Document):
         }, user=self.owner) """
 
         frappe.publish_realtime(
-            event="msgprint",
+            event="warehouse_task_completed",
             message={
                 "type" : 'Warehouse Task',
                 "data" : self.name,
                 "source" : self.source_id,
+                "tasking" : self.task_type,
                 "user" : frappe.session.user,
-                "message": "Operation completed successfully!"
+                "note": "Operation completed successfully!"
                 },
             user=self.owner
         )
@@ -551,9 +552,17 @@ def scan_item_putaway(item, lotserial):
     if task:
         data_stok = {}
         data_stok[item + "#" + lotserial] = task[0] 
-        return data_stok
-    else:
-        return {'result':'failed'}
+        return {
+            "status": "success",
+            "message": "Data berhasil ditemukan",
+            "data": data_stok
+        }
+    
+    return {
+        "status": "failed",
+        "message": f"Task tidak terdaftar di sistem.",
+        "data": None
+        }
  
 def po_receipt_task_confirmation_in_web(transactionSuccess, parent_doc_name):
     for d in transactionSuccess:
