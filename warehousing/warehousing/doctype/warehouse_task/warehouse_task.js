@@ -11,11 +11,8 @@ frappe.ui.form.on("Warehouse Task", {
         fetch_po_from_material_incoming(frm);
         frm.toggle_display('po_number', frm.doc.task_type === 'Physical Verification');
         // Cek jika dokumen sudah disimpan dan statusnya 'Completed'
-        if (frm.doc.status === 'Completed') {
-            
-            // 1. Sembunyikan tombol Submit bawaan (jika ada)
-            //frm.disable_save(); 
-            
+        /* if (frm.doc.status === 'Completed') {
+
             frm.add_custom_button(__('Display JSON'), function() {
                 frappe.call({
                     method: "warehousing.warehousing.allAPI.po_receipt_JSON_Display",
@@ -33,10 +30,8 @@ frappe.ui.form.on("Warehouse Task", {
                     }
                 });
             }).addClass("btn-warning").removeClass("btn-default");
-            // 2. Tambahkan tombol kustom "PO Receipt Confirm"
             frm.add_custom_button(__('PO Receipt Confirm'), function() {
                 
-                // Konfirmasi ke user sebelum eksekusi
                 frappe.confirm('Apakah Anda yakin ingin melakukan PO Receipt Confirmation ke QAD?', () => {
                    frappe.call({
                         method: "warehousing.warehousing.allAPI.po_receipt_confirmation",
@@ -56,7 +51,7 @@ frappe.ui.form.on("Warehouse Task", {
                 });
 
             }).addClass("btn-warning").removeClass("btn-default");
-        }
+        } */
  	},
     task_type: function(frm) {
         // Menampilkan atau menyembunyikan field po_number secara manual

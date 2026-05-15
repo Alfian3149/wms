@@ -139,10 +139,12 @@
    "label": "Assign an expiration date value for specified items?"
   },
   {
+   "default": "WH01",
    "fieldname": "initiate_receipt_location",
    "fieldtype": "Link",
    "label": "Initiate Receipt location",
-   "options": "Warehouse Location"
+   "options": "Warehouse Location",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_tojq",
@@ -401,7 +403,7 @@
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-23 13:16:03.219813",
+ "modified": "2026-05-13 16:31:05.798834",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Material Incoming",

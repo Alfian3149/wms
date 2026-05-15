@@ -6,7 +6,9 @@ import frappe
 from frappe.utils.nestedset import NestedSet
 from frappe.model.document import Document
 from frappe.utils import cint
-from frappe.utils import getdate
+from frappe.utils import getdate, flt
+from warehousing.warehousing.utils.inventory_validator import InventoryValidator
+
 class WarehouseLocation(NestedSet):
 	# Field yang menentukan siapa induknya
 	nsm_parent_field = 'parent_warehouse_location' 
@@ -15,15 +17,19 @@ class WarehouseLocation(Document):
 	def validate(self):
 		if len(self.name) > 8:
 			frappe.throw("Warehouse Location name cannot exceed 8 characters.")
+		
+		if self.allowed_mixed_items == 1 and self.max_mixed_items <= 0:
+			frappe.throw("Maximum Mixed Items must be greater than 0 when Allowed Mixed Items is checked.")
 
-		val = self.total_capacity
+		weight_capacity = self.total_capacity
+		pallet_capacity = self.total_pallet_maximum
 		self.name = self.name.upper() 
 		# Update massal
 		frappe.db.sql("""
 			UPDATE `tabPutaway Method Items`
-			SET capacity = %s
+			SET capacity = %s , pallet_limit = %s
 			WHERE location = %s
-		""", (val, self.name))
+		""", (weight_capacity, pallet_capacity, self.name))
 		
 		# Beritahu sistem bahwa data Putaway Method sudah berubah
 		frappe.clear_cache(doctype="Putaway Method")
@@ -125,7 +131,7 @@ def get_location_details(location):
     }
 
 @frappe.whitelist()
-def scan_rack_for_putaway(location):
+def scan_rack_for_putaway(location, item, site="1000"):
 	loc = frappe.get_doc("Warehouse Location", location)
 	if loc.is_group: 
 		{
@@ -133,27 +139,31 @@ def scan_rack_for_putaway(location):
 		"message": "Lokasi yang dipilih adalah group, bukan rack. Harap pilih lokasi yang benar.",
 		"data": None
 	}
-	slot_used = frappe.db.count("Inventory", filters={'warehouse_location':location})
-	counts_item = frappe.db.get_all("Inventory", filters={'warehouse_location':location}, fields=["part", "count(*) as total"],
-	group_by="part")
+	slot_used = frappe.db.count("Inventory", filters={'warehouse_location':location, 'qty_on_hand': ['>', 0]})
 
-	count_item_kind = 0
-	for item in counts_item:
-		count_item_kind = count_item_kind + 1
-
-	unused = 0
-	if loc.total_capacity > 0 : 
-		unused = loc.total_capacity - slot_used
-
+	total_free  = flt(loc.total_pallet_maximum) - flt(slot_used)
+	if total_free <= 0:
+		return {
+			"status": "failed",
+			"message": "Lokasi sudah penuh, tidak dapat digunakan untuk putaway.",
+			"data": None
+			}
+	if not InventoryValidator(site, loc.name, item).is_allowed_suggestion():
+		return {
+			"status": "failed",
+			"message": "Lokasi tidak memenuhi syarat untuk menyimpan item ini berdasarkan kondisi inventory saat ini.",
+			"data": None
+		}
+	
 	data = {}
 	data[location] = {
 		'rack': location,
 		'location': location,
 		'zone': location,
-		'availableSpace':unused,
-		'capacity': loc.total_capacity if loc.total_capacity else 0,
+		'availableSpace':total_free,
+		'capacity': loc.total_pallet_maximum if loc.total_pallet_maximum else 0,
 		'slotUsed': slot_used,
-		'itemKindCount': count_item_kind,
+		'itemKindCount': 0,
 		'is_active': loc.is_active,
 	}
 	return {

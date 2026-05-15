@@ -11,6 +11,9 @@ from frappe.utils import flt
 from warehousing.warehousing.utils.item_validator import ItemValidator
 class MaterialIncoming(Document):
 	def before_insert(self):
+		for row in self.material_incoming_item:
+			row.location_to_receive = self.initiate_receipt_location
+
 		self.status = "Draft"
 
 	def on_trash(self):

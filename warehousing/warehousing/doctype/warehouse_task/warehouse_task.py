@@ -14,6 +14,7 @@ from frappe.desk.doctype.notification_log.notification_log import enqueue_create
 from warehousing.warehousing.doctype.inventory.inventory import update_inventory_qty
 from warehousing.warehousing.doctype.stock_ledger.stock_ledger import make_sl_entry
 from warehousing.warehousing.utils.connection import test_internal_api
+from warehousing.warehousing.utils.inventory_validator import InventoryValidator
 class WarehouseTask(Document):
     def on_submit(self):
         if self.task_type == "Picking" : 
@@ -281,7 +282,7 @@ def create_putaway_transfer_task(source_doc, task_type, assigned_to_person=None,
             if current_suggestion['amt_pallet_covered'] <= 0:
                 item_location_map[item_code].pop(0)
 
-            print(f"Assigning item {item_code} and lotserial {task_detail.lotserial} to location {target_location}. Remaining pallet for this location: {current_suggestion['amt_pallet_covered']}")
+
         new_task.append("warehouse_task_detail", {
             "warehouse_task_link": source_doc,
             "line_po": task_detail.line_po,
@@ -337,16 +338,10 @@ def location_suggestion(item_code, total_incoming_pallet, reference_doc=None):
     for loc in sorted_locations:
         if remaining_pallet <= 0:
             break
-
-        # 1. Cek Mix Item (Sesuai logic Anda)
-        if not control.storage_can_mix_item:
-            exists = frappe.db.exists("Inventory", {
-                "site": control.default_site,
-                "warehouse_location": loc.location,
-                "part": ["!=", item_code]
-            })
-            if exists:
-                continue
+        
+        inventory_validator = InventoryValidator(control.default_site, loc.location, item_code)
+        if not inventory_validator.is_allowed_suggestion(): #not allowed to suggest this location based on inventory condition
+            continue
 
         # 2. Hitung Kapasitas Tersedia (Free Pallet)
         reserved_entries = frappe.db.get_all('Reserved Task Entry', filters={
@@ -355,8 +350,13 @@ def location_suggestion(item_code, total_incoming_pallet, reference_doc=None):
             'warehouse_location': loc.location
         }, fields=['SUM(qty) as total_reserved'])
 
+
         total_reserved = reserved_entries[0].total_reserved if reserved_entries and reserved_entries[0].total_reserved else 0
-        free_pallet = loc.capacity - total_reserved
+        count_exists = frappe.db.get_all("Inventory", filters={'warehouse_location':loc.location, 'part': item_code, 'qty_on_hand': ['>', 0]}, fields=["count(*) as total"])
+
+        free_pallet = flt(loc.pallet_limit) if loc.pallet_limit else (frappe.db.get_value("Warehouse Location", loc.location, "total_pallet_maximum") or 0)
+        free_pallet -= flt(total_reserved)
+        free_pallet -= flt(count_exists[0].total) if count_exists else 0
 
         # 3. Skip jika lokasi penuh
         if free_pallet <= 0:
@@ -366,10 +366,10 @@ def location_suggestion(item_code, total_incoming_pallet, reference_doc=None):
         can_take = min(free_pallet, remaining_pallet)
 
         # 5. Cek Threshold (Optional, jika ingin minimal pengisian tertentu)
-        if control.rack_availability_threshold > 0:
+        """ if control.rack_availability_threshold > 0:
             free_percentage = free_pallet / total_incoming_pallet * 100
             if free_percentage < control.rack_availability_threshold:
-                continue
+                continue """
 
         # 6. Catat lokasi dan jumlah pallet yang dialokasikan
         suggestions.append({
@@ -466,7 +466,7 @@ def physical_verified_item():
     doc_child.reload()
     doc_child.set("qty_confirmation", data["receivedQty"])
     doc_child.set("verified", data["verified"])
-    doc_child.set("locationdestination", data["toLocation"])
+    doc_child.set("locationdestination", data["toLocation"].upper())
     doc_child.set("discrepancy_reason", data["discrepancyReason"] if data["discrepancyReason"] else None)
     doc_child.set("executor", frappe.session.user)
     doc_child.set("execution_time", frappe.utils.now())
@@ -493,7 +493,7 @@ def putaway_transfer_confirm():
     doc_child = frappe.get_doc("Warehouse Task Detail", data["keyId"])
     doc_child.reload()
     doc_child.set("qty_confirmation", data["confirmQty"])
-    doc_child.set("locationdestination", data["confirmLocation"])
+    doc_child.set("locationdestination", data["confirmLocation"].upper())
     #doc_child.set("discrepancy_reason", data["discrepancyReason"] if data["discrepancyReason"] else None)
     doc_child.set("executor", frappe.session.user)
     doc_child.set("execution_time", frappe.utils.now())
@@ -521,7 +521,7 @@ def picked_confirm():
     doc_child = frappe.get_doc("Warehouse Task Detail", data["keyId"])
     doc_child.reload()
     doc_child.set("qty_confirmation", data["pickedQty"])
-    doc_child.set("locationdestination", data["destinationRack"])
+    doc_child.set("locationdestination", data["destinationRack"].upper())
     #doc_child.set("discrepancy_reason", data["discrepancyReason"] if data["discrepancyReason"] else None)
     doc_child.set("executor", frappe.session.user)
     doc_child.set("execution_time", frappe.utils.now())
