@@ -9,8 +9,7 @@ frappe.ui.form.on("Material Incoming", {
         frm.set_df_property('doc_status', 'hidden', 1);
         frm.set_df_property('status', 'read_only', 1);
 
-        frm.fields_dict['material_incoming_item'].grid.wrapper.find('.grid-row-checkbox').hide();
-        frm.fields_dict['material_incoming_item'].grid.wrapper.find('.row-check').hide();
+
 
         frm.fields_dict['purchase_order'].$input.on('blur', function() {
             if (frm.doc.purchase_order && !frm.doc.status) { // Pastikan ada nomor PO dan dokumen sudah disimpan sebelumnya
@@ -38,7 +37,7 @@ frappe.ui.form.on("Material Incoming", {
             });
 
             frm.page.clear_primary_action();
-            if (frm.doc.status !== "Confirmed" && frm.doc.status !== "Transferring"){ 
+            if (frm.doc.status !== "Confirmed" && frm.doc.status !== "Transferring" && frm.doc.status !== "Cancelled" && frm.doc.status !== "Completed"){ 
                 frm.page.set_primary_action(__('Cancel'), function() {
                     frappe.confirm(
                         __('Apakah Anda yakin ingin melakukan cancel?'),
@@ -455,6 +454,11 @@ frappe.ui.form.on("Material Incoming", {
  	},
 
     onload: function(frm) {
+        setTimeout(() => { 
+            frm.refresh_field('material_incoming_item');
+            frm.fields_dict['material_incoming_item'].grid.wrapper.find('.grid-row-checkbox').hide();
+            frm.fields_dict['material_incoming_item'].grid.wrapper.find('.row-check').hide();
+        }, 300);
         // Menargetkan input po_number
         if (frm.doc.purchase_order) {
             frm.trigger('load_po_history');

@@ -1,10 +1,9 @@
 {
  "actions": [],
- "allow_events_in_timeline": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2025-12-17 15:12:57.989699",
- "default_view": "Report",
+ "default_view": "List",
  "doctype": "DocType",
  "document_type": "Setup",
  "documentation": "/app/document-material-incoming",
@@ -420,7 +419,7 @@
    "link_fieldname": "source_id"
   }
  ],
- "modified": "2026-05-17 13:29:56.306752",
+ "modified": "2026-05-18 04:41:32.656587",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Material Incoming",
@@ -476,6 +475,10 @@
   {
    "color": "Green",
    "title": "Completed"
+  },
+  {
+   "color": "Red",
+   "title": "Cancelled"
   }
  ]
 }
