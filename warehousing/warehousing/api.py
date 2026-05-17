@@ -1,7 +1,8 @@
 import frappe
 from warehousing.warehousing.data_po_dummy import LIST_PO 
 import time
-    
+from frappe.core.doctype.activity_log.activity_log import add_authentication_log
+
 def get_po_by_number(data_list, po_number):
     filtered_po = next((po for po in data_list if po.get('purchase_order').capitalize() == po_number.capitalize() ), None)
     
@@ -27,3 +28,15 @@ def create_custom_po(doc_data):
         "message": f"PO {data.get('purchase_order')} berhasil diproses",
         "received_items": len(data.get('line_detail', []))
     }
+
+@frappe.whitelist()
+def custom_logout():
+    user = frappe.session.user
+
+    if hasattr(frappe.local, "login_manager"):
+        frappe.local.login_manager.logout()
+    else:
+        # Fallback jika dijalankan di luar request context yang standar
+        from frappe.auth import LoginManager
+        login_manager = LoginManager()
+        login_manager.logout()

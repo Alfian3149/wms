@@ -480,6 +480,7 @@ def physical_verified_item():
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     if latest_doc_parent.status == "Completed" :
         latest_doc_parent.submit()
+        frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Ready To Confirm')
     return data
   
 @frappe.whitelist()
@@ -507,6 +508,9 @@ def putaway_transfer_confirm():
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     if latest_doc_parent.status == "Completed" :
         latest_doc_parent.submit()
+
+        
+        frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Completed')
     return data
 
 
