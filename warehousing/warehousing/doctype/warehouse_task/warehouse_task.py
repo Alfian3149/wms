@@ -8,7 +8,7 @@ import frappe
 from frappe.model.naming import make_autoname
 from warehousing.warehousing.specialLogic import get_multi_bin_suggestion
 import copy
-from frappe.utils import flt,getdate
+from frappe.utils import flt,getdate, get_fullname
 import time
 from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
 from warehousing.warehousing.doctype.inventory.inventory import update_inventory_qty
@@ -38,6 +38,7 @@ class WarehouseTask(Document):
             'link': f'/app/warehouse-task/{self.name}'
         }, user=self.owner) """
 
+        operator_fullname = get_fullname(frappe.session.user)
         frappe.publish_realtime(
             event="warehouse_task_completed",
             message={
@@ -46,6 +47,7 @@ class WarehouseTask(Document):
                 "source" : self.source_id,
                 "tasking" : self.task_type,
                 "user" : frappe.session.user,
+                "operator": operator_fullname,
                 "note": "Operation completed successfully!"
                 },
             user=self.owner
