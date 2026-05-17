@@ -45,7 +45,7 @@ class WarehouseTask(Document):
                 "data" : self.name,
                 "source" : self.source_id,
                 "tasking" : self.task_type,
-                "user" : self.owner,
+                "user" : frappe.session.user,
                 "note": "Operation completed successfully!"
                 },
             user=self.owner

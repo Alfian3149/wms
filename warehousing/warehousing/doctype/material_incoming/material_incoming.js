@@ -1,5 +1,23 @@
 // Copyright (c) 2025, lukubara and contributors
 // For license information, please see license.txt
+frappe.router.on('change', () => {
+    let rute = frappe.get_route();
+    // Membaca rute tujuan untuk mendeteksi apakah user keluar dari menu tertentu
+    if (rute[1] === 'Material Incoming') {
+        
+        frappe.realtime.on('warehouse_task_completed', (data) => {
+            frappe.msgprint({
+                    title: __('Realtime Notif'),
+                    indicator: 'green',
+                    message:__("{2} Task <a href='/app/material-incoming/{0}'> {0} </a>  has been done by {1}. Please check.", [data.source, data.user, data.tasking]),
+            });
+        });
+    }
+    else {
+        frappe.realtime.off('warehouse_task_completed'); // Unsubscribe dari event saat keluar dari menu
+    }
+   
+}); 
 
 frappe.ui.form.on("Material Incoming", {
 
