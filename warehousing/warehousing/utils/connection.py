@@ -15,4 +15,4 @@ def test_internal_api(url):
 
 def get_url():
     wsa_url = frappe.db.get_single_value("Qad Integrations", "wsa_url")
-    return wsa_url or "http://127.0.0.1:24079/wsa/smiiwsa"
+    return frappe.conf.get(wsa_url) or "http://127.0.0.1:24079/wsa/smiiwsa"
