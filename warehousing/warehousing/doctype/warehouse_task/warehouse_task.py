@@ -15,6 +15,8 @@ from warehousing.warehousing.doctype.inventory.inventory import update_inventory
 from warehousing.warehousing.doctype.stock_ledger.stock_ledger import make_sl_entry
 from warehousing.warehousing.utils.connection import test_internal_api
 from warehousing.warehousing.utils.inventory_validator import InventoryValidator
+from warehousing.warehousing.utils.connection import get_url
+
 class WarehouseTask(Document):
     def on_submit(self):
         if self.task_type == "Picking" : 
@@ -43,7 +45,7 @@ class WarehouseTask(Document):
             event="warehouse_task_completed",
             message={
                 "type" : 'Warehouse Task',
-                "data" : self.name,
+                "data" : self.name, 
                 "source" : self.source_id,
                 "tasking" : self.task_type,
                 "user" : frappe.session.user,
@@ -122,7 +124,7 @@ class WarehouseTask(Document):
 
     def before_save(self): 
         if self.task_type == "Putaway Transfer" or self.task_type == "Picking" :
-            url = frappe.conf.get("qad_api_url")
+            url = get_url()
             data = test_internal_api(url)
             if data.get("status") == "failed" :
                 frappe.throw(data.get("message"))

@@ -9,7 +9,7 @@ frappe.router.on('change', () => {
             frappe.msgprint({
                     title: __('Realtime Notif'),
                     indicator: 'green',
-                    message:__("{2} Task for ID <a href='/app/material-incoming/{0}'> {0} </a>  has been done by {1}. Please check.", [data.source, data.user, data.tasking]),
+                    message:__("{2} Task for ID <a href='/app/material-incoming/{0}'> {0} </a>  has been done by {1}. Please check.", [data.source, data.operator, data.tasking]),
             });
         });
     }

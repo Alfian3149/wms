@@ -8,9 +8,10 @@ from warehousing.warehousing.utils.connection import test_internal_api
 import xml.etree.ElementTree as ET
 from frappe.utils import getdate, nowdate, formatdate
 from frappe.utils import flt
+from warehousing.warehousing.utils.connection import get_url
 
 def component_issued_API(wo_comp_issued_name):
-    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = get_url()
     data = test_internal_api(url)
     if data.get("status") == "failed" : 
         return data

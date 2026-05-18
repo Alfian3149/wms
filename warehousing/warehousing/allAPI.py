@@ -9,6 +9,9 @@ from frappe.utils import flt
 import xml.etree.ElementTree as ET
 from warehousing.warehousing.utils.connection import test_internal_api
 from warehousing.warehousing.utils.wo_validation import WorkOrderValidator
+from warehousing.warehousing.utils.connection import get_url
+
+
 @frappe.whitelist()
 def get_simulated_picklist_item(workOrder, site, part, qty, domain):
     import xml.etree.ElementTree as ET
@@ -32,8 +35,7 @@ def get_simulated_picklist_item(workOrder, site, part, qty, domain):
 
     data = json.dumps(input_data)
 
-    #url = "http://smii.qad:24079/wsa/smiiwsa"
-    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = get_url()
     payload = f"""<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     <soap:Body>
@@ -90,7 +92,7 @@ def get_workorder_from_qad(work_order, domain, is_packaging=False, work_order_co
     data = json.dumps(input_data)
 
     #url = "http://smii.qad:24079/wsa/smiiwsa"
-    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = get_url()
     payload = f"""<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     <soap:Body>
@@ -292,8 +294,7 @@ def get_po_from_qad(po_number=None, domain="SMII"):
     }
     data = json.dumps(input_data)
 
-    #url = "http://smii.qad:24079/wsa/smiiwsa"
-    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = get_url()
     payload = f"""<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
     <soap:Body>
@@ -411,8 +412,7 @@ def po_receipt_JSON(parent_doc_name, material_incoming_name):
  
 @frappe.whitelist()
 def po_receipt_confirmation(parent_doc_name, material_incoming_name): 
-    #url = "http://smii.qad:24079/wsa/smiiwsa"
-    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = get_url()
     data = test_internal_api(url)
     
     if data.get("status") == "failed" : 

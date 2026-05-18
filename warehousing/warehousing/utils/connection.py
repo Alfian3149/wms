@@ -12,3 +12,7 @@ def test_internal_api(url):
         frappe.throw(_("Koneksi ke server internal timeout. Pastikan server internal merespon dalam waktu yang wajar."))
     except Exception as e:
         frappe.throw(_("Terjadi kesalahan saat menghubungi server internal: {0}").format(str(e)))   
+
+def get_url():
+    wsa_url = frappe.db.get_single_value("Qad Integrations", "wsa_url")
+    return wsa_url or "http://127.0.0.1:24079/wsa/smiiwsa"

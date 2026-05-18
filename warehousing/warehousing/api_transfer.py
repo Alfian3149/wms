@@ -7,10 +7,11 @@ from bs4 import BeautifulSoup
 from warehousing.warehousing.utils.connection import test_internal_api
 import xml.etree.ElementTree as ET
 from frappe.utils import getdate, nowdate, formatdate
+from warehousing.warehousing.utils.connection import get_url
 
 @frappe.whitelist()
 def transfer_submit_to_qad(details):
-    url = frappe.conf.get("qad_api_url") or "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = get_url()
     data = test_internal_api(url)
     if data.get("status") == "failed" : 
         return data
@@ -103,7 +104,7 @@ def transfer_submit_to_qad(details):
 
 @frappe.whitelist()
 def transfer_submit_detail_task(details, ref_doctype, doc_name):
-    url = frappe.conf.get("qad_api_url")
+    url = get_url()
     data = test_internal_api(url)
     if data.get("status") == "failed" : 
         return data

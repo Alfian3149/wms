@@ -5,6 +5,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "qad_url",
+  "section_break_jvys",
   "default_site",
   "strict_when_qty_per_pallet_item_is_zero",
   "storage_can_mix_item",
@@ -58,13 +60,26 @@
   {
    "fieldname": "section_break_olhc",
    "fieldtype": "Section Break"
+  },
+  {
+   "default": "qad_api_url",
+   "fieldname": "qad_url",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "QAD Url",
+   "options": "qad_api_url\nqad_api_dev_url\nqad_api_test_url\nqad_api_prod_url",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_jvys",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-03-09 13:33:21.763776",
+ "modified": "2026-05-18 09:33:39.621675",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Material Incoming Control",
