@@ -32,13 +32,14 @@ frappe.ui.form.on("Putaway Method", {
                 'drawing_location': frm.doc.drawing_loc
             },
             //orderby: 'name desc', 
-            //limit: 10
+            limit: 500
         }).then(records => {
             let container = frm.get_field('html_part').$wrapper;
             let html = `
                 <table class="table table-bordered" style="font-size: 13px;">
                     <thead class="bg-light">
                         <tr>
+                            <th>No.</th>
                             <th>Part</th>
                             <th>UM</th>
                             <th>Description</th>
@@ -48,6 +49,7 @@ frappe.ui.form.on("Putaway Method", {
             records.forEach(row => {
                 let item_rows =  `
                     <tr>
+                        <td>${records.indexOf(row) + 1}</td>
                         <td>${row.name}</td>
                         <td>${row.um}</td>
                         <td>${row.description}</td>

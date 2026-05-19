@@ -90,7 +90,7 @@ class WarehouseTaskDetail(Document):
 			details=details,
 			ref_doctype="Warehouse Task Detail",
 			doc_name=self.name,
-			queue="short",       # Opsi: 'short', 'default', atau 'long'
+			queue="default",       # Opsi: 'short', 'default', atau 'long'
 			timeout=600,        # Durasi maksimal pengerjaan (detik)
 			is_async=True,
 			enqueue_after_commit=True # Menjamin job jalan SETELAH transaksi DB selesai

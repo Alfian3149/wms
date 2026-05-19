@@ -148,7 +148,7 @@ var check_discrepancy = function(frm, row, callback) {
         frappe.msgprint('Quantity confirmation cannot be greater than Qty Label.');
         return;
     }
-    if (row.qty_confirmation != undefined && row.qty_confirmation !== row.qty_label) {
+    if (row.qty_confirmation != undefined && row.qty_confirmation !== row.qty_label && row.qty_confirmation !== 0){ 
         let is_saved = false;
         let d = new frappe.ui.Dialog({
             title: 'Quantity Discrepancy Detected',
