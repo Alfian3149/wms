@@ -61,9 +61,11 @@ frappe.ui.form.on("Material Incoming", {
                         __('Apakah Anda yakin ingin melakukan cancel?'),
                         function() { 
                             //frappe.msgprint("test");
+                            const physical_verification_id = frm.doc.physical_verification_id;
                             frm.set_value("status", "Cancelled"); // Set status menjadi Submitted
                             frm.set_value("doc_status", 2); // Set status menjadi Submitted
-                        
+                            frm.set_value("physical_verification_id", ""); // Clear physical verification link
+
                             frm.save().then(() => {
                                 frappe.hide_msgprint();
                                 frappe.utils.play_sound("cancel");
@@ -72,6 +74,10 @@ frappe.ui.form.on("Material Incoming", {
                                     indicator: 'red'
                                 });
                             });
+
+                            setTimeout(() => {
+                               frappe.db.delete_doc('Warehouse Task', physical_verification_id);
+                            }, 800);
                         },
                         function() {
                         },
@@ -155,7 +161,6 @@ frappe.ui.form.on("Material Incoming", {
                         label: __("Item"),
                         fieldname: "filter_item",
                         fieldtype: "Data",
-                        /* options: "Part Master", */
                         onchange: () => {
                             sync_filter_item(dialog);
                         }
@@ -167,7 +172,6 @@ frappe.ui.form.on("Material Incoming", {
                         label: __("Lot/Serial"),
                         fieldname: "filter_lot",
                         fieldtype: "Data",
-                        /* options: "Part Master", */
                         onchange: () => {
                             sync_filter_item(dialog);
                         }
@@ -179,9 +183,10 @@ frappe.ui.form.on("Material Incoming", {
                     {
                         fieldname: "xx_material_incoming_item",
                         fieldtype: "Table",
-                        in_place_edit: true, 
+                        in_place_edit: false, 
                         reqd: 1,
-                        data: [],
+                        allow_filter: false, // Mematikan filter bawaan di tiap kolom
+                        dynamic_link_filters: 0,
                         fields: [
                             { 
                                 fieldname: "no", 
@@ -190,14 +195,13 @@ frappe.ui.form.on("Material Incoming", {
                                 in_list_view: 1, 
                                 columns: 1,
                                 read_only: 1
-                            },
+                            }, 
                             { 
                                 fieldname: "name", 
                                 label: "Name", 
                                 fieldtype: "Data",
-                                in_list_view: 1, 
-                                reqd: 1, 
-                                columns: 1,
+                               
+                                columns: 2,
                                 hidden: 1
                             },
                             { 
@@ -206,7 +210,7 @@ frappe.ui.form.on("Material Incoming", {
                                 fieldtype: "Int",
                                 in_list_view: 1, 
                                 reqd: 1, 
-                                columns: 1,
+                                columns: 2,
                             },
                             { 
                                 fieldname: "item", 
@@ -217,14 +221,14 @@ frappe.ui.form.on("Material Incoming", {
                                 reqd: 1, 
                                 columns: 2
                             },
-                            { 
+                            /* { 
                                 fieldname: "description", 
                                 label: "Description", 
                                 fieldtype: "Data", 
                                 in_list_view: 1,  
                                 reqd: 0, 
-                                columns: 3 
-                            },
+                                columns: 2
+                            }, */
                             { 
                                 fieldname: "lotserial", 
                                 label: "Lotserial", 
@@ -239,7 +243,7 @@ frappe.ui.form.on("Material Incoming", {
                                 fieldtype: "Float", 
                                 in_list_view: 1, 
                                 reqd: 1, 
-                                columns: 1
+                                columns: 2
                             }
                         ],
                         on_add_row: (idx) => {
@@ -258,6 +262,7 @@ frappe.ui.form.on("Material Incoming", {
                 ],
         
                 size: 'large',
+                
                 secondary_action_label: __("Print"),
                 secondary_action() {
                     const items = dialog.get_values().xx_material_incoming_item;
@@ -290,9 +295,7 @@ frappe.ui.form.on("Material Incoming", {
                     for (let row of selected_rows) {
                         name_list.push(row.name);
                     }
-                    
-
-                            
+                                        
                     print_selected_labels(name_list);
 
                     //selected_data = selected_rows;
@@ -365,7 +368,9 @@ frappe.ui.form.on("Material Incoming", {
                     'material_incoming_link': frm.doc.name, // Nama dokumen induknya
                 },
                 fields: ['*'], // Ambil semua field
-                order_by: 'line asc, item asc, lotserial asc'
+                limit: 500,
+                order_by: 'line asc, item asc, lotserial asc',
+                
             }).then(data => {
                 if (data && data.length > 0) {
                     data.forEach((row, index) => {
@@ -383,8 +388,7 @@ frappe.ui.form.on("Material Incoming", {
                         },
                         callback: function(r) {
                             if (r.message) {
-                                
-                                // Buat mapping deskripsi { "ITEM01": "Deskripsi A" }
+
                                 let descriptions = {};
                                 r.message.forEach(dt => {
                                     descriptions[dt.part] = dt.description;
@@ -396,20 +400,19 @@ frappe.ui.form.on("Material Incoming", {
                                     row.description = descriptions[row.item] || "";
                                 });
 
-                                // 4. Set data ke tabel dialog dan refresh
-                                dialog.get_field('xx_material_incoming_item').df.data = data;
-                                dialog.get_field('xx_material_incoming_item').refresh();
+                                dialog.fields_dict.xx_material_incoming_item.grid.page_length = 500; 
+                                dialog.fields_dict.xx_material_incoming_item.df.data = data;
+                                dialog.fields_dict.xx_material_incoming_item.grid.refresh();
     
                             }
                         }
                     });
                     
-
-                    /* dialog.get_field('xx_material_incoming_item').df.data = data;
-                    dialog.get_field('xx_material_incoming_item').refresh(); */
                 }
             });
             dialog.show();
+            dialog.$wrapper.find('.grid-filter-row').hide();
+
         }, __("Labeling & Verification"));
 
         // --- GRUP 2: RECEIPT & PUTAWAY ---

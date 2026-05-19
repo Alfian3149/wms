@@ -484,7 +484,14 @@ def physical_verified_item():
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     if latest_doc_parent.status == "Completed" :
         latest_doc_parent.submit()
-        frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Ready To Confirm')
+        frappe.enqueue(
+            "warehousing.warehousing.doctype.warehouse_task.warehouse_task.update_mtl_incoming_status",
+            queue="default",
+            mtl_incoming_name=latest_doc_parent.source_id,
+            status='Ready To Confirm'
+        )   
+
+        #frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Ready To Confirm')
     return data
   
 @frappe.whitelist()
@@ -511,12 +518,33 @@ def putaway_transfer_confirm():
     frappe.db.commit()
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     if latest_doc_parent.status == "Completed" :
-        latest_doc_parent.submit()
+        latest_doc_parent.submit()       
+        frappe.enqueue(
+            "warehousing.warehousing.doctype.warehouse_task.warehouse_task.update_mtl_incoming_status",
+            queue="default",
+            mtl_incoming_name=latest_doc_parent.source_id,
+            status='Completed'
+        )    
 
-        
-        frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Completed')
+        #frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Completed')
     return data
 
+def update_mtl_incoming_status(mtl_incoming_name, status):
+    if not mtl_incoming_name:
+        return
+        
+    try:
+        frappe.db.set_value(
+            "Material Incoming", 
+            mtl_incoming_name, 
+            "status", 
+            status, 
+            update_modified=False
+        )
+        frappe.db.commit()
+        
+    except Exception as e:
+        frappe.log_error(title="Failed to update Material Incoming from Handheld", message=frappe.get_traceback())
 
 @frappe.whitelist()
 def picked_confirm():
