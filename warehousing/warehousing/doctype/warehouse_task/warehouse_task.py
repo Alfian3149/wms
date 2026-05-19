@@ -529,6 +529,7 @@ def putaway_transfer_confirm():
         #frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Completed')
     return data
 
+@frappe.whitelist()
 def update_mtl_incoming_status(mtl_incoming_name, status):
     if not mtl_incoming_name:
         return
