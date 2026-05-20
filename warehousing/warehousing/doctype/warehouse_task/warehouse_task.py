@@ -484,15 +484,27 @@ def physical_verified_item():
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     if latest_doc_parent.status == "Completed" :
         latest_doc_parent.submit()
-        frappe.enqueue(
-            "warehousing.warehousing.doctype.warehouse_task.warehouse_task.update_mtl_incoming_status",
-            queue="default",
-            mtl_incoming_name=latest_doc_parent.source_id,
-            status='Ready To Confirm'
-        )   
-
-        #frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Ready To Confirm')
-    return data
+        return {
+            "status": "success",
+            "name": latest_doc_parent.name,
+            "message": "Warehouse Task updated successfully.",
+            "data": {
+                "last_status": latest_doc_parent.status,
+                "source_id": latest_doc_parent.source_id,
+                "task_type": latest_doc_parent.task_type
+            }
+        }
+        
+    return {
+            "status": "success",
+            "name": latest_doc_parent.name,
+            "message": "Warehouse Task updated successfully.",
+            "data": {
+                "last_status": latest_doc_parent.status,
+                "source_id": latest_doc_parent.source_id,
+                "task_type": latest_doc_parent.task_type
+            }
+    }
   
 @frappe.whitelist()
 def putaway_transfer_confirm():
@@ -519,15 +531,16 @@ def putaway_transfer_confirm():
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     if latest_doc_parent.status == "Completed" :
         latest_doc_parent.submit()       
-        frappe.enqueue(
-            "warehousing.warehousing.doctype.warehouse_task.warehouse_task.update_mtl_incoming_status",
-            queue="default",
-            mtl_incoming_name=latest_doc_parent.source_id,
-            status='Completed'
-        )    
-
-        #frappe.db.set_value('Material Incoming', latest_doc_parent.source_id, 'status', 'Completed')
-    return data
+    return {
+        "status": "success",
+        "name": latest_doc_parent.name,
+        "message": "Warehouse Task updated successfully.",
+        "data": {
+            "last_status": latest_doc_parent.status,
+            "source_id": latest_doc_parent.source_id,
+            "task_type": latest_doc_parent.task_type
+        }
+    }
 
 @frappe.whitelist()
 def update_mtl_incoming_status(mtl_incoming_name, status):
