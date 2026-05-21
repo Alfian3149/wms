@@ -349,7 +349,7 @@ def location_suggestion(item_code, total_incoming_pallet, reference_doc=None):
 
         # 2. Hitung Kapasitas Tersedia (Free Pallet)
         reserved_entries = frappe.db.get_all('Reserved Task Entry', filters={
-            'purpose': "Putaway Transfer",
+            'purpose': "Putaway",
             'site': control.default_site,
             'warehouse_location': loc.location
         }, fields=['SUM(qty) as total_reserved'])

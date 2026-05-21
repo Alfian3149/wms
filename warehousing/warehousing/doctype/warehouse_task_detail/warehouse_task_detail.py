@@ -84,7 +84,7 @@ class WarehouseTaskDetail(Document):
 			"usefrom":True,
 			"useto":False,
 		})
-	
+
 		job = frappe.enqueue(
 			"warehousing.warehousing.api_transfer.transfer_submit_detail_task",
 			details=details,

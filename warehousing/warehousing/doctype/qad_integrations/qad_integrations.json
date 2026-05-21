@@ -5,23 +5,35 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "wsa_url"
+  "wsa_url",
+  "column_break_xite",
+  "url"
  ],
  "fields": [
   {
    "fieldname": "wsa_url",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "WSA Url",
-   "options": "qad_api_url\nqad_api_dev_url\nqad_api_test_url\nqad_api_prod_url",
+   "label": "WSA CONFIG",
+   "options": "qad_api_dev_url\nqad_api_test_url\nqad_api_prod_url",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_xite",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "URL",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-05-18 09:56:42.032906",
+ "modified": "2026-05-21 07:30:56.293853",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Qad Integrations",

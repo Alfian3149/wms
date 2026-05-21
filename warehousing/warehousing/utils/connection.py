@@ -14,5 +14,5 @@ def test_internal_api(url):
         frappe.throw(_("Terjadi kesalahan saat menghubungi server internal: {0}").format(str(e)))   
 
 def get_url():
-    wsa_url = frappe.db.get_single_value("Qad Integrations", "wsa_url")
-    return frappe.conf.get(wsa_url) or "http://127.0.0.1:24079/wsa/smiiwsa"
+    wsa_url = frappe.db.get_single_value("Qad Integrations", "url")
+    return wsa_url

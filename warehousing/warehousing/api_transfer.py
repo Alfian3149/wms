@@ -167,7 +167,7 @@ def transfer_submit_detail_task(details, ref_doctype, doc_name):
         "data": json.dumps(payload, indent=4) if isinstance(payload, (dict, list)) else payload,
         "status": "Queued",
         "reference_doctype": ref_doctype,
-        "reference_name": doc_name
+        "reference_docname": doc_name
     })
     int_log.insert(ignore_permissions=True)
 
