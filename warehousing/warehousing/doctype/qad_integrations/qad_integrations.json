@@ -15,7 +15,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "WSA CONFIG",
-   "options": "qad_api_dev_url\nqad_api_test_url\nqad_api_prod_url",
+   "options": "localhost\nqad_api_dev_url\nqad_api_test_url\nqad_api_prod_url",
    "reqd": 1
   },
   {
@@ -33,7 +33,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-05-21 07:30:56.293853",
+ "modified": "2026-05-21 07:53:42.094214",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Qad Integrations",
