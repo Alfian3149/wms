@@ -125,7 +125,7 @@ def max_qty_receive_allowed(order_number, order_line, name):
 		filters={
 			"purchase_order": order_number,
 			"name": ["!=", name],
-			"status":["!=", "Cancelled"]
+			"status": ["in", ["Submitted", "Printed", "Assigned", "Ready To Confirm"]]
 			}, 
 		pluck="name"
 	)
@@ -167,11 +167,11 @@ def get_po_history_with_items(purchase_order, current_doc):
     history = frappe.db.get_list("Material Incoming", 
         filters={
             "purchase_order": purchase_order,
-            "name": ["!=", current_doc],
+            #"name": ["!=", current_doc],
             #"docstatus": ["<", 2]
-        },
-        fields=["name", "order_date", "site", "transaction_date", "status", "modified"],
-        order_by="transaction_date desc"
+        }, 
+        fields=["*"],
+        order_by="creation desc"
     )
 
     # Ambil semua item untuk dokumen-dokumen tersebut

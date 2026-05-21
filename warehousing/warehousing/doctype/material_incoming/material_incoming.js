@@ -746,11 +746,11 @@ frappe.ui.form.on("Material Incoming", {
                         html += `
                             <tr>
                                 <td class="bg-light" style="width: 30%;">
-                                    <b><a href="/app/material-incoming/${row.name}">${row.name}</a></b><br>
+                                    <b><a href="/app/material-incoming/${row.name}">${row.name} <span >(${row.status}) </span></a></b><br>
                                     <small>Print & Assign on: ${frappe.datetime.str_to_user(row.pv_assigned_date)}</small><br>
                                     <small>Receipt on: ${frappe.datetime.str_to_user(row.confirmed_date)}</small><br>
                                     <small>Transfer on: ${frappe.datetime.str_to_user(row.tf_assigned_date)}</small>
-
+                                    
                                 </td>
                                 <td style="padding: 0;">
                                     <table class="table table-sm mb-0" style="border:none;">

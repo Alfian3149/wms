@@ -6,16 +6,34 @@ frappe.ui.form.on("Transfer Single Item", {
         if(frm.is_new()){
         frm.set_df_property('from_to', 'hidden', 1);
         }
+
+        if (frappe.user.has_role('Production Manager') || frappe.user.has_role('Production Operator')) {
+            frm.set_df_property('sent_the_transfer_action_to_qc_tim', 'hidden', 0);
+            frm.set_value('sent_the_transfer_action_to_qc_tim', 1);
+        }
+
         
     },
     refresh(frm) {
-        frm.set_query('reason', function() {
-            return {
-                filters: {
-                    'key_name': 'TASKING_REASON',
-                }
-            };
-        });
+        if (frappe.user.has_role('Warehouse Manager')) {
+            frm.set_query('reason', function() {
+                return {
+                    filters: {
+                        'key_name': 'TFS_REASON_FOR_WAREHOUSE',
+                    }
+                };
+            });
+        }
+        else if (frappe.user.has_role('Production Manager') || frappe.user.has_role('Production Operator')) {
+              frm.set_query('reason', function() {
+                return {
+                    filters: {
+                        'key_name': 'TFS_REASON_FOR_PRODUCTION',
+                    }
+                };
+            });
+        }
+
         let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory" });
         d.dialog.hide();
 

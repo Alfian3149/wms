@@ -417,9 +417,13 @@
   {
    "link_doctype": "Warehouse Task",
    "link_fieldname": "source_id"
+  },
+  {
+   "link_doctype": "Material Label",
+   "link_fieldname": "material_incoming_link"
   }
  ],
- "modified": "2026-05-18 04:41:32.656587",
+ "modified": "2026-05-21 08:09:48.516195",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Material Incoming",

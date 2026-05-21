@@ -1,0 +1,140 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-05-21 11:53:59.173822",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_bqxb",
+  "id_report_issue",
+  "reason",
+  "column_break_yged",
+  "part_issue",
+  "lotserial_issue",
+  "section_break_qg6d",
+  "amended_from",
+  "material_label",
+  "column_break_ping",
+  "part",
+  "description",
+  "column_break_fmbf",
+  "data_bezb",
+  "float_xofp"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_qg6d",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Inspection Check",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "material_label",
+   "fieldtype": "Link",
+   "label": "Material Label",
+   "options": "Material Label"
+  },
+  {
+   "fetch_from": "material_label.lotserial",
+   "fieldname": "data_bezb",
+   "fieldtype": "Data",
+   "label": "Lot/Serial"
+  },
+  {
+   "fetch_from": "material_label.item",
+   "fieldname": "part",
+   "fieldtype": "Data",
+   "label": "Part"
+  },
+  {
+   "fetch_from": "material_label.qty",
+   "fieldname": "float_xofp",
+   "fieldtype": "Float",
+   "label": "Qty "
+  },
+  {
+   "fieldname": "column_break_ping",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "material_label.description",
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_fmbf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_bqxb",
+   "fieldtype": "Section Break",
+   "label": "This Item Below need to Inspect:"
+  },
+  {
+   "fieldname": "id_report_issue",
+   "fieldtype": "Link",
+   "label": "ID Report issue ",
+   "options": "Transfer Single Item"
+  },
+  {
+   "fetch_from": "id_report_issue.reason",
+   "fieldname": "reason",
+   "fieldtype": "Data",
+   "label": "Reason"
+  },
+  {
+   "fetch_from": "id_report_issue.part",
+   "fieldname": "part_issue",
+   "fieldtype": "Data",
+   "label": "Part Issue"
+  },
+  {
+   "fetch_from": "id_report_issue.lotserial_from",
+   "fieldname": "lotserial_issue",
+   "fieldtype": "Data",
+   "label": "Lot/serial issue"
+  },
+  {
+   "fieldname": "column_break_yged",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-05-21 13:26:57.160382",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Inspection Check",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
