@@ -103,8 +103,8 @@ def transfer_submit_to_qad(details):
         frappe.throw(_("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e)))
 
 @frappe.whitelist()
-def transfer_submit_detail_task(details, ref_doctype, doc_name):
-    url = get_url()
+def transfer_submit_detail_task(details, ref_doctype, doc_name, wsa):
+    url = wsa if wsa else frappe.db.get_single_value("Qad Integration", "url")
     data = test_internal_api(url)
     if data.get("status") == "failed" : 
         return data

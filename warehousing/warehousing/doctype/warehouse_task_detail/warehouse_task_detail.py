@@ -85,11 +85,13 @@ class WarehouseTaskDetail(Document):
 			"useto":False,
 		})
 
+		wsa = frappe.db.get_single_value("Qad Integrations", "url")
 		job = frappe.enqueue(
 			"warehousing.warehousing.api_transfer.transfer_submit_detail_task",
 			details=details,
 			ref_doctype="Warehouse Task Detail",
 			doc_name=self.name,
+			wsa=wsa,
 			queue="default",       # Opsi: 'short', 'default', atau 'long'
 			timeout=600,        # Durasi maksimal pengerjaan (detik)
 			is_async=True,

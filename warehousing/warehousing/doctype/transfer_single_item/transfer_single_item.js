@@ -15,34 +15,33 @@ frappe.ui.form.on("Transfer Single Item", {
         
     },
     refresh(frm) {
-        if (frappe.user.has_role('Warehouse Manager')) {
+        //let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory" });
+        //d.dialog.hide();
+        
+        let key_name_filter = "";
+
+        if (frappe.user.has_role('Warehouse Manager') || frappe.user.has_role('System Manager')) {
+            key_name_filter = 'TFS_REASON_FOR_WAREHOUSE';
+        } 
+        else if (frappe.user.has_role('Production Manager') || frappe.user.has_role('Production Operator')) {
+            key_name_filter = 'TFS_REASON_FOR_PRODUCTION';
+        }
+
+        // 2. Jika role cocok dan key_name_filter terisi, terapkan set_query sekali saja
+        if (key_name_filter) {
             frm.set_query('reason', function() {
                 return {
                     filters: {
-                        'key_name': 'TFS_REASON_FOR_WAREHOUSE',
+                        'key_name': key_name_filter
                     }
                 };
             });
         }
-        else if (frappe.user.has_role('Production Manager') || frappe.user.has_role('Production Operator')) {
-              frm.set_query('reason', function() {
-                return {
-                    filters: {
-                        'key_name': 'TFS_REASON_FOR_PRODUCTION',
-                    }
-                };
-            });
-        }
-
-        let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory" });
-        d.dialog.hide();
-
-
     },
     get_inventory:function(frm){
         let d = new frappe.ui.form.MultiSelectDialog({
             doctype: "Inventory",
-            target: frm,
+            target: this.cur_frm,
             columns: ["name", "part", "lot_serial", "warehouse_location", "qty_on_hand"],
             setters: {
                 part: null, 
@@ -51,12 +50,17 @@ frappe.ui.form.on("Transfer Single Item", {
                 qty_on_hand:null,
             },
             get_query() {
+
                 return {
+
                     filters: [{
+
                         qty_on_hand: [">", 0],
-                        qty_on_hand: ["!=", null],
+
                     }]
+
                 };
+
             },
             action(selections) {
                 // 'selections' berisi array ID (name) dari record yang dipilih
@@ -109,7 +113,7 @@ frappe.ui.form.on("Transfer Single Item", {
 
             }
         });
-        d.dialog.get_secondary_btn().hide();
+        //d.dialog.get_secondary_btn().hide();
 
         setTimeout(() => {
         if (d.dialog) {

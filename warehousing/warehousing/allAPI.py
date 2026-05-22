@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 from warehousing.warehousing.utils.connection import test_internal_api
 from warehousing.warehousing.utils.wo_validation import WorkOrderValidator
 from warehousing.warehousing.utils.connection import get_url
-
+from frappe.utils import now_datetime
 
 @frappe.whitelist()
 def get_simulated_picklist_item(workOrder, site, part, qty, domain):
@@ -412,6 +412,11 @@ def po_receipt_JSON(parent_doc_name, material_incoming_name):
  
 @frappe.whitelist()
 def po_receipt_confirmation(parent_doc_name, material_incoming_name): 
+    count = frappe.db.count('Warehouse Task', {'source_id': material_incoming_name})
+    if count >  1:
+        frappe.throw(_("PO receipt sudah dilakukan sebelumnya. Mohon cek kembali data Anda."))
+        return
+
     url = get_url()
     data = test_internal_api(url)
     
@@ -483,6 +488,18 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
                         parent_doc_name=parent_doc_name,
                     )   
 
+                    frappe.enqueue(
+                        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.create_putaway_transfer_task",
+                        queue="default",
+                        timeout=600,
+                        is_async=True,
+                        enqueue_after_commit=False,
+                        source_doc=parent_doc_name,
+                        task_type="Putaway Transfer",
+                    )   
+
+
+
                     for d in transactionSuccess:
                         receiver = d.get("receiver")
                         break
@@ -514,6 +531,10 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
                         title=f"ERROR: WAREHOUSE TASK {parent_doc_name}",
                         message=json.dumps(log_data, indent=4)
                     )
+
+            frappe.db.set_value('Material Incoming', material_incoming_name, 'receiver', receiver)
+            frappe.db.set_value('Material Incoming', material_incoming_name, 'confirmed_date', now_datetime())
+            frappe.db.set_value('Material Incoming', material_incoming_name, 'status', 'Confirmed');
 
             int_log.save(ignore_permissions=True)
             return {

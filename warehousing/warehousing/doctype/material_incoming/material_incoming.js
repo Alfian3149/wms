@@ -438,7 +438,14 @@ frappe.ui.form.on("Material Incoming", {
                                     return;
                                 }
                                 else {
-                                    frm.set_value('receiver', r.message.receiver);
+                                    frappe.show_alert({
+                                    message: __('PO Receipt QAD succesfully'),
+                                    indicator: 'green'
+                                    });
+                                    setTimeout(() => {
+                                        frm.refresh();
+                                    }, 1300);
+                                    /* frm.set_value('receiver', r.message.receiver);
                                     frm.set_value('confirmed_date', frappe.datetime.now_datetime());
                                     frm.set_value('status', 'Confirmed');
 
@@ -454,7 +461,7 @@ frappe.ui.form.on("Material Incoming", {
                                             indicator: 'green'
                                             });
                                         });
-                                    }, 1000);
+                                    }, 1000); */
                                 }
                             }
                         });
@@ -688,13 +695,13 @@ frappe.ui.form.on("Material Incoming", {
             freeze_message: __("Creating Warehouse Task..."),
             callback: function(r) {
                 if (r.message.status === "success") {  
-                    frm.set_value('tf_assigned_date', frappe.datetime.now_datetime());   
+                    /* frm.set_value('tf_assigned_date', frappe.datetime.now_datetime());   
                     frm.set_value('putaway_transfer_task_id', r.message.name);
                     frm.set_value('status', 'Transferring');
                     frm.set_value('pt_person_assigned', assign_to_person);
                     frm.set_value('pt_role_assigned', assign_to_role);
                     frm.set_value('pt_date_instruction_given', date_instruction);
-                    frm.set_value('pt_time_instruction_given', time_transaction);
+                    frm.set_value('pt_time_instruction_given', time_transaction); */
                     // Simpan dokumen secara otomatis
                     //frm.save() 
                     // MEMBUKA FORM DALAM POP-UP (Quick Entry Mode)

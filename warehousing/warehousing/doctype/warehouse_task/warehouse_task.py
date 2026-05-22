@@ -8,7 +8,7 @@ import frappe
 from frappe.model.naming import make_autoname
 from warehousing.warehousing.specialLogic import get_multi_bin_suggestion
 import copy
-from frappe.utils import flt,getdate, get_fullname
+from frappe.utils import flt,getdate, get_fullname, now_datetime
 import time
 from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
 from warehousing.warehousing.doctype.inventory.inventory import update_inventory_qty
@@ -314,6 +314,14 @@ def create_putaway_transfer_task(source_doc, task_type, assigned_to_person=None,
         new_reserved.qty = data[0]['amt_pallet_covered']
  
         new_reserved.insert() 
+
+    frappe.db.set_value('Material Incoming', Warehouse_Task.source_id , 'tf_assigned_date', now_datetime())
+    frappe.db.set_value('Material Incoming', Warehouse_Task.source_id , 'putaway_transfer_task_id', new_task.name)
+    frappe.db.set_value('Material Incoming', Warehouse_Task.source_id , 'status', 'Transferring')
+    frappe.db.set_value('Material Incoming', Warehouse_Task.source_id , 'pt_person_assigned', assigned_to_person)
+    frappe.db.set_value('Material Incoming', Warehouse_Task.source_id , 'pt_role_assigned', assigned_to_role)
+    frappe.db.set_value('Material Incoming', Warehouse_Task.source_id , 'pt_date_instruction_given', frappe.utils.nowdate())
+    frappe.db.set_value('Material Incoming', Warehouse_Task.source_id , 'pt_time_instruction_given', frappe.utils.nowtime())
 
     return {
         "status": "success",
