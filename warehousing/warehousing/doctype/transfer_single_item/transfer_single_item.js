@@ -113,7 +113,7 @@ frappe.ui.form.on("Transfer Single Item", {
 
             }
         });
-        //d.dialog.get_secondary_btn().hide();
+        d.dialog.get_secondary_btn().hide();
 
         setTimeout(() => {
         if (d.dialog) {

@@ -412,11 +412,18 @@ def po_receipt_JSON(parent_doc_name, material_incoming_name):
  
 @frappe.whitelist()
 def po_receipt_confirmation(parent_doc_name, material_incoming_name): 
-    count = frappe.db.count('Warehouse Task', {'source_id': material_incoming_name})
-    if count >  1:
+    count_task = frappe.db.count('Warehouse Task', {'source_id': material_incoming_name})
+     
+    if count_task >  1:
         frappe.throw(_("PO receipt sudah dilakukan sebelumnya. Mohon cek kembali data Anda."))
         return
     
+    count_qty_more_zero = frappe.db.count('Warehouse Task Detail', {'parent': parent_doc_name,'qty_confirmation': ['>', 0]})
+
+    if count_qty_more_zero == 0:
+        frappe.throw(_("Tidak ada item dengan qty confirmation lebih dari 0. Mohon cek kembali data Anda."))
+        return
+
     doc = frappe.get_doc("Material Incoming", material_incoming_name)
     if doc.status == "Confirmed" or doc.status == "Transferring":
         frappe.throw(_("PO receipt sudah dilakukan sebelumnya. Mohon cek kembali data Anda."))
@@ -425,6 +432,8 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
     if doc.receiver:
         frappe.throw(_("PO receipt sudah dilakukan sebelumnya. Mohon cek kembali data Anda."))
         return
+
+
 
     url = get_url()
     data = test_internal_api(url)
@@ -496,15 +505,15 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
                         transactionSuccess=transactionSuccess,
                         parent_doc_name=parent_doc_name,
                     )   
-
-                    frappe.enqueue(
+                    
+                    """ frappe.enqueue(
                         "warehousing.warehousing.doctype.warehouse_task.warehouse_task.create_putaway_transfer_task",
                         queue="default",
                         timeout=600,
                         enqueue_after_commit=False,
                         source_doc=parent_doc_name,
                         task_type="Putaway Transfer",
-                    )   
+                    )    """
 
                     for d in transactionSuccess:
                         receiver = d.get("receiver")
@@ -543,6 +552,10 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
             frappe.db.set_value('Material Incoming', material_incoming_name, 'status', 'Confirmed');
 
             int_log.save(ignore_permissions=True)
+            
+            create_task = frappe.call("warehousing.warehousing.doctype.warehouse_task.warehouse_task.create_putaway_transfer_task", source_doc=parent_doc_name, task_type="Putaway Transfer")
+            
+            time.sleep(3) # Delay untuk memastikan data sudah terupdate sebelum dipanggil API lagi
             return {
                 "receiver": receiver,
                 "status": "failed" if isNotOk == "true" else "success",

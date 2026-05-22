@@ -6,11 +6,27 @@ frappe.router.on('change', () => {
     if (rute[1] === 'Material Incoming') {
         frappe.realtime.off('warehouse_task_completed'); // Pastikan untuk unsubscribe terlebih dahulu sebelum subscribe kembali
         frappe.realtime.on('warehouse_task_completed', (data) => {
+            
             frappe.msgprint({
                     title: __('Realtime Notif'),
                     indicator: 'green',
                     message:__("{2} Task for ID <a href='/app/material-incoming/{0}'> {0} </a>  has been done by {1}. Please check.", [data.source, data.operator, data.tasking]),
             });
+
+            if (cur_frm && cur_frm.doctype === 'Material Incoming' && cur_frm.docname === data.source) {
+                
+                // 2. Pastikan dokumen tidak sedang dalam kondisi diedit (belum disave) agar input user tidak hilang
+                if (!cur_frm.is_dirty()) {
+                    cur_frm.reload_doc();
+                } else {
+                    // Opsional: Beri info jika user sedang mengedit
+                    frappe.show_alert({
+                        message: __('Data terbaru tersedia, silakan save atau refresh halaman jika selesai mengedit.'),
+                        indicator: 'orange'
+                    });
+                }
+            }
+            
         });
     }
     else {
@@ -438,13 +454,13 @@ frappe.ui.form.on("Material Incoming", {
                                     return;
                                 }
                                 else {
+                                    frm.reload_doc()    
+                                    
                                     frappe.show_alert({
-                                    message: __('PO Receipt QAD succesfully'),
-                                    indicator: 'green'
+                                        message: __('PO Receipt QAD succesfully with Receiver : {0}', [r.message.receiver]),
+                                        indicator: 'green'
                                     });
-                                    setTimeout(() => {
-                                        frm.refresh();
-                                    }, 1300);
+                                    
                                     /* frm.set_value('receiver', r.message.receiver);
                                     frm.set_value('confirmed_date', frappe.datetime.now_datetime());
                                     frm.set_value('status', 'Confirmed');
