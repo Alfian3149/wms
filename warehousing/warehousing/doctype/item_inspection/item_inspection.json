@@ -1,0 +1,161 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-05-22 15:39:08.858624",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "id_report",
+  "column_break_zduk",
+  "reported_by",
+  "column_break_mhow",
+  "reason",
+  "section_break_ozcl",
+  "part",
+  "column_break_nlkb",
+  "lotserial",
+  "column_break_zmdk",
+  "current_position",
+  "qty",
+  "section_break_krhh",
+  "material_incoming_id",
+  "column_break_mxgp",
+  "po_number",
+  "receiver",
+  "receipt_date",
+  "column_break_kzlc",
+  "supplier",
+  "name1",
+  "small_text_yfqg"
+ ],
+ "fields": [
+  {
+   "fieldname": "id_report",
+   "fieldtype": "Data",
+   "label": "ID Report"
+  },
+  {
+   "fieldname": "column_break_zduk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reported_by",
+   "fieldtype": "Data",
+   "label": "Reported By"
+  },
+  {
+   "fieldname": "column_break_mhow",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Data",
+   "label": "Reason"
+  },
+  {
+   "fieldname": "section_break_ozcl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "part",
+   "fieldtype": "Data",
+   "label": "Part"
+  },
+  {
+   "fieldname": "column_break_nlkb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lotserial",
+   "fieldtype": "Data",
+   "label": "Lot/Serial"
+  },
+  {
+   "fieldname": "column_break_zmdk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "current_position",
+   "fieldtype": "Data",
+   "label": "Current Position"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "label": "Qty"
+  },
+  {
+   "fieldname": "section_break_krhh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "material_incoming_id",
+   "fieldtype": "Data",
+   "label": "Material Incoming ID"
+  },
+  {
+   "fieldname": "column_break_mxgp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "po_number",
+   "fieldtype": "Data",
+   "label": "PO Number"
+  },
+  {
+   "fieldname": "receiver",
+   "fieldtype": "Data",
+   "label": "Receiver"
+  },
+  {
+   "fieldname": "receipt_date",
+   "fieldtype": "Date",
+   "label": "Receipt Date"
+  },
+  {
+   "fieldname": "column_break_kzlc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Data",
+   "label": "Supplier"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "small_text_yfqg",
+   "fieldtype": "Small Text"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-22 15:54:35.727213",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Item Inspection",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

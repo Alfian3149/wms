@@ -564,7 +564,13 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
         else:
             int_log.status = "Failed"
             int_log.save()
-            frappe.throw(_("Koneksi ke QAD Gagal: {0}").format(response.status_code))
+            return {
+                "receiver": None,
+                "status": "failed",
+                "message": f"Koneksi ke QAD Gagal: {response.status_code}"
+            }
+
+            #frappe.throw(_("Koneksi ke QAD Gagal: {0}").format(response.status_code))
 
     except Exception as e:
         frappe.db.rollback()

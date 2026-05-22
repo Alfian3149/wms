@@ -174,19 +174,37 @@ def transfer_submit_detail_task(details, ref_doctype, doc_name, wsa):
     try:
         response = requests.request("POST", url, data=payload, headers=headers, timeout=30)
         int_log.output = response.text # Simpan respon mentah
+        status = ""
+        message = ""
         if response.status_code == 200:
             root = ET.fromstring(response.text)
             namespaces = {'qad': 'urn:services-qad-com:smiiwsa:0001:smiiwsa'}
             opnotok_element = root.find('.//qad:opnotok', namespaces)
+            errorMsg_element = root.find('.//qad:operror', namespaces) 
+
             if opnotok_element is not None:
                 isNotOk = opnotok_element.text.strip().lower()
                 if isNotOk == "true":
                     int_log.status = "Failed"
+                    status = "failed"
+                    if errorMsg_element is not None:
+                        message = errorMsg_element.text.strip()
+
                 else: 
+                    status = "success"
                     int_log.status = "Completed"
 
                 int_log.save(ignore_permissions=True)
-                frappe.db.commit()
+        else:
+            message = f"Koneksi ke QAD Gagal: {response.status_code}"
+            int_log.status = "Failed"
+            int_log.save(ignore_permissions=True)
+
+
+        return {
+            "status": status,
+            "message": message
+        }
     except Exception as e:
         frappe.db.rollback()
         int_log.status = "Failed"

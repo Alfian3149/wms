@@ -253,11 +253,17 @@ def create_putaway_transfer_task(source_doc, task_type, assigned_to_person=None,
     
     new_task.source_id = Warehouse_Task.source_id if Warehouse_Task.source_id else ""
     
-    sorted_task_details = sorted(
+    """ sorted_task_details = sorted(
         Warehouse_Task.warehouse_task_detail, 
         key=lambda x: (x.item, x.lotserial), 
         reverse=True
+    ) """
+    sorted_task_details = sorted(
+        [x for x in Warehouse_Task.warehouse_task_detail if x.qty_confirmation > 0], 
+        key=lambda x: (x.item, x.lotserial), 
+        reverse=True
     )
+
     grouped_summary = {}
     for td in sorted_task_details:
         if td.item not in grouped_summary:
