@@ -420,7 +420,7 @@ frappe.ui.form.on("Material Incoming", {
             //alert(frm.doc.physical_verification_id);
             frappe.db.get_value('Warehouse Task', frm.doc.physical_verification_id, 'status')
             .then(value => {
-                if (value && value.message.status === "Completed"){ 
+                if (value && value.message.status === "Completed" && frm.doc.status !== "Confirmed" && frm.doc.status !== "Transferring" && frm.doc.status !== "Cancelled" && frm.doc.status !== "Completed") { 
                     // Konfirmasi ke user sebelum eksekusi
                     frappe.confirm('Apakah Anda yakin ingin melakukan PO Receipt Confirmation ke QAD?', () => {
                         frappe.call({

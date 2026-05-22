@@ -124,8 +124,8 @@ class WarehouseTask(Document):
 
     def before_save(self): 
         if self.task_type == "Putaway Transfer" or self.task_type == "Picking" :
-            url = get_url()
-            data = test_internal_api(url)
+            """ url = get_url()
+            data = test_internal_api(url) """
             if data.get("status") == "failed" :
                 frappe.throw(data.get("message"))
                 
