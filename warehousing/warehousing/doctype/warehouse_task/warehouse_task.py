@@ -126,8 +126,8 @@ class WarehouseTask(Document):
         if self.task_type == "Putaway Transfer" or self.task_type == "Picking" :
             """ url = get_url()
             data = test_internal_api(url) """
-            if data.get("status") == "failed" :
-                frappe.throw(data.get("message"))
+            """ if data.get("status") == "failed" :
+                frappe.throw(data.get("message")) """
                 
             for row in self.get("warehouse_task_detail"): 
                 if row.status == "Completed" and flt(row.qty_confirmation) > 0 and row.transferred == False  :
