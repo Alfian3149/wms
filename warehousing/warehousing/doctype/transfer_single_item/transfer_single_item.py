@@ -27,43 +27,8 @@ class TransferSingleItem(Document):
 
 	def on_submit(self):
 		effDate = str(getdate(nowdate()))
+		wsa = frappe.db.get_single_value("Qad Integrations", "url")
 		details = []
-		data = {
-			"doctype":"Inventory",
-			"doctype_link":self.inventory_name,
-			"transType":"ISS-TR",
-			"site":self.site_from,
-			"part":self.part,
-			"lotSerial":self.lotserial_from,
-			"location":self.location_from,
-			"invStatus":self.status,
-			"qtyChg":self.quantity,
-			"postingDate":effDate,
-			"invExpire": self.expire if self.expire else None,
-			"poNumber":None,
-			"poLine":None
-		}
-		init_sl = make_sl_entry(**data)
-		init_sl.create_new()
-
-		data = {
-			"doctype":"Inventory",
-			"doctype_link":self.inventory_name,
-			"transType":"RCT-TR",
-			"site":self.site_from,
-			"part":self.part,
-			"lotSerial":self.lotserial_from,
-			"location":self.location_to,
-			"invStatus":self.status,
-			"qtyChg":self.quantity,
-			"postingDate":effDate,
-			"invExpire": self.expire if self.expire else None,
-			"poNumber":None,
-			"poLine":None
-		}
-		init_sl = make_sl_entry(**data)
-		init_sl.create_new()
-
 		details.append({
 			"ptPart":self.part,
 			"qty":self.quantity,
@@ -80,8 +45,49 @@ class TransferSingleItem(Document):
 			"usefrom":True,
 			"useto":False,
 		})
-		wsa = frappe.db.get_single_value("Qad Integrations", "url")
-		job = frappe.enqueue(
+
+		api_transfer = frappe.call("warehousing.warehousing.api_transfer.transfer_submit_detail_task", details=details, ref_doctype="Transfer Single Item", doc_name=self.name, wsa=wsa)
+		if api_transfer.get("status") == "success":
+			data = {
+				"doctype":"Inventory",
+				"doctype_link":self.inventory_name,
+				"transType":"ISS-TR",
+				"site":self.site_from,
+				"part":self.part,
+				"lotSerial":self.lotserial_from,
+				"location":self.location_from,
+				"invStatus":self.status,
+				"qtyChg":self.quantity,
+				"postingDate":effDate,
+				"invExpire": self.expire if self.expire else None,
+				"poNumber":None,
+				"poLine":None
+			}
+			init_sl = make_sl_entry(**data)
+			init_sl.create_new()
+
+			data = {
+				"doctype":"Inventory",
+				"doctype_link":self.inventory_name,
+				"transType":"RCT-TR",
+				"site":self.site_from,
+				"part":self.part,
+				"lotSerial":self.lotserial_from,
+				"location":self.location_to,
+				"invStatus":self.status,
+				"qtyChg":self.quantity,
+				"postingDate":effDate,
+				"invExpire": self.expire if self.expire else None,
+				"poNumber":None,
+				"poLine":None
+			}
+			init_sl = make_sl_entry(**data)
+			init_sl.create_new()
+		else:
+			frappe.throw(_("Failed to transfer item! <br> The Error message is {0}").format(api_transfer.get("message")))
+	
+		
+		""" job = frappe.enqueue(
 			"warehousing.warehousing.api_transfer.transfer_submit_detail_task",
 			details=details,
 			ref_doctype="Transfer Single Item",
@@ -91,5 +97,5 @@ class TransferSingleItem(Document):
 			timeout=600,        # Durasi maksimal pengerjaan (detik)
 			is_async=True,
 			enqueue_after_commit=True # Menjamin job jalan SETELAH transaksi DB selesai
-			)
+			) """
 

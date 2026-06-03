@@ -55,8 +55,8 @@ class WarehouseTaskDetail(Document):
 				)
 
 			data = {
-				"doctype":"Warehouse Task Detail",
-				"doctype_link":self.name,
+				"doctype_source":"Warehouse Task Detail",
+				"data_link":self.name,
 				"transType":"ISS-TR",
 				"site":default_site,
 				"part":self.item,
@@ -73,8 +73,8 @@ class WarehouseTaskDetail(Document):
 			init_sl.create_new()
 
 			data = {
-				"doctype":"Warehouse Task Detail",
-				"doctype_link":self.name,
+				"doctype_source":"Warehouse Task Detail",
+				"data_link":self.name,
 				"transType":"RCT-TR",
 				"site":default_site,
 				"part":self.item,

@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import flt
 from frappe.model.naming import make_autoname
+from frappe import _
 
 class ItemPicklist(Document):
 	def autoname(self):
@@ -31,6 +32,27 @@ class ItemPicklist(Document):
 		self.set(detail_table_field, [
 			d for d in self.get(detail_table_field) if d.part in kept_item_codes
 		])
+
+	def on_cancel(self):
+		itemRequestDoc = []
+		for request in self.select_request:
+			itemRequest = frappe.get_doc("Item Request", request.request_master) 
+			itemRequestDoc.append(itemRequest.name)
+
+		for item_pick in self.item_picklist_summary:
+			getItemRequestSummary = frappe.get_all("Item Request Detail", 
+			filters={"part": item_pick.part, "parent": ["in", itemRequestDoc]}, 
+			fields=["quantity_requested","quantity_picked", "name"])
+
+			for itemRequestSummary in getItemRequestSummary:
+				doc = frappe.get_doc("Item Request Detail", itemRequestSummary.name)
+				doc.quantity_picked = flt(doc.quantity_picked) - flt(item_pick.quantity_picked)   
+				doc.save()
+
+		getTask = frappe.get_all("Warehouse Task", filters={"reference_name": self.name, "reference_doctype": "Item Picklist"}, fields=["name"])
+		for task in getTask:
+			frappe.db.delete("Warehouse Task", filters={'name': task.name})
+			frappe.db.delete("Reserved Task Entry", filters={'task': task.name})
 
 	def on_submit(self):
 		if not any(row.is_selected for row in self.item_picklist_summary):
@@ -69,6 +91,11 @@ class ItemPicklist(Document):
 						doc.save()
 						totalPicked = 0
 						break
+
+		for name in itemRequestDoc:
+			itemRequest = frappe.get_doc("Item Request", name)
+			itemRequest.update_status_based_on_details()
+			itemRequest.save()
 
 		try:
 			new_task = frappe.new_doc("Warehouse Task")

@@ -251,6 +251,7 @@
   },
   {
    "allow_on_submit": 1,
+   "default": "WH04",
    "fieldname": "shopfloor_location",
    "fieldtype": "Link",
    "label": "Destination Location",
@@ -293,7 +294,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-16 09:55:08.681292",
+ "modified": "2026-05-25 10:28:26.159279",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split",

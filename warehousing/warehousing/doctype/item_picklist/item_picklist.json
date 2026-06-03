@@ -8,13 +8,15 @@
   "section_break_j2i3",
   "amended_from",
   "select_request",
+  "complete_percentage",
   "column_break_iwes",
   "priority",
   "needed_date",
   "section_break_zlyp",
   "get_item_stock",
   "item_picklist_summary",
-  "item_picklist_detail"
+  "item_picklist_detail",
+  "get_item_from_inventory"
  ],
  "fields": [
   {
@@ -75,6 +77,17 @@
    "fieldname": "needed_date",
    "fieldtype": "Date",
    "label": "Needed Date"
+  },
+  {
+   "fieldname": "get_item_from_inventory",
+   "fieldtype": "Button",
+   "label": "Select Inventory"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "complete_percentage",
+   "fieldtype": "Int",
+   "label": "Complete Percentage"
   }
  ],
  "grid_page_length": 50,
@@ -82,7 +95,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-16 11:18:13.242323",
+ "modified": "2026-05-29 00:05:37.522455",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist",

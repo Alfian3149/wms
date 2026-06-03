@@ -433,8 +433,6 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
         frappe.throw(_("PO receipt sudah dilakukan sebelumnya. Mohon cek kembali data Anda."))
         return
 
-
-
     url = get_url()
     data = test_internal_api(url)
     

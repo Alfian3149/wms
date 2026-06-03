@@ -10,23 +10,27 @@
   "reported_by",
   "column_break_mhow",
   "reason",
+  "column_break_jjrz",
+  "data_ethk",
+  "section_break_krhh",
+  "material_incoming_id",
+  "po_number",
+  "column_break_mxgp",
+  "receiver",
+  "receipt_date",
+  "column_break_kzlc",
+  "supplier",
+  "name1",
+  "column_break_jfpa",
+  "small_text_yfqg",
   "section_break_ozcl",
   "part",
   "column_break_nlkb",
   "lotserial",
   "column_break_zmdk",
   "current_position",
-  "qty",
-  "section_break_krhh",
-  "material_incoming_id",
-  "column_break_mxgp",
-  "po_number",
-  "receiver",
-  "receipt_date",
-  "column_break_kzlc",
-  "supplier",
-  "name1",
-  "small_text_yfqg"
+  "column_break_ghqv",
+  "qty"
  ],
  "fields": [
   {
@@ -128,13 +132,31 @@
   },
   {
    "fieldname": "small_text_yfqg",
-   "fieldtype": "Small Text"
+   "fieldtype": "Small Text",
+   "label": "Supplier Address"
+  },
+  {
+   "fieldname": "column_break_ghqv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_jfpa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_jjrz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "data_ethk",
+   "fieldtype": "Data",
+   "label": "Remarks"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-22 15:54:35.727213",
+ "modified": "2026-05-25 08:18:45.468777",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Inspection",

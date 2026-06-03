@@ -11,51 +11,98 @@ frappe.ui.form.on("Item Picklist", {
     },
 
     before_save: function(frm) {
-        if (!frm.is_new()){
-        // Mengambil nama baris (name/ID) yang sedang dicentang di grid
-            let selected_rows = frm.fields_dict['item_picklist_summary'].grid.get_selected();
-            
-            if (selected_rows.length > 0) {
-                let child_table = frm.doc.item_picklist_summary || [];
-                let all_zero = child_table.every(row => flt(row.quantity_picked) <= 0);
-
-                if (child_table.length === 0 || all_zero) {                        
-                    frappe.msgprint({
-                        title: __('ERROR'),
-                        indicator: 'red',
-                        message: __('There is no item in the details list. Please running the Get Item Stock first.')
-                    });
-                    frappe.validated = false;
-                }
-
-                frm.doc.item_picklist_summary.forEach(d => {
-                    let status = selected_rows.includes(d.name) ? 1 : 0;
-                    frappe.model.set_value(d.doctype, d.name, 'is_selected', status);
-                });
-            
-            }
-            else{
+        if (frm.is_new() && (!frm.doc.select_request || frm.doc.select_request.length === 0)) {
+            let child_table = frm.doc.item_picklist_summary || [];
+            if (child_table.length === 0) {
                 frappe.msgprint({
                     title: __('ERROR'),
                     indicator: 'red',
-                    message:__("There is no selected item in the request list"),
+                    message: __('Please select the item request first in the Select Multiple Request field.')
                 });
                 frappe.validated = false;
                 return;
             }
         }
-    },
- 
- 	refresh(frm) {
-        $(frm.fields_dict['item_picklist_summary'].wrapper).on('click', 'input[type="checkbox"]', function() {
-            let selected_rows = frm.fields_dict['item_picklist_summary'].grid.get_selected();
+
+        /* let selected_rows = frm.fields_dict['item_picklist_summary'].grid.get_selected();
+        
+        if (selected_rows.length > 0) {
+            let child_table = frm.doc.item_picklist_summary || [];
+            let all_zero = child_table.every(row => flt(row.quantity_picked) <= 0);
+
+            if (child_table.length === 0 || all_zero) {                        
+                frappe.msgprint({
+                    title: __('ERROR'),
+                    indicator: 'red',
+                    message: __('There is no item in the details list. Please running the Get Item Stock first.')
+                });
+                frappe.validated = false;
+            }
+
             frm.doc.item_picklist_summary.forEach(d => {
                 let status = selected_rows.includes(d.name) ? 1 : 0;
                 frappe.model.set_value(d.doctype, d.name, 'is_selected', status);
             });
+        
+        }    */    
+    },
+ 
+ 	refresh(frm) {
+        $(frm.fields_dict['item_picklist_summary'].wrapper).on('click', 'input[type="checkbox"]', function(e) {
+            let grid = frm.fields_dict['item_picklist_summary'].grid;
+            
+            // Ambil baris HTML tempat checkbox diklik
+            let $clicked_row = $(this).closest('.grid-row');
+            let clicked_name = $clicked_row.attr('data-name');
+
+            // Cari data doc berdasarkan baris yang diklik
+            let row_data = frm.doc.item_picklist_summary.find(d => d.name === clicked_name);
+
+            // Validasi: Jika baris yang diklik memiliki quantity <= 0
+            if (row_data && flt(row_data.quantity_picked) <= 0) {
+                
+                // 1. Hentikan event bawaan Frappe agar tidak sempat memasukkan data ke internal array
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 2. Kembalikan visual checkbox dan row ke kondisi semula (uncheck)
+                $(this).prop('checked', false);
+                $clicked_row.removeClass('selected');
+
+                // 3. Pastikan status field custom tetap 0
+                frappe.model.set_value(row_data.doctype, row_data.name, 'is_selected', 0);
+
+                // 4. Tampilkan pesan error
+                frappe.msgprint({
+                    title: __('ERROR'),
+                    indicator: 'red',
+                    message: __('The row you selected has zero quantity. Please select another row with quantity more than zero.')
+                });
+
+                return false; 
+            }
+
+            // --- LOGIKA JIKA LOLOS VALIDASI (Kuantitas > 0) ---
+            // Berikan jeda microsecond agar Frappe selesai memperbarui grid.get_selected() bawaannya
+            setTimeout(() => {
+                let selected_rows = grid.get_selected();
+                
+                frm.doc.item_picklist_summary.forEach(d => {
+                    let status = selected_rows.includes(d.name) ? 1 : 0;
+                    if (d.is_selected !== status && flt(d.quantity_picked) > 0) {
+                        frappe.model.set_value(d.doctype, d.name, 'is_selected', status);
+                    }
+                });
+            }, 50);
         });
 
         frm.events.sync_grid_selection(frm);
+        frm.fields_dict['item_picklist_detail'].grid.wrapper.find('.grid-row-checkbox').hide();
+        frm.fields_dict['item_picklist_detail'].grid.wrapper.find('.row-check').hide();
+        let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory" });
+        //d.dialog.hide();
+
+        
         /* frm.fields_dict['item_picklist_summary'].grid.wrapper.on('click', '.grid-row-checkbox', function() {
             alert("test");
             // Berikan sedikit delay agar Frappe selesai mengupdate state grid
@@ -112,8 +159,24 @@ frappe.ui.form.on("Item Picklist", {
         frm.fields_dict['item_picklist_summary'].grid.refresh();
     },
 
-	get_item_stock(frm) {
-    
+	get_item_stock(frm) { 
+        if (frm.doc.select_request == undefined || frm.doc.select_request == "") {
+            frappe.msgprint({
+                title: __('ERROR'),
+                indicator: 'red',
+                message: __('Please select the item request first in the Select Multiple Request field.')
+            });
+            return;
+        }
+
+        if (frm.is_new()){
+            frappe.msgprint({
+                title: __('ERROR'),
+                indicator: 'red',
+                message: __('Please save the document first.')
+            });
+            return;
+        }
         frappe.call({
             method: "warehousing.warehousing.doctype.inventory.inventory.get_fifo_picklist_with_reserved",
             args: {  
@@ -176,6 +239,113 @@ frappe.ui.form.on("Item Picklist", {
         
         
     }, 
+
+    get_item_from_inventory:function(frm){
+        if(frm.doc.docstatus == 1){
+            frappe.msgprint({
+                title: __('ERROR'),
+                indicator: 'red',
+                message: __('Cannot get item from inventory because the document is already submitted.')
+            });
+            return;
+        } 
+
+
+        let d = new frappe.ui.form.MultiSelectDialog({
+            doctype: "Inventory",
+            target: this.cur_frm,
+            columns: ["name", "part", "lot_serial", "warehouse_location", "qty_on_hand"],
+            setters: {
+                part: null, 
+                lot_serial: null, 
+                warehouse_location: null, 
+                qty_on_hand:null,
+            },
+
+            action(selections) {
+                if (selections.length === 0) {
+                    frappe.msgprint(__('Pilih setidaknya satu lokasi.'));
+                    return;
+                }
+                /* else if (selections.length  > 1){
+                    frappe.msgprint(__('Hanya bisa pilih 1 baris inventory'));
+                    return;
+                } */
+                // Iterasi setiap lokasi yang dipilih
+                selections.forEach(inventory => {
+                    frappe.db.get_doc("Inventory", inventory).then(inv => {
+                        if (inv.qty_on_hand <= 0){
+                            frappe.msgprint(__('Inventory selected does not have stock'));
+                            return;
+                        }
+
+                        const picklist_details = frm.doc.item_picklist_detail;
+                        const item_detail_is_existed = picklist_details.find(row => row.part === inv.part && row.lot_serial === inv.lot_serial && row.from_location === inv.warehouse_location);
+
+                        if (item_detail_is_existed){
+                            frappe.msgprint(__('Item with same part {0}, lot serial {1}, and location {2} already exist in the details list').format(inv.part, inv.lot_serial, inv.warehouse_location));
+                            return;
+                        } 
+
+                        const item_is_existed = picklist_details.find(row => row.part === inv.part);
+
+                        if (item_is_existed){
+                            $.each(frm.doc.item_picklist_summary, function(index, row) {
+                                if (row.part === inv.part) {
+                                    frappe.model.set_value(row.doctype, row.name, 'quantity_picked', flt(row.quantity_picked) + flt(inv.qty_on_hand));
+                                }
+                            });
+                        }
+                        else {
+                            let summary_child = frm.add_child('item_picklist_summary');
+                            summary_child.part= inv.part;
+                            summary_child.site= inv.site;
+                            summary_child.quantity_requested= 0;
+                            summary_child.quantity_picked= flt(inv.qty_on_hand);
+                            
+                        }
+                        
+                        let child = frm.add_child('item_picklist_detail');
+                        child.site= inv.site;
+                        child.part= inv.part;
+                        child.quantity = inv.qty_on_hand;
+                        child.from_location = inv.warehouse_location;
+                        child.lot_serial = inv.lot_serial;
+                        child.amt_pallet = 0;
+
+                        frappe.db.get_value("Part Master", inv.part, ["description", "um","qty_per_pallet","item_group"], as_dict=1).then(value => {
+                            child.description = value.message.description;
+                            child.um = value.message.um;
+                            child.qty_per_pallet = value.message.qty_per_pallet;
+                            child.item_grouping= value.message.item_group;
+                            summary_child.item_grouping= value.message.item_group;
+                        })  
+                        
+                        setTimeout(() => { 
+                        frm.refresh_field('item_picklist_summary');
+                        frm.refresh_field('item_picklist_detail'); 
+                        frm.fields_dict['item_picklist_detail'].grid.wrapper.find('.grid-row-checkbox').hide();
+                        frm.fields_dict['item_picklist_detail'].grid.wrapper.find('.row-check').hide();
+                        }, 500);
+                    
+                    });
+                });
+
+                d.dialog.hide();
+
+            }
+        });
+        d.dialog.get_secondary_btn().hide();
+
+        setTimeout(() => {
+        if (d.dialog) {
+            d.dialog.get_secondary_btn().hide();
+        }
+        }, 1);
+    
+
+    }
+
     
 });
 

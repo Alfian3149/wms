@@ -22,7 +22,6 @@
    "in_list_view": 1,
    "label": "Part",
    "options": "Part Master",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -38,8 +37,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Target Location",
-   "options": "Warehouse Location",
-   "reqd": 1
+   "options": "Warehouse Location"
   },
   {
    "fetch_from": "part.description",
@@ -49,6 +47,7 @@
    "read_only": 1
   },
   {
+   "default": "1000",
    "fieldname": "site",
    "fieldtype": "Data",
    "label": "Site",
@@ -59,9 +58,8 @@
    "fieldname": "quantity_requested",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Requested",
+   "label": "Qty Requested",
    "non_negative": 1,
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -71,6 +69,7 @@
    "label": "Picked"
   },
   {
+   "fetch_from": "part.item_group",
    "fieldname": "item_group",
    "fieldtype": "Data",
    "label": "Group"
@@ -80,7 +79,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-04-15 17:17:58.144745",
+ "modified": "2026-05-26 10:19:43.606300",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request Detail",

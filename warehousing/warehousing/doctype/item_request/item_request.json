@@ -19,6 +19,7 @@
   "status",
   "section_break_ngrt",
   "doctype_source",
+  "picklist",
   "column_break_pjnk",
   "link",
   "section_break_smwc",
@@ -51,6 +52,7 @@
    "options": "IR-.YYYY.-"
   },
   {
+   "default": "Manufacture",
    "fieldname": "purpose",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -71,10 +73,12 @@
   {
    "fieldname": "required_by",
    "fieldtype": "Date",
-   "label": "Required By"
+   "label": "Required for date",
+   "reqd": 1
   },
   {
    "allow_on_submit": 1,
+   "default": "WH04",
    "fieldname": "target_location",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -85,7 +89,7 @@
   {
    "fieldname": "section_break_smwc",
    "fieldtype": "Section Break",
-   "label": "Summary Request"
+   "label": "Material to Request"
   },
   {
    "allow_on_submit": 1,
@@ -94,8 +98,10 @@
    "options": "Item Request Detail"
   },
   {
+   "collapsible": 1,
    "fieldname": "section_break_ngrt",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Connections"
   },
   {
    "fieldname": "doctype_source",
@@ -153,6 +159,11 @@
   {
    "fieldname": "column_break_dpdm",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "picklist",
+   "fieldtype": "Data",
+   "label": "Picklist"
   }
  ],
  "grid_page_length": 50,
@@ -160,7 +171,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-31 05:40:23.494329",
+ "modified": "2026-06-03 11:05:10.751322",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request",

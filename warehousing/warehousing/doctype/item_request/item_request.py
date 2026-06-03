@@ -15,11 +15,19 @@ class ItemRequest(Document):
             self.status = "Partially Picked"
         elif self.items and qty_needed <= 0:
             self.status = "Fully Picked"
-            frappe.db.set_value("Work Order Split", self.link, "status", "Ready For Weighing")
+            if self.link:
+                frappe.db.set_value("Work Order Split", self.link, "status", "Ready For Weighing")
         else:
             self.status = "Open"
     
     def validate(self):
+        if not self.items:
+            frappe.throw("Material Request must have at least one item in the items table.")
+            return
+
+        for item in self.items:
+            item.target_location = self.target_location
+
         self.update_status_based_on_details()
 
     def update_status_based_on_details(self):
@@ -27,7 +35,7 @@ class ItemRequest(Document):
             self.status = "Open"
             return
 
-        all_complete = all(flt(d.quantity_requested) - flt(d.quantity_picked) == 0 for d in self.items)
+        all_complete = all(flt(d.quantity_requested) - flt(d.quantity_picked) <= 0 for d in self.items)
         
         if all_complete:
             self.status = "Fully Picked"

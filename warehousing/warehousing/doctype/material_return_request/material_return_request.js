@@ -327,5 +327,41 @@ frappe.ui.form.on("Material Return Request", {
             grid.wrapper.find('.grid-add-row').hide();    // Sembunyikan tombol add row di bawah
 		    tosupplier.show();
 		});
-    }
+    },
+
+    find: function(frm){
+
+        let values = frm.doc;
+        if (!search_and_filter_validation(values)) {
+        return; // Hentikan fungsi jika validasi gagal
+        }
+
+        // 3. Logika Backend/API jika validasi lolos
+        frappe.show_alert({
+            message: __('Memulai pencarian data...'),
+            indicator: 'blue'
+        });
+
+    }, 
+
+
+
 });
+
+function search_and_filter_validation(values){
+    const nama_fields = ['part', 'lot_serial', 'location', 'incomming_date'];
+    let ada_yang_terisi = nama_fields.some(field => values[field] && values[field].trim() !== "");
+
+    if (!ada_yang_terisi) {
+        // Frappe throw otomatis menghentikan proses spinner dan memunculkan pop-up pesan peringatan
+        frappe.throw({
+            title: __('Filter Kosong'),
+            message: __('Silakan isi minimal salah satu kolom filter (Part, Lot Serial, Location, atau Incoming Date) untuk melakukan pencarian.'),
+            indicator: 'orange' 
+        });
+        
+        return false; 
+    }
+
+    return true;
+}

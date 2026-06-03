@@ -168,6 +168,10 @@ class WarehouseTask(Document):
                         frappe.ValidationError
                     )
 
+    def after_delete(self):
+        if self.task_type == "Picking" : 
+            frappe.db.delete("Reserved Task Entry", filters={'task': self.name})
+            
 @frappe.whitelist()
 def notify(owner) : 
     enqueue_create_notification(owner, {
@@ -599,6 +603,8 @@ def picked_confirm():
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     if latest_doc_parent.status == "Completed" :
         latest_doc_parent.submit()
+
+        frappe.db.set_value("Item Picklist", latest_doc_parent.reference_name, "complete_percentage", 50)
     return data
 
 @frappe.whitelist()
@@ -633,8 +639,8 @@ def po_receipt_task_confirmation_in_web(transactionSuccess, parent_doc_name):
         d_site = d.get("site") or "1000"
         d_poline = d.get("poline"),
         data = {
-			"doctype":"Warehouse Task",
-			"doctype_link":parent_doc_name,
+			"doctype_source":"Warehouse Task",
+			"data_link":parent_doc_name,
 			"transType":"RCT-PO",
 			"site":d_site,
 			"part":d.get("part"),
@@ -675,8 +681,8 @@ def get_picklist_outstanding_tasks(user):
     items = []
     for data in tasks:
         task_items = frappe.get_all("Warehouse Task Detail",
-                filters={"parent": data.name, "status": ["!=", "Completed"]},
-                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_label as quantity","qty_confirmation as receivedQty", "locationsource as sourceLocation","locationdestination as toLocation"],order_by='item asc, lotserial asc')
+                filters={"parent": data.name},
+                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_label as quantity","qty_confirmation as receivedQty", "locationsource as sourceLocation","locationdestination as toLocation", "status"],order_by='item asc, lotserial asc')
 
         picklist = frappe.db.get_value("Item Picklist", data.reference_name, ["priority", "needed_date"], as_dict=True) 
         picklistTask.append({
@@ -709,11 +715,13 @@ def get_handover_outstanding_tasks(user):
     items = []
     for data in tasks:
         task_items = frappe.get_all("Warehouse Task Detail",
-                filters={"parent": data.name, "has_handovered": 0},
-                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_confirmation as quantity","locationdestination as location", "qty_handover as handedOverQty"],order_by='item asc, lotserial asc')
+                filters={"parent": data.name, "status":"Completed"},
+                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_confirmation as quantity","locationdestination as location", "qty_handover as handedOverQty", "has_handovered as status"],order_by='item asc, lotserial asc')
 
-        picklist = frappe.db.get_value("Item Picklist", data.reference_name, ["priority", "needed_date"], as_dict=True) 
+        #picklist = frappe.db.get_value("Item Picklist", data.reference_name, ["priority", "needed_date"], as_dict=True) 
+        
         handoverTask.append({
+            "task": data.name,
             "orderId": data.reference_name,
             "productionLine": "",
             "pickedBy": data.users_picker if data.users_picker else None,
@@ -722,30 +730,22 @@ def get_handover_outstanding_tasks(user):
         })
     return handoverTask
 
+
 @frappe.whitelist()
-def handover_confirm():
+def handover_qty_submit(name, qty):
+    frappe.db.set_value("Warehouse Task Detail", name, "qty_handover", flt(qty))
+    frappe.db.set_value("Warehouse Task Detail", name, "has_handovered", 1)
+    frappe.db.set_value("Warehouse Task Detail", name, "user_handovered", frappe.session.user)
+    frappe.db.set_value("Warehouse Task Detail", name, "time_handovered", frappe.utils.now())
+
+@frappe.whitelist()
+def handover_confirm(task):
     time.sleep(1)
-    #data = frappe.dumps(data)
-    dataList = frappe.request.get_json()
-    if not dataList:
+    if not task:
         frappe.throw("Data tidak ditemukan dalam request")
     
-    parent = None
-    for data in dataList:
-        doc_child = frappe.get_doc("Warehouse Task Detail", data["keyId"])
-        parent = doc_child.parent
-        doc_child.reload()
-        doc_child.set("qty_handover", data["quantity"])
-        doc_child.set("has_handovered", 1)
-        doc_child.set("user_handovered", frappe.session.user)
-        doc_child.set("time_handovered", frappe.utils.now())
-        doc_child.save(ignore_permissions=True)
+    task = frappe.get_doc("Warehouse Task", task)
+    frappe.db.set_value("Warehouse Task", task, "is_needed_handover", 0)
+    frappe.db.set_value("Item Picklist", task.reference_name, "complete_percentage", 100)
 
-
-    is_exist_handover_yet = frappe.db.exists("Warehouse Task Detail", {"parent":parent, "has_handovered":0})
-    if not is_exist_handover_yet:
-        doc_parent = frappe.get_doc("Warehouse Task", parent)
-        doc_parent.set("is_needed_handover", 0)
-        doc_parent.save(ignore_permissions=True)
-    frappe.db.commit()
-    return data
+    return task 

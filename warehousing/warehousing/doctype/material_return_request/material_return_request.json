@@ -6,14 +6,14 @@
  "engine": "InnoDB",
  "field_order": [
   "search_by_section",
-  "part",
+  "incomming_date",
   "find",
   "column_break_isyk",
-  "lot_serial",
+  "part",
   "column_break_fume",
-  "location",
+  "lot_serial",
   "column_break_kcvg",
-  "incomming_date",
+  "location",
   "section_break_pisy",
   "items",
   "section_break_so2m",
@@ -143,7 +143,7 @@
   {
    "fieldname": "incomming_date",
    "fieldtype": "Date",
-   "label": "Incomming Date",
+   "label": "Incoming Date",
    "placeholder": "Equals"
   },
   {
@@ -238,7 +238,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-02-09 00:14:17.697731",
+ "modified": "2026-05-29 17:32:49.615305",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Material Return Request",

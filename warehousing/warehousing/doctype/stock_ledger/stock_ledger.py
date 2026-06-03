@@ -34,8 +34,8 @@ class StockLedger(Document):
 
 class make_sl_entry:
 	def __init__(self, **kwargs):
-		self.doctype = kwargs.get("doctype")
-		self.doctype_link = kwargs.get("doctype_link")
+		self.doctype_source = kwargs.get("doctype_source")
+		self.data_link = kwargs.get("data_link")
 		self.transType = kwargs.get("transType")
 		self.site = kwargs.get("site")
 		self.part = kwargs.get("part")
@@ -80,7 +80,8 @@ class make_sl_entry:
 		self.existingConsideration()
 		stock_ledger = frappe.get_doc({
 			"doctype": "Stock Ledger",
-			"doctype_source": self.doctype,
+			"doctype_source": self.doctype_source,
+			"data_link": self.data_link,
 			"inventory_doc_link": self.inventory_doc_link,
 			"transaction_type": self.transType,
 			"site": self.site,

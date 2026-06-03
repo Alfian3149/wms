@@ -80,17 +80,10 @@ frappe.ui.form.on("Work Order Comp Issued", {
                         label: 'Qty',
                         fieldname: 'scan_qty',
                         fieldtype: 'Float',
-                        in_focus: 1,
-                    },
-                    {
-                        fieldtype: "Section Break" 
-                    },
-                    {
-                        label: 'Barcode Temporary',
-                        fieldname: 'scan_temporary',
-                        fieldtype: 'Data',
-                        hidden:0,
                         in_focus: 1
+                    },
+                     {
+                        fieldtype: "Section Break" 
                     },
                     {
                         fieldtype: 'HTML',
@@ -239,7 +232,15 @@ frappe.ui.form.on("Work Order Comp Issued", {
                         if (item_found){
                             d.set_value('scan_input', '');
                             let totalQtyScanned = item_found.qty_scanned  +  flt(quantity);
-   
+                            /* if (item_found.qty_lot_available <  totalQtyScanned) {
+                                frappe.msgprint({
+                                title: __('ERROR'),
+                                indicator: 'red',
+                                message:__("Qty scanned is over for the Qty available item/LotSerial ", [item, unique_id]),
+                                 });
+                                frappe.validated = false; 
+                                return false;
+                            } */
                             item_found.qty_scanned = totalQtyScanned;
                             scanned_qty.push({item_code:item, quantity_scanned:flt(quantity), unique_id_scanned:unique_id})
                             render_scan_list();
@@ -255,100 +256,67 @@ frappe.ui.form.on("Work Order Comp Issued", {
                     else if (scan.length === 2) {
                         const item = scan[0];      // "ITEM12345"
                         const lotSerial = scan[1]; // "LOT98765"
-  
+                        const double_scanned = scanned_items.find(row => row.item_code === item && row.lotserial === lotSerial)
+
+                        if (double_scanned) {
+                            d.set_value('scan_input', '');
+                            frappe.msgprint({
+                                title: __('ERROR'),
+                                indicator: 'red',
+                                message:__("Item {0} dan Lot {1} double scanned", [item,lotSerial]),
+                            });
+                            frappe.validated = false; // Batalkan proses jika perlu
+                            return false;
+                        }
                         const row_found = frm.doc.item_summary_to_issued.find(row => row.part === item)
 
                         if (row_found) {
-                            d.set_value('scan_temporary', val);
-   
-                            setTimeout(() => {
-                                $qty_field.focus().select();
-                                d.set_value('scan_input', '');
-                            }, 100);
+                            let $scan_qty = $existing_row.find('.scan_qty');
+                            let current_qty = parseFloat($scan_qty.val()) || 0;
+                            $scan_qty.val(current_qty + 1);
+                            
+                            // Beri efek flash kuning instan sebagai penanda sukses scan ulang
+                            $existing_row.css('background-color', '#fff3cd');
+                            setTimeout(() => $existing_row.css('background-color', ''), 500);
+
+                            /* frappe.call({
+                            method: "warehousing.warehousing.doctype.work_order_comp_issued.work_order_comp_issued.get_inventory_clean_for_production",
+                            args: {
+                                site: "1000",
+                                item: item,
+                                lotserial: lotSerial,
+                                status: "P-GOOD",
+                                qty_needed:row_found.qty_needed,
+                            },
+                            callback: function(r) {
+                                if(r.message.notOk){
+                                    d.set_value('scan_input', '');
+                                    frappe.msgprint(__(r.message.message));
+                                        frappe.validated = false; // Batalkan proses jika perlu
+                                        return false;
+                                    }
+                                    else{
+                                        scanned_items.push({ item_code: item, description: row_found.description, um:row_found.um, lotserial:lotSerial, qty_needed: row_found.qty_needed, qty_lot_available:r.message.inventory[0].qty_on_hand, qty_scanned: flt(0), in_location:r.message.inventory[0].warehouse_location,  no: scanned_items.length + 1 });
+                                        render_scan_list();
+                                        d.set_value('scan_input', '');
+                                        
+                                        return false;    
+                                    }
+                                }
+                                
+                            }); */
+                            
                         }
                         else { 
                             d.set_value('scan_input', '');
-                            frappe.show_alert(__("Item {0} dengan Lot {1} bukan material produksi untuk produksi ini", [item,lotSerial]));
-                             
+                            frappe.msgprint(__("Item {0} dengan Lot {1} bukan material produksi untuk produksi ini", [item,lotSerial]));
                             frappe.validated = false; // Batalkan proses jika perlu
-                            return false;  
+                            return false;
                         }
                     }
-                    else {      
-                        frappe.show_alert({
-                            message:__("Format Barcode tidak dikenal"),
-                            indicator:'red'
-                        },2);
-                        d.set_value('scan_input', '');
-                        $barcode_field.focus();
-                        
-                    }
-
-                }
-            });
-
-            // 2. EVENT: Ketika USER menekan ENTER di field QTY
-            $qty_field.on('keydown', function(e) {
-                if (e.which === 13) { // Enter key
-                    e.preventDefault();
-                    let qty_val = parseFloat($(this).val()) || 0;
-                    let val = d.get_value('scan_temporary');
-
-                    if(val === undefined || val === null || val === ''){
-                        d.set_value('scan_qty', '');
-                        frappe.show_alert({
-                            message:__("Anda belum scan barcode."),
-                            indicator:'red'
-                        })
-                    }
-                    const scan = val.split("#");
-                    const item = scan[0];      // "ITEM12345"
-                    const lotSerial = scan[1]; // "LOT98765"
-                    
-                    const existing_item = scanned_items.find(row => row.item_code === item && row.lotserial === lotSerial);
-                    if (existing_item) {
-                        existing_item.qty_scanned =  flt(qty_val);
-                        render_scan_list();
-                        setTimeout(() => {
-                            $barcode_field.focus();
-                        }, 50);
-                        return false;   
-                    }
                     else {
-                        const row_found = frm.doc.item_summary_to_issued.find(row => row.part === item)
-                        frappe.call({
-                        method: "warehousing.warehousing.doctype.work_order_comp_issued.work_order_comp_issued.get_inventory_clean_for_production",
-                        args: {
-                            site: "1000",
-                            item: item,
-                            lotserial: lotSerial,
-                            status: "P-GOOD",
-                            qty_needed:row_found.qty_needed,
-                        },
-                        callback: function(r) {
-                            if(r.message.notOk){
-                                d.set_value('scan_input', '');
-                                frappe.msgprint(__(r.message.message));
-                                    frappe.validated = false; // Batalkan proses jika perlu
-                                    return false;
-                                }
-                                else{
-                                    scanned_items.push({ item_code: item, description: row_found.description, um:row_found.um, lotserial:lotSerial, qty_needed: row_found.qty_needed, qty_lot_available:r.message.inventory[0].qty_on_hand, qty_scanned: flt(qty_val), in_location:r.message.inventory[0].warehouse_location,  no: scanned_items.length + 1 });
-                                    render_scan_list();
-                                    d.set_value('scan_input', '');
-                                    d.set_value('scan_temporary', '');
-                                    d.set_value('scan_qty', '');
-                                    
-                                    setTimeout(() => {
-                                        $barcode_field.focus();
-                                    }, 50);
-
-                                    return false;    
-                                }
-                            }
-                            
-                        });
-
+                        frappe.msgprint(__("Format Barcode tidak dikenal"));
+                        d.set_value('scan_input', '');                        
                     }
 
                 }

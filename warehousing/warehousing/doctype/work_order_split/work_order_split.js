@@ -61,7 +61,7 @@ frappe.ui.form.on('Work Order Split', {
 
                 frm.set_value("quantity_to_be_produced_immediately",0);
                 frm.set_value("qty_in_tonnase",0);
-                frm.set_value("shopfloor_location","");
+                //frm.set_value("shopfloor_location","");
                 frm.trigger('fetch_workorder_from_qad');
                 console.log("INPUT WORK ORDER");
                 setTimeout(() => { 
@@ -77,6 +77,7 @@ frappe.ui.form.on('Work Order Split', {
 	        if(frm.doc.quantity_to_be_produced_immediately > 0 && frm.doc.work_order){
                 frm.set_value("qty_in_tonnase",frm.doc.quantity_to_be_produced_immediately / 1000);
 	            frm.trigger('fetch_simulated_picklist_item');
+
 	        }
 	    });
 	    
@@ -124,6 +125,9 @@ frappe.ui.form.on('Work Order Split', {
                 
                     // 5. Refresh UI & Berikan feedback
                     frm.refresh_field('work_order_split_detail');
+                    setTimeout(() => { 
+                    frm.trigger('get_availablity_stock');
+                    }, 500);
                 }
             },
         })

@@ -10,8 +10,9 @@ import time
 from dataclasses import dataclass
 from dataclasses import asdict  
 class Inventory(Document):
-	pass
-
+    pass
+    #def on_update(self):
+        
 @dataclass
 class PickingItem:
     part: str

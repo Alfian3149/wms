@@ -86,7 +86,7 @@ def component_issued_API(wo_comp_issued_name):
     # 1. Buat Draft Integration Request untuk Logging
     int_log = frappe.get_doc({
         "doctype": "Integration Request",
-        "integration_request_service": "COMPONENT ISSUED API",
+        "integration_request_service": "Component Issued API",
         "url": url,
         "data": json.dumps(payload, indent=4) if isinstance(payload, (dict, list)) else payload,
         "status": "Queued",

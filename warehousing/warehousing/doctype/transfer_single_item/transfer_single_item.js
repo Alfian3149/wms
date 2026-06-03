@@ -50,18 +50,10 @@ frappe.ui.form.on("Transfer Single Item", {
                 qty_on_hand:null,
             },
             get_query() {
-
                 return {
-
-                    filters: [{
-
-                        qty_on_hand: [">", 0],
-
-                    }]
-
-                };
-
-            },
+                    filters: { qty_on_hand: [">", 0] }
+                }
+            }, 
             action(selections) {
                 // 'selections' berisi array ID (name) dari record yang dipilih
                 if (selections.length === 0) {
@@ -102,6 +94,7 @@ frappe.ui.form.on("Transfer Single Item", {
                         frm.set_value('location_from', doc.warehouse_location);
                         frm.set_value('lotserial_from', doc.lot_serial);
                         frm.set_value('current_quantity', doc.qty_on_hand);
+                        frm.set_value('quantity', doc.qty_on_hand);
                         frm.set_value('status', doc.inventory_status);
                         frm.set_value('expire', doc.expire_date);
                         frm.set_value('inventory_name', doc.name);
