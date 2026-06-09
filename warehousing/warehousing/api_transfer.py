@@ -131,8 +131,8 @@ def transfer_submit_detail_task(details, ref_doctype, doc_name, wsa):
         "locTo":data.locationdestination,
         "lotserTo":data.lotserial,
         "lotrefTo":"",
-        "usefrom":True,
-        "useto":False,
+        "usefrom":False,
+        "useto":True,
     }) """
     
     final_payload = {

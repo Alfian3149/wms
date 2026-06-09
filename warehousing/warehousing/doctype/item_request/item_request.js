@@ -10,7 +10,7 @@ frappe.ui.form.on('Item Request', {
         if (!frm.doc.requestor_by){
             frm.set_value('requestor_by', frappe.session.user); 
         }
-        frm.set_df_property('status', 'read_only', 1);
+        //frm.set_df_property('status', 'read_only', 1);
 
         frm.trigger('reserved_material_detail');
 	},

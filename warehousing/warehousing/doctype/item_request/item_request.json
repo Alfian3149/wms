@@ -16,7 +16,7 @@
   "column_break_dvie",
   "target_location",
   "requestor_by",
-  "status",
+  "request_status",
   "section_break_ngrt",
   "doctype_source",
   "picklist",
@@ -139,14 +139,6 @@
    "fieldtype": "HTML"
   },
   {
-   "allow_on_submit": 1,
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Request Status",
-   "options": "Open\nPartially Picked\nFully Picked"
-  },
-  {
    "fieldname": "reserved_task_entry",
    "fieldtype": "HTML"
   },
@@ -164,6 +156,14 @@
    "fieldname": "picklist",
    "fieldtype": "Data",
    "label": "Picklist"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "request_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Request Status",
+   "options": "Open\nPartially Picked\nFully Picked"
   }
  ],
  "grid_page_length": 50,
@@ -171,7 +171,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-03 11:05:10.751322",
+ "modified": "2026-06-03 23:03:20.578977",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request",
@@ -196,5 +196,18 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [
+  {
+   "color": "Green",
+   "title": "Fully Picked"
+  },
+  {
+   "color": "Blue",
+   "title": "Partially Picked"
+  },
+  {
+   "color": "Yellow",
+   "title": "Open"
+  }
+ ]
 }

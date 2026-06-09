@@ -126,6 +126,7 @@ frappe.ui.form.on("Item Picklist", {
          frm.set_query('select_request', function() {
             return {
                 filters: {
+                    'request_status': ['!=', 'Fully Picked'],
                     'status': ['!=', 'Fully Picked'],
                     'docstatus':['!=', '2']
                 }

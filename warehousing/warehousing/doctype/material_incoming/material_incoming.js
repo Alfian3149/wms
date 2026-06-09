@@ -215,8 +215,7 @@ frappe.ui.form.on("Material Incoming", {
                             { 
                                 fieldname: "name", 
                                 label: "Name", 
-                                fieldtype: "Data",
-                               
+                                fieldtype: "Data", 
                                 columns: 2,
                                 hidden: 1
                             },

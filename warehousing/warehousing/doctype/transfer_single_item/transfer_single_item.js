@@ -15,7 +15,7 @@ frappe.ui.form.on("Transfer Single Item", {
         
     },
     refresh(frm) {
-        //let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory" });
+        let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory" });
         //d.dialog.hide();
         
         let key_name_filter = "";
@@ -47,7 +47,7 @@ frappe.ui.form.on("Transfer Single Item", {
                 part: null, 
                 lot_serial: null, 
                 warehouse_location: null, 
-                qty_on_hand:null,
+                qty_on_hand:[">", 0],
             },
             get_query() {
                 return {

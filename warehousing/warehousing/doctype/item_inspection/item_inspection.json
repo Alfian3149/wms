@@ -5,12 +5,21 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "id_report",
-  "column_break_zduk",
+  "section_break_ozcl",
+  "part",
+  "description",
+  "column_break_nlkb",
+  "lotserial",
+  "qty",
+  "column_break_zmdk",
+  "current_position",
+  "column_break_ghqv",
+  "current_status",
+  "reason_section",
+  "reported_date",
   "reported_by",
-  "column_break_mhow",
+  "column_break_dxzf",
   "reason",
-  "column_break_jjrz",
   "data_ethk",
   "section_break_krhh",
   "material_incoming_id",
@@ -20,50 +29,45 @@
   "receipt_date",
   "column_break_kzlc",
   "supplier",
-  "name1",
+  "supplier_name",
   "column_break_jfpa",
-  "small_text_yfqg",
-  "section_break_ozcl",
-  "part",
-  "column_break_nlkb",
-  "lotserial",
-  "column_break_zmdk",
-  "current_position",
-  "column_break_ghqv",
-  "qty"
+  "supplier_address",
+  "section_break_aixa",
+  "select_itemlot",
+  "inspection_details",
+  "section_break_lmtx",
+  "column_break_rsfk",
+  "column_break_oimt",
+  "column_break_oyab",
+  "column_break_brzz",
+  "total_qty"
  ],
  "fields": [
   {
-   "fieldname": "id_report",
-   "fieldtype": "Data",
-   "label": "ID Report"
-  },
-  {
-   "fieldname": "column_break_zduk",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "reported_by",
-   "fieldtype": "Data",
-   "label": "Reported By"
-  },
-  {
-   "fieldname": "column_break_mhow",
-   "fieldtype": "Column Break"
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reported By",
+   "options": "User"
   },
   {
    "fieldname": "reason",
-   "fieldtype": "Data",
-   "label": "Reason"
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reason",
+   "options": "Reason Master"
   },
   {
    "fieldname": "section_break_ozcl",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Specific Item Reported : "
   },
   {
    "fieldname": "part",
-   "fieldtype": "Data",
-   "label": "Part"
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Part",
+   "options": "Part Master"
   },
   {
    "fieldname": "column_break_nlkb",
@@ -72,6 +76,7 @@
   {
    "fieldname": "lotserial",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Lot/Serial"
   },
   {
@@ -80,17 +85,22 @@
   },
   {
    "fieldname": "current_position",
-   "fieldtype": "Data",
-   "label": "Current Position"
+   "fieldtype": "Link",
+   "label": "Current Position",
+   "options": "Warehouse Location"
   },
   {
    "fieldname": "qty",
    "fieldtype": "Float",
-   "label": "Qty"
+   "in_list_view": 1,
+   "label": "Qty",
+   "read_only": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "section_break_krhh",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Receipt Information of item reported: "
   },
   {
    "fieldname": "material_incoming_id",
@@ -126,16 +136,6 @@
    "label": "Supplier"
   },
   {
-   "fieldname": "name1",
-   "fieldtype": "Data",
-   "label": "Name"
-  },
-  {
-   "fieldname": "small_text_yfqg",
-   "fieldtype": "Small Text",
-   "label": "Supplier Address"
-  },
-  {
    "fieldname": "column_break_ghqv",
    "fieldtype": "Column Break"
   },
@@ -144,19 +144,95 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_jjrz",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "data_ethk",
    "fieldtype": "Data",
    "label": "Remarks"
+  },
+  {
+   "fetch_from": "part.description",
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "supplier_address",
+   "fieldtype": "Small Text",
+   "label": "Supplier Address"
+  },
+  {
+   "fieldname": "current_status",
+   "fieldtype": "Data",
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_aixa",
+   "fieldtype": "Section Break",
+   "label": "Inspection List : "
+  },
+  {
+   "fieldname": "inspection_details",
+   "fieldtype": "Table",
+   "options": "Item Inspection Detail"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "reason_section",
+   "fieldtype": "Section Break",
+   "label": "Reason:"
+  },
+  {
+   "fieldname": "reported_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Reported Date"
+  },
+  {
+   "fieldname": "column_break_dxzf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "select_itemlot",
+   "fieldtype": "Button",
+   "label": "Select The Item / Lot will returning"
+  },
+  {
+   "fieldname": "section_break_lmtx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_rsfk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_oimt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_oyab",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_brzz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_qty",
+   "fieldtype": "Float",
+   "label": "Total Qty"
   }
  ],
  "grid_page_length": 50,
+ "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-25 08:18:45.468777",
+ "modified": "2026-06-08 23:42:01.174712",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Inspection",

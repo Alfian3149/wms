@@ -12,13 +12,13 @@ class ItemRequest(Document):
             qty_needed = flt(request.quantity_requested) - flt(request.quantity_picked)
         
         if self.items and qty_needed > 0:
-            self.status = "Partially Picked"
+            self.request_status = "Partially Picked"
         elif self.items and qty_needed <= 0:
-            self.status = "Fully Picked"
+            self.request_status = "Fully Picked"
             if self.link:
-                frappe.db.set_value("Work Order Split", self.link, "status", "Ready For Weighing")
+                frappe.db.set_value("Work Order Split", self.link, "request_status", "Ready For Weighing")
         else:
-            self.status = "Open"
+            self.request_status = "Open"
     
     def validate(self):
         if not self.items:
@@ -32,13 +32,15 @@ class ItemRequest(Document):
 
     def update_status_based_on_details(self):
         if not self.items:
-            self.status = "Open"
+            self.request_status = "Open"
             return
 
         all_complete = all(flt(d.quantity_requested) - flt(d.quantity_picked) <= 0 for d in self.items)
         
         if all_complete:
-            self.status = "Fully Picked"
+            self.request_status = "Fully Picked"
+        else:
+            self.request_status = "Partially Picked"
 
 @frappe.whitelist()
 def comfirming_picklist(item_request_doc, child_table, task_type, date_instruction, time, assigned_to_person=None, assigned_to_role=None, ):  

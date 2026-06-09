@@ -744,8 +744,8 @@ def handover_confirm(task):
     if not task:
         frappe.throw("Data tidak ditemukan dalam request")
     
-    task = frappe.get_doc("Warehouse Task", task)
+    taskdoc = frappe.get_doc("Warehouse Task", task)
     frappe.db.set_value("Warehouse Task", task, "is_needed_handover", 0)
-    frappe.db.set_value("Item Picklist", task.reference_name, "complete_percentage", 100)
+    frappe.db.set_value("Item Picklist", taskdoc.reference_name, "complete_percentage", 100)
 
     return task 

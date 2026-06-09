@@ -45,10 +45,16 @@ class ItemPicklist(Document):
 			fields=["quantity_requested","quantity_picked", "name"])
 
 			for itemRequestSummary in getItemRequestSummary:
-				doc = frappe.get_doc("Item Request Detail", itemRequestSummary.name)
+				""" doc = frappe.get_doc("Item Request Detail", itemRequestSummary.name)
 				doc.quantity_picked = flt(doc.quantity_picked) - flt(item_pick.quantity_picked)   
-				doc.save()
+				doc.save() """
+				frappe.db.set_value("Item Request Detail", itemRequestSummary.name, "quantity_picked", flt(itemRequestSummary.quantity_picked) - flt(item_pick.quantity_picked))
 
+		for name in itemRequestDoc:
+			itemRequest = frappe.get_doc("Item Request", name)
+			itemRequest.update_status_based_on_details()
+			itemRequest.save()
+			
 		getTask = frappe.get_all("Warehouse Task", filters={"reference_name": self.name, "reference_doctype": "Item Picklist"}, fields=["name"])
 		for task in getTask:
 			frappe.db.delete("Warehouse Task", filters={'name': task.name})
@@ -102,6 +108,7 @@ class ItemPicklist(Document):
 			new_task.task_type = "Picking"
 			new_task.reference_doctype = "Item Picklist"
 			new_task.reference_name = self.name
+			new_task.source_id = ", ".join(itemRequestDoc)
 			new_task.is_needed_handover = 1
 			new_task.wo_split_number = ", ".join(itemRequestDoc)
 			""" new_task.assign_to_user = assigned_to_person

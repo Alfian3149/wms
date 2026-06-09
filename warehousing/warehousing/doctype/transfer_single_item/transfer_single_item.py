@@ -42,8 +42,8 @@ class TransferSingleItem(Document):
 			"locTo":self.location_to,
 			"lotserTo":self.lotserial_from,
 			"lotrefTo":"",
-			"usefrom":True,
-			"useto":False,
+			"usefrom":False,
+			"useto":True,
 		})
 
 		api_transfer = frappe.call("warehousing.warehousing.api_transfer.transfer_submit_detail_task", details=details, ref_doctype="Transfer Single Item", doc_name=self.name, wsa=wsa)
