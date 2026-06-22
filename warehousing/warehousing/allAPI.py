@@ -112,7 +112,6 @@ def get_workorder_from_qad(work_order, domain, is_packaging=False, work_order_co
         if response.status_code == 200:
             dataResponse = parse_qad_response(response.text)
             if is_packaging:
-                print("is_blending")
                 data_converted = convert_wo_api_packaging(dataResponse, work_order_comp_issued_name)
                 return data_converted
             
@@ -196,7 +195,7 @@ def convert_wo_api_packaging(dataResponse, work_order_comp_issued_name):
         count_packaging = frappe.db.count(
             "Product Line Allowed", 
             filters={
-                "parent": "Work Order Activity Control", # Ganti dengan nama Single DocType Anda
+                "parent": "Work Order Activity Control", 
                 "parenttype": "Work Order Activity Control", 
                 "product_line": item['wodprod_line'],
                 "part_group": "PACKAGING"
@@ -208,7 +207,7 @@ def convert_wo_api_packaging(dataResponse, work_order_comp_issued_name):
             count_ingredient = frappe.db.count(
             "Product Line Allowed", 
                 filters={
-                    "parent": "Work Order Activity Control", # Ganti dengan nama Single DocType Anda
+                    "parent": "Work Order Activity Control", 
                     "parenttype": "Work Order Activity Control", 
                     "product_line": item['wodprod_line'],
                     "part_group": "INGREDIENT"
@@ -461,7 +460,6 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
     receiver = None
     isNotOk = "false"
     errorMsg = ""
-    
     # 1. Buat Draft Integration Request untuk Logging
     int_log = frappe.get_doc({
         "doctype": "Integration Request",
@@ -473,9 +471,10 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
         "reference_name": parent_doc_name
     })
     int_log.insert(ignore_permissions=True)
+    frappe.db.commit()
 
     try:
-        response = requests.request("POST", url, data=payload, headers=headers, timeout=30)
+        response = requests.request("POST", url, data=payload, headers=headers, timeout=300)
         int_log.output = response.text # Simpan respon mentah
 
         if response.status_code == 200:
@@ -501,6 +500,7 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
                         is_async=True,
                         enqueue_after_commit=False,
                         transactionSuccess=transactionSuccess,
+                        doctype='Warehouse Task',
                         parent_doc_name=parent_doc_name,
                     )   
                     
@@ -550,7 +550,8 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
             frappe.db.set_value('Material Incoming', material_incoming_name, 'status', 'Confirmed');
 
             int_log.save(ignore_permissions=True)
-            
+            frappe.db.commit()
+
             create_task = frappe.call("warehousing.warehousing.doctype.warehouse_task.warehouse_task.create_putaway_transfer_task", source_doc=parent_doc_name, task_type="Putaway Transfer")
             
             time.sleep(3) # Delay untuk memastikan data sudah terupdate sebelum dipanggil API lagi
@@ -575,6 +576,7 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
         int_log.status = "Failed"
         int_log.error_log = frappe.get_traceback()
         int_log.save(ignore_permissions=True)
+        frappe.db.commit()
         #frappe.log_error(frappe.get_traceback(), "QAD Get PO API Error")
         frappe.throw(_("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e)))
     

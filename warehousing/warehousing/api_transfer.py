@@ -77,7 +77,7 @@ def transfer_submit_to_qad(details):
         "reference_name": doc_name
     })
     int_log.insert(ignore_permissions=True)
-
+    frappe.db.commit()
     try:
         response = requests.request("POST", url, data=payload, headers=headers, timeout=30)
         int_log.output = response.text # Simpan respon mentah
@@ -99,7 +99,7 @@ def transfer_submit_to_qad(details):
         int_log.status = "Failed"
         int_log.error_log = frappe.get_traceback()
         int_log.save(ignore_permissions=True)
-        #frappe.log_error(frappe.get_traceback(), "QAD Get PO API Error")
+        frappe.db.commit()
         frappe.throw(_("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e)))
 
 @frappe.whitelist()
@@ -170,9 +170,9 @@ def transfer_submit_detail_task(details, ref_doctype, doc_name, wsa):
         "reference_docname": doc_name
     })
     int_log.insert(ignore_permissions=True)
-
+    frappe.db.commit()
     try:
-        response = requests.request("POST", url, data=payload, headers=headers, timeout=30)
+        response = requests.request("POST", url, data=payload, headers=headers, timeout=300)
         int_log.output = response.text # Simpan respon mentah
         status = ""
         message = ""
@@ -199,7 +199,7 @@ def transfer_submit_detail_task(details, ref_doctype, doc_name, wsa):
             message = f"Koneksi ke QAD Gagal: {response.status_code}"
             int_log.status = "Failed"
             int_log.save(ignore_permissions=True)
-
+            frappe.db.commit()
 
         return {
             "status": status,
@@ -210,5 +210,5 @@ def transfer_submit_detail_task(details, ref_doctype, doc_name, wsa):
         int_log.status = "Failed"
         int_log.error_log = frappe.get_traceback()
         int_log.save(ignore_permissions=True)
-        #frappe.log_error(frappe.get_traceback(), "QAD Get PO API Error")
+        frappe.db.commit()
         frappe.throw(_("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e)))

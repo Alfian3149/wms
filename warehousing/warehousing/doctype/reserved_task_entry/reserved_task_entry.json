@@ -8,10 +8,12 @@
   "purpose",
   "doctype_source",
   "task",
+  "column_break_daxl",
   "site",
   "part",
   "lot_serial",
   "warehouse_location",
+  "column_break_urov",
   "destination_location",
   "qty"
  ],
@@ -54,7 +56,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Purpose",
-   "options": "Putaway\nPicking",
+   "options": "Putaway\nPicking\nIssued",
    "reqd": 1,
    "search_index": 1
   },
@@ -73,12 +75,20 @@
    "fieldname": "destination_location",
    "fieldtype": "Data",
    "label": "Destination Location"
+  },
+  {
+   "fieldname": "column_break_daxl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_urov",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-01 15:05:03.194865",
+ "modified": "2026-06-18 08:48:04.313889",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Reserved Task Entry",

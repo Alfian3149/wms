@@ -26,8 +26,10 @@
   "inventory_doc_link",
   "section_break_look",
   "actual_qty",
+  "qty_reserved",
   "column_break_qjvt",
-  "qty_after_transaction"
+  "qty_after_transaction",
+  "reservation_after_transaction"
  ],
  "fields": [
   {
@@ -161,13 +163,24 @@
    "fieldtype": "Link",
    "label": "Inventory Doc Link",
    "options": "Inventory"
+  },
+  {
+   "fieldname": "qty_reserved",
+   "fieldtype": "Float",
+   "label": "Qty Reserved"
+  },
+  {
+   "fieldname": "reservation_after_transaction",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Reservation After Transaction"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-09 10:23:25.459223",
+ "modified": "2026-06-15 15:38:44.263681",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Stock Ledger",

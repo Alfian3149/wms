@@ -8,6 +8,32 @@ frappe.ui.form.on("Item Picklist", {
         if (frm.doc.needed_date == undefined){
             frm.set_value("needed_date", frappe.datetime.get_today())
         } 
+
+         frm.set_query('select_request', function() {
+            return {
+                filters: {
+                    'request_status': ['in', ['Open', 'Partially Picked']],
+                    'docstatus':['!=', '2']
+                }
+            };
+        });
+
+    },
+
+    validate:function(frm){
+        if (validate_request_mixed(frm)){
+            frm.reload_doc();
+            frappe.msgprint({
+                title: __('Validasi Gagal'),
+                indicator: 'red',
+                message: __('Anda tidak boleh menggabungkan tipe Request yang berbeda dalam satu Picklist! (Semua harus tipe yang sama).')
+            });
+
+            // 1. Hentikan event bawaan Frappe agar tidak sempat memasukkan data ke internal array
+            e.preventDefault();
+            e.stopPropagation();
+
+        }
     },
 
     before_save: function(frm) {
@@ -19,36 +45,52 @@ frappe.ui.form.on("Item Picklist", {
                     indicator: 'red',
                     message: __('Please select the item request first in the Select Multiple Request field.')
                 });
-                frappe.validated = false;
-                return;
+                
             }
         }
-
-        /* let selected_rows = frm.fields_dict['item_picklist_summary'].grid.get_selected();
-        
-        if (selected_rows.length > 0) {
-            let child_table = frm.doc.item_picklist_summary || [];
-            let all_zero = child_table.every(row => flt(row.quantity_picked) <= 0);
-
-            if (child_table.length === 0 || all_zero) {                        
-                frappe.msgprint({
-                    title: __('ERROR'),
-                    indicator: 'red',
-                    message: __('There is no item in the details list. Please running the Get Item Stock first.')
-                });
-                frappe.validated = false;
-            }
-
-            frm.doc.item_picklist_summary.forEach(d => {
-                let status = selected_rows.includes(d.name) ? 1 : 0;
-                frappe.model.set_value(d.doctype, d.name, 'is_selected', status);
-            });
-        
-        }    */    
+   
     },
  
  	refresh(frm) {
+        $(frm.fields_dict['item_picklist_summary'].wrapper)
+            .off('click', '.grid-row')
+            .on('click', '.grid-row', function(e) {              
+                if ($(e.target).closest('.grid-static-col').hasClass('grid-cleared-col')) return;
+
+                let cdn = $(this).attr('data-name');
+                let row = frappe.get_doc('Item Picklist Summary', cdn);
+                if (row && flt(row.quantity_picked) <= 0) {      
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    $(this).prop('checked', false);
+                    $clicked_row.removeClass('selected');
+
+                    frappe.model.set_value(row_data.doctype, row_data.name, 'is_selected', 0);
+
+                    frappe.msgprint({
+                        title: __('ERROR'),
+                        indicator: 'red',
+                        message: __('The row you selected has zero quantity. Please select another row with quantity more than zero.')
+                    });
+
+                    return false; 
+                }
+
+                let is_checked = row.is_selected ? 0 : 1;
+                frappe.model.set_value('Item Picklist Summary', cdn, 'is_selected', is_checked);
+    
+        });
+        if (!frm.doc.picklist_for_request_type && frm.doc.select_request){
+            let requests = frm.doc.select_request.map(row => row.request_master || row.name);
+            frm.set_value('picklist_for_request_type', requests[0].substring(0,3));
+        }
+
         $(frm.fields_dict['item_picklist_summary'].wrapper).on('click', 'input[type="checkbox"]', function(e) {
+            frappe.show_alert({
+                message: __("you are select line"),
+                indicator: 'green'
+            });
             let grid = frm.fields_dict['item_picklist_summary'].grid;
             
             // Ambil baris HTML tempat checkbox diklik
@@ -102,18 +144,6 @@ frappe.ui.form.on("Item Picklist", {
         let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory" });
         //d.dialog.hide();
 
-        
-        /* frm.fields_dict['item_picklist_summary'].grid.wrapper.on('click', '.grid-row-checkbox', function() {
-            alert("test");
-            // Berikan sedikit delay agar Frappe selesai mengupdate state grid
-            setTimeout(() => {
-                let selected_rows = frm.get_field('item_picklist_summary').grid.get_selected();
-                alert("Jumlah baris dicentang sekarang:");
-                
-                // Contoh: Update field total di header berdasarkan baris terpilih
-                //update_total_selected(frm, selected_rows);
-            }, 100);
-        }); */
 
          //frm.set_df_property('item_picklist_summary', 'read_only', true);
          frm.set_df_property('item_picklist_summary', 'cannot_add_rows', true);
@@ -123,22 +153,21 @@ frappe.ui.form.on("Item Picklist", {
 
          frm.fields_dict['item_picklist_detail'].grid.wrapper.find('.grid-row-checkbox').hide();
          frm.fields_dict['item_picklist_detail'].grid.wrapper.find('.row-check').hide();
+
          frm.set_query('select_request', function() {
             return {
                 filters: {
-                    'request_status': ['!=', 'Fully Picked'],
-                    'status': ['!=', 'Fully Picked'],
+                    'request_status': ['in', ['Open', 'Partially Picked']],
+                    'request_status': ['=', 'Partially Picked'],
                     'docstatus':['!=', '2']
                 }
             };
         });
-        /* frm.set_query('request_master', 'select_request', function() {
-            return {
-                filters: {
-                    'status': ['=', "Open"]
-                }
-            };
-        }); */
+
+        frm.fields_dict['select_request'].$input.on('blur', function() {
+            frm.events.validate(frm);
+        });
+
  	},
 
     sync_grid_selection: function(frm) {
@@ -161,6 +190,7 @@ frappe.ui.form.on("Item Picklist", {
     },
 
 	get_item_stock(frm) { 
+
         if (frm.doc.select_request == undefined || frm.doc.select_request == "") {
             frappe.msgprint({
                 title: __('ERROR'),
@@ -170,19 +200,17 @@ frappe.ui.form.on("Item Picklist", {
             return;
         }
 
-        if (frm.is_new()){
-            frappe.msgprint({
-                title: __('ERROR'),
-                indicator: 'red',
-                message: __('Please save the document first.')
-            });
-            return;
-        }
+        frm.events.validate(frm);
+
+        let requests = frm.doc.select_request.map(row => row.request_master || row.name);
+        frm.set_value('picklist_for_request_type', requests[0].substring(0,3));
         frappe.call({
             method: "warehousing.warehousing.doctype.inventory.inventory.get_fifo_picklist_with_reserved",
             args: {  
                 itemPicklistName: frm.doc.name,
-                item_status: "P-GOOD"
+                item_status: "P-GOOD",
+                request : requests,
+                request_type : requests[0].substring(0, 3)
             },
             freeze: true,
             freeze_message: __("Sedang memproses get items..."),
@@ -211,10 +239,15 @@ frappe.ui.form.on("Item Picklist", {
                     summary_child.part= row.part;
                     summary_child.site= row.site;
                     summary_child.quantity_requested= row.quantity_requested;
-                    summary_child.quantity_picked= row.quantity_picked;
+                    summary_child.quantity_picked= row.quantity_to_pick;
                     summary_child.item_grouping= row.item_group;
                 });
-                
+
+                setTimeout(() => { 
+                    frm.refresh_field('item_picklist_summary');
+                }, 600);
+
+
                 results.forEach(row => {
                     let child = frm.add_child('item_picklist_detail');
                     child.site= row.site;
@@ -231,7 +264,8 @@ frappe.ui.form.on("Item Picklist", {
                     child.to_location= row.to_location;
                     child.item_grouping= row.item_group;
                 });
-                frm.refresh_field('item_picklist_summary');
+                
+
                 frm.refresh_field('item_picklist_detail');
                 frm.fields_dict['item_picklist_detail'].grid.wrapper.find('.grid-row-checkbox').hide();
                 frm.fields_dict['item_picklist_detail'].grid.wrapper.find('.row-check').hide();
@@ -350,9 +384,22 @@ frappe.ui.form.on("Item Picklist", {
     
 });
 
-frappe.ui.form.on('Item Picklist Summary', {
-});
+/* frappe.ui.form.on('Item Picklist Summary', {
 
+    refresh:function(frm){
+        frappe.show_alert({
+            message: __("child refresh"),
+            indicator: 'green'
+        });
+        $(frm.fields_dict['item_picklist_summary'].wrapper).on('click', 'input[type="checkbox"]', function(e) {
+                frappe.show_alert({
+                    message: __("checked"),
+                    indicator: 'green'
+                });
+        });
+    }
+});
+ */
 frappe.ui.form.on('Item Picklist Detail', {
     quantity: function(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
@@ -366,6 +413,26 @@ frappe.ui.form.on('Item Picklist Detail', {
         calculate_all_summaries(frm);
     }
 });
+
+ 
+
+function validate_request_mixed(frm){
+    let request_array = frm.doc.select_request.map(row => row.request_master || row.name);
+    if (request_array.length > 1) {
+        // 2. Ambil prefix (3 digit pertama) dari item pertama sebagai acuan
+        let base_prefix = request_array[0].substring(0, 3);
+
+        // 3. Cek apakah ada item lain yang 3 digit pertamanya BERBEDA
+        let is_mixed = request_array.some(item => item.substring(0, 3) !== base_prefix);
+
+        if (is_mixed) {
+            return true;
+        }
+        return false;
+    }
+
+}
+
 
 
 var update_summary_total = function(frm, item_code) {

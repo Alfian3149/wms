@@ -4,13 +4,13 @@
 frappe.ui.form.on("Material Return Request", {
     refresh: function(frm) {
         // Menghilangkan tombol Add Row dan tombol hapus di tiap baris
-        frm.get_field('items').grid.cannot_add_rows = true;
-        frm.get_field('items').grid.cannot_delete_rows = true;
+        /* frm.get_field('items').grid.cannot_add_rows = true;
+        frm.get_field('items').grid.cannot_delete_rows = true; */
         
         // Menghilangkan tombol centang massal (bulk actions)
-        frm.get_field('items').grid.only_sortable();
+        /* frm.get_field('items').grid.only_sortable(); */
         
-        frm.refresh_field('items');
+        /* frm.refresh_field('items'); */
 
         frm.add_custom_button(__('Create Task to Picker'), function() {
             let topicker = new frappe.ui.Dialog({
@@ -321,10 +321,7 @@ frappe.ui.form.on("Material Return Request", {
                 }
 		    });
 		    let grid = tosupplier.get_field('data_lists').grid;
-		    grid.cannot_add_rows = true;      // Menghilangkan tombol "Add Row"
-            grid.cannot_delete_rows = true;   // Menghilangkan ikon sampah (delete)
-            grid.wrapper.find('.grid-remove-rows').hide(); // Sembunyikan tombol delete massal
-            grid.wrapper.find('.grid-add-row').hide();    // Sembunyikan tombol add row di bawah
+		    
 		    tosupplier.show();
 		});
     },

@@ -22,6 +22,7 @@
   "finish_good",
   "fg_description",
   "um",
+  "fg_netwt",
   "column_break_vfes",
   "order_date",
   "release_date",
@@ -31,7 +32,6 @@
   "section_break_basz",
   "quantity_to_be_produced_immediately",
   "fg_qty_per_pallet",
-  "fg_netwt",
   "qty_in_tonnase",
   "column_break_icbm",
   "quantity_ordered",
@@ -212,7 +212,6 @@
   {
    "fieldname": "fg_netwt",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Net Weight"
   },
   {
@@ -294,7 +293,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-25 10:28:26.159279",
+ "modified": "2026-06-22 07:39:07.316428",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split",

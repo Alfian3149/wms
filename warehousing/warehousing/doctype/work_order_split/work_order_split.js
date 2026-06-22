@@ -75,7 +75,7 @@ frappe.ui.form.on('Work Order Split', {
 	    frm.fields_dict['quantity_to_be_produced_immediately'].$input.on('blur', function() {
             //alert("test");
 	        if(frm.doc.quantity_to_be_produced_immediately > 0 && frm.doc.work_order){
-                frm.set_value("qty_in_tonnase",frm.doc.quantity_to_be_produced_immediately / 1000);
+                frm.set_value("qty_in_tonnase", flt(frm.doc.quantity_to_be_produced_immediately) * flt(frm.doc.fg_netwt) / 1000);
 	            frm.trigger('fetch_simulated_picklist_item');
 
 	        }
@@ -106,16 +106,43 @@ frappe.ui.form.on('Work Order Split', {
                         let target_row = (frm.doc.work_order_split_detail || []).find(row => row.part === api_row.ttdet_component);
                 
                         if (target_row) {
+                            frappe.model.set_value(target_row.doctype, target_row.name, 'ori_cur_req', api_row.ttdet_qty_req);
                             frappe.db.get_single_value('Work Order Activity Control', 'buffer_tollerance')
                             .then(value => {
+                               
                                 let percent = 0;
-                                let required = flt(api_row.ttdet_qty_req) + (flt(api_row.ttdet_qty_req) * flt(value) / 100) ;
+                                let required = 0;
+                                required = flt(api_row.ttdet_qty_req) + (flt(api_row.ttdet_qty_req) * flt(value) / 100) ;
+                                /* if (target_row.item_group === "INGREDIENT") {
+                                    required = flt(api_row.ttdet_qty_req) + (flt(api_row.ttdet_qty_req) * flt(value) / 100) ;
+                                }
+                                else {
+                                    required = flt(api_row.ttdet_qty_req) ;
+                                } */
+                                
+                                //FREE QTY
+                                frappe.db.get_value("Work Order Split Detail", filters={"part": api_row.ttdet_component}, fieldname="free_qty", order_by="creation desc")
+                                .then(freeqty => {
+                                    frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty_usage', freeqty); 
+                                    required = required - flt(freeqty);
+                                })
                                 frappe.model.set_value(target_row.doctype, target_row.name, 'actual_required', required);
                                 if (target_row.availability > 0) {
                                     percent = flt(target_row.availability / required * 100, 0);
                                     percent = cint(percent)
                                     frappe.model.set_value(target_row.doctype, target_row.name, 'availability_in_percent', percent);
                                 }
+
+                                /* frappe.db.get_value("Um Conversion Factor", {"parent": api_row.ttdet_component, "default":1}, "conversion_factor")
+                                .then(qty_packaging => {
+                                    const qty_request_by_pack = calculateQtyRequiredByPackaging(required, qty_packaging);
+                                    const free_qty = qty_request_by_pack -  api_row.ttdet_qty_req;
+                                    frappe.model.set_value(target_row.doctype, target_row.name, 'qty_in_packaging', qty_packaging);
+                                    frappe.model.set_value(target_row.doctype, target_row.name, 'cur_req_by_pckg', qty_request_by_pack);
+                                    frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty', free_qty);
+                                    
+                                }) */
+                                
                             });
 
 
@@ -138,12 +165,13 @@ frappe.ui.form.on('Work Order Split', {
             if (row.part) {
                 frappe.call({
                     method: "warehousing.warehousing.doctype.work_order_split.work_order_split.get_stock_availability_in_production", 
-                    args:{site: frm.doc.site, part:row.part, warehouse_location: frm.doc.shopfloor_location, wo_split_number: frm.doc.name}, 
+                    args:{site: frm.doc.site, part:row.part, warehouse_location: frm.doc.shopfloor_location, wo_number: frm.doc.work_order}, 
                     freeze: true, 
                     freeze_message: __("Sedang memproses Work Order..."),
                     callback: function(r) {
                         if (r.message) {
                             let availability = r.message.availability || 0;
+                            let outstanding = r.message.outstanding || 0;
                             let percent = 0;
                             if (availability > 0) {
                                 percent = availability / row.actual_required * 100;
@@ -153,6 +181,7 @@ frappe.ui.form.on('Work Order Split', {
                             if (availability > row.actual_required){
                                 qty_request = 0;
                             } 
+                            frappe.model.set_value(row.doctype, row.name, "outstanding", outstanding);
                             frappe.model.set_value(row.doctype, row.name, "qty_confirm", qty_request);
                             frappe.model.set_value(row.doctype, row.name, "availability", availability);
                             frappe.model.set_value(row.doctype, row.name, "availability_in_percent", percent);
@@ -191,7 +220,6 @@ frappe.ui.form.on('Work Order Split', {
                                 child.net_weight = row.wodpart_netwt;
                                 child.qty_required = row.wodqty_req;
                                 child.qty_issued = row.wodqty_iss;
-                                child.qty_confirm = 0;
                                 child.qty_confirm = 0;
                                 child.qty_issued = 0;
                                 child.item_group= row.wodpart_grouping;
@@ -273,7 +301,7 @@ frappe.ui.form.on('Work Order Split', {
                                     <b><a href="/app/work-order-split/${row.name}">${row.name}</a></b><br>
                                     <small>Request Date: ${frappe.datetime.str_to_user(row.posting_date)}</small><br>
                                     <small>Status: ${row.status}</small><br>
-                                    <b><a href="/app/item-request/${row.link_to_item_request}">${row.link_to_item_request}</a></b>
+                                    <b>Request : <a href="/app/item-request/${row.link_to_item_request}">${row.link_to_item_request}</a></b>
                                 </td>
                                 <td >
                                     <table class="table table-sm p-1" style="border:none;">
@@ -300,3 +328,15 @@ frappe.ui.form.on('Work Order Split', {
     },
 
 })
+
+function calculateQtyRequiredByPackaging(qtyRequired, qtyPackaging) {
+    if (qtyPackaging <= 0) return qtyRequired; // Validasi agar tidak terjadi pembagian dengan nol
+    
+    // 1. Bagi qty required dengan qty packaging
+    // 2. Bulatkan ke atas menggunakan Math.ceil
+    // 3. Kalikan kembali dengan qty packaging
+    let jumlahKemasan = Math.ceil(qtyRequired / qtyPackaging);
+    let qtyRequest = jumlahKemasan * qtyPackaging;
+    
+    return qtyRequest;
+}

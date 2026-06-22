@@ -26,7 +26,8 @@
   "location_to",
   "reason",
   "sent_the_transfer_action_to_qc_tim",
-  "remarks"
+  "remarks",
+  "remarks_optional"
  ],
  "fields": [
   {
@@ -59,7 +60,7 @@
   {
    "fieldname": "remarks",
    "fieldtype": "Data",
-   "label": "Remarks (Optional)"
+   "label": "MTS Number (Optional)"
   },
   {
    "fieldname": "from_to",
@@ -108,7 +109,7 @@
    "fieldname": "inventory_name",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Inventory Name"
+   "label": "Inventory Status"
   },
   {
    "fieldname": "section_break_vnkc",
@@ -137,7 +138,7 @@
   {
    "fieldname": "expire",
    "fieldtype": "Date",
-   "label": "expire"
+   "label": "Expire"
   },
   {
    "fieldname": "reason",
@@ -151,14 +152,20 @@
    "fieldname": "sent_the_transfer_action_to_qc_tim",
    "fieldtype": "Check",
    "hidden": 1,
-   "label": "Sent the transfer action to QC Tim?"
+   "label": "Send the transfer action to QC Tim?"
+  },
+  {
+   "fieldname": "remarks_optional",
+   "fieldtype": "Data",
+   "label": "Remarks (Optional)"
   }
  ],
  "grid_page_length": 50,
+ "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-21 10:34:54.217583",
+ "modified": "2026-06-22 06:45:08.833163",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Transfer Single Item",

@@ -9,21 +9,25 @@
   "section_break_vjkc",
   "site",
   "part",
+  "um",
   "lot_serial",
   "reference",
-  "printed_by",
-  "last_printed_on",
   "column_break_mnqd",
   "qty_on_hand",
-  "qty_reserverd",
-  "um",
+  "qty_reserved",
   "qty_per_pallet",
+  "barcode_value",
   "column_break_avig",
   "warehouse_location",
   "inventory_status",
   "expire_date",
+  "column_break_ycbh",
   "um_packaging",
-  "conversion_factor"
+  "conversion_factor",
+  "section_break_zqjw",
+  "last_printed_on",
+  "column_break_gjvz",
+  "printed_by"
  ],
  "fields": [
   {
@@ -97,11 +101,6 @@
    "label": "Last Printed On"
   },
   {
-   "fieldname": "qty_reserverd",
-   "fieldtype": "Float",
-   "label": "Qty Reserved"
-  },
-  {
    "fieldname": "um",
    "fieldtype": "Data",
    "label": "UM"
@@ -121,13 +120,35 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Qty Per Pallet"
+  },
+  {
+   "fieldname": "qty_reserved",
+   "fieldtype": "Float",
+   "label": "Qty Reserved"
+  },
+  {
+   "fieldname": "column_break_ycbh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_zqjw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_gjvz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "barcode_value",
+   "fieldtype": "Data",
+   "label": "Barcode Value"
   }
  ],
  "grid_page_length": 50,
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-29 10:22:28.372973",
+ "modified": "2026-06-18 10:55:50.048246",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",
@@ -152,5 +173,18 @@
  "search_fields": "part , lot_serial , warehouse_location , qty_on_hand",
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [
+  {
+   "color": "Green",
+   "title": "P-GOOD"
+  },
+  {
+   "color": "Green",
+   "title": "F-GOOD"
+  },
+  {
+   "color": "Red",
+   "title": "REJECT"
+  }
+ ]
 }

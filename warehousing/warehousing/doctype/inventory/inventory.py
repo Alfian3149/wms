@@ -9,6 +9,7 @@ import math
 import time
 from dataclasses import dataclass
 from dataclasses import asdict  
+import json
 class Inventory(Document):
     pass
     #def on_update(self):
@@ -19,6 +20,7 @@ class PickingItem:
     site: str
     quantity_requested: int
     quantity_picked: int
+    quantity_to_pick: int
     target_location: str
     item_group : str
 
@@ -76,7 +78,7 @@ def update_inventory_qty(doctype, doctype_link, transType, postingDate, site, pa
 
     return {'success':False, 'doc_name':name, 'message': 'Failed to update inventory'}
 
-def create_inventory_record(site, part, lot_serial, reference, whs_location, initial_qty, invStatus, expireDate=None):
+def create_inventory_record(site, part, lot_serial, reference, whs_location, initial_qty, invStatus, expireDate=None, qtyReservation=0):
     """
     Create: Membuat baris baru di tabel Inventory
     """
@@ -89,6 +91,7 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
     new_inv.reference = reference
     new_inv.warehouse_location = whs_location
     new_inv.qty_on_hand = flt(initial_qty)
+    new_inv.qty_reserverd = flt(qtyReservation)
 
     if (pallet_and_conversion and pallet_and_conversion.um_packaging):
         new_inv.um_packaging = pallet_and_conversion.um_packaging 
@@ -161,184 +164,221 @@ def get_warehouse_status():
     return {"status": "Online"} 
 
 @frappe.whitelist() 
-def get_fifo_picklist_with_reserved(itemPicklistName, item_status):
+def get_fifo_picklist_with_reserved(itemPicklistName, item_status, request, request_type):
     time.sleep(1) # Simulasi delay untuk melihat efek real-time di UI
     default_site = frappe.db.get_single_value("Material Incoming Control", "default_site")
-    itemPicklistDoc = frappe.get_doc("Item Picklist", itemPicklistName)
+
     unique_items = {}
-    for request in itemPicklistDoc.select_request:
-        itemRequest = frappe.get_doc("Item Request", request.request_master) 
-        for item in itemRequest.items:
-            if (flt(item.quantity_requested) - flt(item.quantity_picked)) <= 0 :
-                continue
+    results  = []
+    request_list = json.loads(request)
+    final_list = {}
+    if request_type == "RSP" or request_type == "RRK" :
+        for req in request_list : 
+            itemRequest = frappe.get_doc("Item Request", req) 
+            for item in itemRequest.items:
                 
-            if item.part not in unique_items:
-                # Jika belum ada, buat objek baru
-                unique_items[item.part] = PickingItem(
-                    part=item.part,
-                    site=default_site,
-                    quantity_requested=item.quantity_requested,
-                    quantity_picked=item.quantity_picked,
-                    target_location=item.target_location,
-                    item_group= ""
-                )
-            else:
-                # Jika SUDAH ADA, kita jumlahkan quantity_requested-nya (Merge)
-                unique_items[item.part].quantity_requested += item.quantity_requested
-                unique_items[item.part].quantity_picked += item.quantity_picked
-    final_list = list(unique_items.values())
-    #doc = frappe.get_doc("Item Request", item_request_doc)
-    results = []
-
-    """ totals = frappe.db.get_value("Item Request Detail", 
-        filters={"parent": item_request_doc}, fieldname=["sum(quantity_requested) as total_request", "sum(quantity_picked) as total_picked"], as_dict=True)  
-    total_selisih = (totals.get("total_request") or 0) - (totals.get("total_picked") or 0)
-    if total_selisih <= 0:
-        frappe.msgprint(_("Request sudah terpenuhi semua. Tidak perlu membuat picklist.")) """
-
-    for item in final_list:
-        needed_qty = flt(item.quantity_requested) - flt(item.quantity_picked)
-        if needed_qty <= 0:         
-            continue  # Kebutuhan sudah terpenuhi, skip ke item berikutnya
-        
-        site = item.site if item.site else default_site
-        """ total_qty_on_hand = frappe.db.get_list("Inventory", 
-            {"site": site, "part": item.part, "inventory_status": item_status, "is_active": 1, "can_picking_reserved": 1}, 
-            ["SUM(qty_on_hand) as qty"]) """
-
-        total_qty_on_hand = frappe.db.sql("""
-            SELECT 
-                SUM(inv.qty_on_hand) as qty
-            FROM 
-                `tabInventory` inv
-            JOIN 
-                `tabWarehouse Location` loc ON inv.warehouse_location = loc.name
-            WHERE 
-                inv.site = %(site)s 
-                AND inv.part = %(part)s 
-                AND inv.inventory_status = %(status)s
-                AND loc.is_active = 1 
-                AND loc.can_picking_reserved = 1
-        """, {
-            "site": site,
-            "part": item.part,
-            "status": item_status
-        }, as_dict=True)
-
-
-        total_qty_reserved = frappe.db.get_list("Reserved Task Entry", 
-            {"purpose":"Picking","site": site, "part": item.part}, 
-            ["SUM(qty) as qty"])
-
-        if total_qty_on_hand[0].qty == 0 :
-            frappe.msgprint(f"There is no stock available for item : {item.part} .")
-            continue
-
-        # Stok bersih yang benar-benar bisa diambil
-        qty_on_hand = flt(total_qty_on_hand[0].qty) if total_qty_on_hand else 0
-        qty_reserved = flt(total_qty_reserved[0].qty) if total_qty_reserved else 0
-        total_available = qty_on_hand - qty_reserved
-
-        if qty_on_hand <= 0 :
-            frappe.msgprint(f"Stok untuk item {item.part} OH: {qty_on_hand} tidak tersedia.")
-            continue
-
-        if total_available <= 0 :
-            frappe.msgprint(f"Stok untuk item {item.part} OH: {qty_on_hand}, Reserved: {qty_reserved} Full Reserved.")
-            continue
-
-        # 3. Cari detail Lot/Serial berdasarkan FIFO (Stock Ledger Entry)
-        # Kita ambil baris yang memiliki balance_qty > 0
-        stocks = frappe.db.sql(f"""
-            SELECT 
-                inv.site, inv.part, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet
-            FROM 
-                `tabInventory` inv
-            JOIN 
-                `tabWarehouse Location` loc ON inv.warehouse_location = loc.name
-            WHERE 
-                inv.site = %s 
-                AND inv.part = %s 
-                AND inv.inventory_status = %s
-                AND (inv.expire_date > %s OR inv.expire_date IS NULL OR inv.expire_date = '')
-                AND inv.qty_on_hand > 0
-                AND loc.is_active = 1
-                AND loc.can_picking_reserved = 1 
-            ORDER BY 
-                IFNULL(inv.expire_date, '9999-12-31') ASC,
-                inv.lot_serial ASC
-        """, (site, item.part, item_status, frappe.utils.nowdate()), as_dict=True)
-
-    
-        allocated_qty = 0
-        remaining_needed = 0
-        for stock_oh in stocks:
-            if allocated_qty >= needed_qty:
-                break  # Kebutuhan sudah terpenuhi
-
-            remaining_needed = needed_qty - allocated_qty 
-            #TANPA FILTER LOKASI KARENA BARANG BISA JADI SUDAH BERPINDAH
-            res_reserved = frappe.db.get_list("Reserved Task Entry", 
-            {"purpose":"Picking","site": stock_oh.site, "part": stock_oh.part, "lot_serial": stock_oh.lot_serial}, 
-            ["SUM(qty) as qty"])
-            
-            stock_reserved = flt(res_reserved[0].qty) if res_reserved else 0
-            if stock_oh.qty_on_hand <= stock_reserved:
-                continue  # Lot ini sudah habis di-reserve, skip ke lot berikutnya
-                
-            # Hitung sisa yang bisa diambil dari baris lot ini
-            # Tidak boleh melebihi pool ketersediaan total (reserved logic)
-            can_take_from_this_lot = flt(stock_oh.qty_on_hand) - flt(stock_reserved)    
-            final_needed = min(can_take_from_this_lot, remaining_needed)
-            
-            if final_needed > 0:
-                qty_per_pallet = flt(stock_oh.qty_per_pallet) if stock_oh.qty_per_pallet else 1
-                qty_per_pkg =  flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1
-
-                if qty_per_pallet > 0:
-                    qty_pallet = math.ceil(flt(final_needed) / qty_per_pallet)
-                else:
-                    qty_pallet = 0
-                
-                if can_take_from_this_lot < qty_per_pallet and final_needed >= can_take_from_this_lot:
-                    # Kita anggap ini "Pallet Clearance" - ambil apa adanya tanpa rounding lagi [ini untuk pallet yang sudah tidak utuh jadi didahulukan ambil 1 pallet]
-                    take_qty = can_take_from_this_lot
-     
-                else:
-                    if remaining_needed >= qty_per_pallet and qty_per_pallet > 1:
-                        # Ambil maksimal isi pallet ini
-                        take_qty = min(can_take_from_this_lot, qty_per_pallet)
-                    else:   
-                        if qty_per_pkg > 1 :
-                            # Rounding berdasarkan packaging
-                            rounded_qty = math.ceil(remaining_needed / qty_per_pkg) * qty_per_pkg
-                            take_qty = min(can_take_from_this_lot, rounded_qty)
-                        else:
-                            take_qty = flt(remaining_needed)
-
-
-                part = frappe.db.get_value("Part Master", stock_oh.part, ["description","um", "item_group"], as_dict=1)
                 results.append({
-                    "site": stock_oh.site,
-                    "part": stock_oh.part,
-                    "description": part.description,
-                    "um": part.um,
-                    "item_group": part.item_group,
-                    "qty_per_pallet": qty_per_pallet,
-                    "amt_pallet": qty_pallet, 
-                    "from_location": stock_oh.warehouse_location,
+                    "site": item.site,
+                    "part": item.part,
+                    "description": item.description,
+                    "um": item.um,
+                    "amt_pallet": item.um,
+                    "item_group": item.item_group,
+                    "from_location": item.from_location,
                     "to_location": item.target_location,
-                    "lot_serial": stock_oh.lot_serial,
-                    "conversion_factor": flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1,
-                    "um_conversion":stock_oh.um_packaging if stock_oh.um_packaging else None,
-                    "qty": take_qty
+                    "lot_serial": item.lotserial,
+                    "qty": item.quantity_requested
                 })
-                allocated_qty += take_qty
 
-                unique_items[stock_oh.part].quantity_picked += take_qty
-                unique_items[stock_oh.part].item_group = part.item_group
-                #PickItem = PickingItem(part=stock_oh.part)
-                #PickItem.quantity_picked += take_qty
-    final_list = list(unique_items.values())
+                if item.part not in unique_items:
+                    unique_items[item.part] = PickingItem(
+                        part=item.part,
+                        site=default_site,
+                        quantity_requested=item.quantity_requested,
+                        quantity_picked=item.quantity_picked,
+                        quantity_to_pick= flt(item.quantity_requested) - flt(item.quantity_picked),
+                        target_location=item.target_location,
+                        item_group=item.item_group,
+                    )
+                else:
+                    unique_items[item.part].quantity_requested += item.quantity_requested
+                    unique_items[item.part].quantity_to_pick += flt(item.quantity_requested) - flt(item.quantity_picked)
+        final_list = list(unique_items.values())
+    else :
+        #itemPicklistDoc = frappe.get_doc("Item Picklist", itemPicklistName)
+        for request in request_list:
+            itemRequest = frappe.get_doc("Item Request", request) 
+            for item in itemRequest.items:
+                if (flt(item.quantity_requested) - flt(item.quantity_picked)) <= 0 :
+                    continue
+                    
+                if item.part not in unique_items:
+                    # Jika belum ada, buat objek baru
+                    unique_items[item.part] = PickingItem(
+                        part=item.part,
+                        site=default_site,
+                        quantity_requested=item.quantity_requested,
+                        quantity_picked=item.quantity_picked,
+                        quantity_to_pick=0,
+                        target_location=item.target_location,
+                        item_group= item.item_group,
+                    )
+                else:
+                    # Jika SUDAH ADA, kita jumlahkan quantity_requested-nya (Merge)
+                    unique_items[item.part].quantity_requested += item.quantity_requested
+                    unique_items[item.part].quantity_picked += item.quantity_picked
+
+        final_list = list(unique_items.values())
+        #doc = frappe.get_doc("Item Request", item_request_doc)
+        
+        """ totals = frappe.db.get_value("Item Request Detail", 
+            filters={"parent": item_request_doc}, fieldname=["sum(quantity_requested) as total_request", "sum(quantity_picked) as total_picked"], as_dict=True)  
+        total_selisih = (totals.get("total_request") or 0) - (totals.get("total_picked") or 0)
+        if total_selisih <= 0:
+            frappe.msgprint(_("Request sudah terpenuhi semua. Tidak perlu membuat picklist.")) """
+
+        for item in final_list:
+            needed_qty = flt(item.quantity_requested) - flt(item.quantity_picked)
+            if needed_qty <= 0:         
+                continue  # Kebutuhan sudah terpenuhi, skip ke item berikutnya
+            
+            site = item.site if item.site else default_site
+            """ total_qty_on_hand = frappe.db.get_list("Inventory", 
+                {"site": site, "part": item.part, "inventory_status": item_status, "is_active": 1, "can_picking_reserved": 1}, 
+                ["SUM(qty_on_hand) as qty"]) """
+
+            total_qty_on_hand = frappe.db.sql("""
+                SELECT 
+                    SUM(inv.qty_on_hand) as qty
+                FROM 
+                    `tabInventory` inv
+                JOIN 
+                    `tabWarehouse Location` loc ON inv.warehouse_location = loc.name
+                WHERE 
+                    inv.site = %(site)s 
+                    AND inv.part = %(part)s 
+                    AND inv.inventory_status = %(status)s
+                    AND loc.is_active = 1 
+                    AND loc.can_picking_reserved = 1
+            """, {
+                "site": site,
+                "part": item.part,
+                "status": item_status
+            }, as_dict=True)
+
+
+            total_qty_reserved = frappe.db.get_list("Reserved Task Entry", 
+                {"purpose":"Picking","site": site, "part": item.part}, 
+                ["SUM(qty) as qty"])
+
+            if total_qty_on_hand[0].qty == 0 :
+                frappe.msgprint(f"There is no stock available for item : {item.part} .")
+                continue
+
+            # Stok bersih yang benar-benar bisa diambil
+            qty_on_hand = flt(total_qty_on_hand[0].qty) if total_qty_on_hand else 0
+            qty_reserved = flt(total_qty_reserved[0].qty) if total_qty_reserved else 0
+            total_available = qty_on_hand - qty_reserved
+
+            if qty_on_hand <= 0 :
+                frappe.msgprint(f"Stok untuk item {item.part} OH: {qty_on_hand} tidak tersedia.")
+                continue
+
+            if total_available <= 0 :
+                frappe.msgprint(f"Stok untuk item {item.part} OH: {qty_on_hand}, Reserved: {qty_reserved} Full Reserved.")
+                continue
+
+            # 3. Cari detail Lot/Serial berdasarkan FIFO (Stock Ledger Entry)
+            # Kita ambil baris yang memiliki balance_qty > 0
+            stocks = frappe.db.sql(f"""
+                SELECT 
+                    inv.site, inv.part, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet
+                FROM 
+                    `tabInventory` inv
+                JOIN 
+                    `tabWarehouse Location` loc ON inv.warehouse_location = loc.name
+                WHERE 
+                    inv.site = %s 
+                    AND inv.part = %s 
+                    AND inv.inventory_status = %s
+                    AND (inv.expire_date > %s OR inv.expire_date IS NULL OR inv.expire_date = '')
+                    AND inv.qty_on_hand > 0
+                    AND loc.is_active = 1
+                    AND loc.can_picking_reserved = 1 
+                ORDER BY 
+                    IFNULL(inv.expire_date, '9999-12-31') ASC,
+                    inv.lot_serial ASC
+            """, (site, item.part, item_status, frappe.utils.nowdate()), as_dict=True)
+
+        
+            allocated_qty = 0
+            remaining_needed = 0
+            for stock_oh in stocks:
+                if allocated_qty >= needed_qty:
+                    break  # Kebutuhan sudah terpenuhi
+
+                remaining_needed = needed_qty - allocated_qty 
+                #TANPA FILTER LOKASI KARENA BARANG BISA JADI SUDAH BERPINDAH
+                res_reserved = frappe.db.get_list("Reserved Task Entry", 
+                {"purpose":"Picking","site": stock_oh.site, "part": stock_oh.part, "lot_serial": stock_oh.lot_serial}, 
+                ["SUM(qty) as qty"])
+                
+                stock_reserved = flt(res_reserved[0].qty) if res_reserved else 0
+                if stock_oh.qty_on_hand <= stock_reserved:
+                    continue  # Lot ini sudah habis di-reserve, skip ke lot berikutnya
+                    
+                # Hitung sisa yang bisa diambil dari baris lot ini
+                # Tidak boleh melebihi pool ketersediaan total (reserved logic)
+                can_take_from_this_lot = flt(stock_oh.qty_on_hand) - flt(stock_reserved)    
+                final_needed = min(can_take_from_this_lot, remaining_needed)
+                
+                if final_needed > 0:
+                    qty_per_pallet = flt(stock_oh.qty_per_pallet) if stock_oh.qty_per_pallet else 1
+                    qty_per_pkg =  flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1
+
+                    if qty_per_pallet > 0:
+                        qty_pallet = math.ceil(flt(final_needed) / qty_per_pallet)
+                    else:
+                        qty_pallet = 0
+                    
+                    if can_take_from_this_lot < qty_per_pallet and final_needed >= can_take_from_this_lot:
+                        # Kita anggap ini "Pallet Clearance" - ambil apa adanya tanpa rounding lagi [ini untuk pallet yang sudah tidak utuh jadi didahulukan ambil 1 pallet]
+                        take_qty = can_take_from_this_lot
+        
+                    else:
+                        if remaining_needed >= qty_per_pallet and qty_per_pallet > 1:
+                            # Ambil maksimal isi pallet ini
+                            take_qty = min(can_take_from_this_lot, qty_per_pallet)
+                        else:   
+                            if qty_per_pkg > 1 :
+                                # Rounding berdasarkan packaging
+                                rounded_qty = math.ceil(remaining_needed / qty_per_pkg) * qty_per_pkg
+                                take_qty = min(can_take_from_this_lot, rounded_qty)
+                            else:
+                                take_qty = flt(remaining_needed)
+
+
+                    part = frappe.db.get_value("Part Master", stock_oh.part, ["description","um", "item_group"], as_dict=1)
+                    results.append({
+                        "site": stock_oh.site,
+                        "part": stock_oh.part,
+                        "description": part.description,
+                        "um": part.um,
+                        "item_group": part.item_group,
+                        "qty_per_pallet": qty_per_pallet,
+                        "amt_pallet": qty_pallet, 
+                        "from_location": stock_oh.warehouse_location,
+                        "to_location": item.target_location,
+                        "lot_serial": stock_oh.lot_serial,
+                        "conversion_factor": flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1,
+                        "um_conversion":stock_oh.um_packaging if stock_oh.um_packaging else None,
+                        "qty": take_qty
+                    })
+                    allocated_qty += take_qty
+
+                    unique_items[stock_oh.part].quantity_to_pick += take_qty
+ 
+        
+        final_list = list(unique_items.values())
 
     return {'results':results, 'summary':[asdict(item) for item in final_list] } 

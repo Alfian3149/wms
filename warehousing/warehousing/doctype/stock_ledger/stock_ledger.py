@@ -19,7 +19,8 @@ class StockLedger(Document):
 	def on_submit(self):
 		if self.inventory_doc_link:
 			update_data = {
-            'qty_on_hand': self.qty_after_transaction
+            'qty_on_hand': self.qty_after_transaction,
+            'qty_reserved': self.reservation_after_transaction
 			}
 			if self.status:
 				update_data['inventory_status'] = self.status
@@ -29,7 +30,28 @@ class StockLedger(Document):
 
 			frappe.db.set_value('Inventory', self.inventory_doc_link, update_data)
 		else: 
-			create_inventory_record(self.site, self.part, self.lot_serial, None, self.warehouse_location, self.qty_after_transaction, self.status, self.expire_date)
+			create_inventory_record(self.site, self.part, self.lot_serial, None, self.warehouse_location, self.qty_after_transaction, self.status, self.expire_date, self.reservation_after_transaction)
+
+		if self.qty_reserved: 
+			if self.transaction_type == "RCT-RSV" :
+				reserved = frappe.get_doc({
+				"doctype": "Reserved Task Entry",
+				"purpose": "Issued",
+				"doctype_source": self.doctype_source,
+				"task": self.data_link,
+				"site": self.site,
+				"part": self.part,
+				"lot_serial": self.lot_serial,
+				"warehouse_location": self.warehouse_location,
+				"qty": self.qty_reserved,
+				})
+				reserved.insert(ignore_permissions=True)
+				reserved.save()
+			else:
+				existing_reserved = frappe.db.get_value("Reserved Task Entry", {"site": self.site, "part": self.part, "lot_serial": self.lot_serial, "warehouse_location": self.warehouse_location}, ["name", "qty"],  as_dict=1) 
+				if existing_reserved :
+					totalReserved = flt(existing_reserved.qty) + flt(self.qty_reserved) 
+					frappe.db.set_value("Reserved Task Entry", existing_reserved.name, "qty", totalReserved)
 
 
 class make_sl_entry:
@@ -42,6 +64,7 @@ class make_sl_entry:
 		self.lotSerial = kwargs.get("lotSerial")
 		self.location = kwargs.get("location")
 		self.qtyChg = kwargs.get("qtyChg")
+		self.qtyReserved = kwargs.get("qtyReserved")
 		self.invStatus = kwargs.get("invStatus")
 		self.invExpire = kwargs.get("invExpire")
 		self.poNumber = kwargs.get("poNumber")
@@ -50,20 +73,24 @@ class make_sl_entry:
 		self.inventory_doc_link = None
 		self.reference = None
 		self.newBalance = 0
+		self.reservationBalance = 0
 		self.inOut = None 
 
 	def existingConsideration(self):
 		invExisting = frappe.db.get_value("Inventory", 
-        {"site": self.site, "part": self.part, "lot_serial": self.lotSerial, "reference": self.reference, "warehouse_location": self.location}, ["name", "qty_on_hand", "inventory_status", "expire_date"], as_dict=True)
+        {"site": self.site, "part": self.part, "lot_serial": self.lotSerial, "reference": self.reference, "warehouse_location": self.location}, ["name", "qty_on_hand", "inventory_status", "expire_date", "qty_reserved"], as_dict=True)
 
 		current_qty = 0
+		current_reservation = 0
 		if invExisting : 
 			current_qty = invExisting.qty_on_hand
+			current_reservation = invExisting.qty_reserved
 			self.inventory_doc_link = invExisting.name
 			self.invExpire = invExisting.expire_date
 			self.invStatus = invExisting.inventory_status
 
 		self.newBalance =  flt(current_qty) + flt(self.qtyChg) if self.inOut == "IN" else flt(current_qty) - flt(self.qtyChg)
+		self.reservationBalance =  flt(current_reservation) + flt(self.qtyReserved) if self.inOut == "IN" else flt(current_reservation) - flt(self.qtyReserved)
 
 	def validator(self): 
 		in_out= frappe.db.get_value("Transaction Type", self.transType, "in_out") 
@@ -90,7 +117,9 @@ class make_sl_entry:
 			"warehouse_location": self.location,
 			"status": self.invStatus if self.invStatus else None,
 			"actual_qty": flt(self.qtyChg) if self.inOut == "IN" else -flt(self.qtyChg),
+			"qty_reserved" : flt(self.qtyReserved) if self.inOut == "IN" else -flt(self.qtyReserved),
 			"qty_after_transaction": flt(self.newBalance),
+			"reservation_after_transaction": flt(self.reservationBalance),
 			"posting_date": self.postingDate,
 			"expire_date": self.invExpire if self.invExpire else None,
 			"po_number": self.poNumber,

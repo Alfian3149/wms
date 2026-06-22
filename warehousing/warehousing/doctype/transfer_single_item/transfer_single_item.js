@@ -3,21 +3,34 @@
 
 frappe.ui.form.on("Transfer Single Item", {
     onload(frm){
+        //frm.dashboard.set_headline("Document is under review", "red");
+
         if(frm.is_new()){
-        frm.set_df_property('from_to', 'hidden', 1);
+            frm.set_df_property('from_to', 'hidden', 1);
         }
 
-        if (frappe.user.has_role('Production Manager') || frappe.user.has_role('Production Operator')) {
+        if (frappe.user.has_role('Production Manager') || frappe.user.has_role('Production Operator') || frappe.user.has_role('System Manager')) {
             frm.set_df_property('sent_the_transfer_action_to_qc_tim', 'hidden', 0);
             frm.set_value('sent_the_transfer_action_to_qc_tim', 1);
         }
 
-        
+        if (frm.is_new() && frm.doc.__islocal && !frm.doc.__unsaved) {
+             frm.trigger('get_inventory');
+        }
+
     },
+
+    /* onload_post_render(frm){
+    }, */
+    
     refresh(frm) {
-        let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory" });
-        //d.dialog.hide();
-        
+        let d = new frappe.ui.form.MultiSelectDialog({ doctype: "Inventory",target: this.cur_frm});
+
+        if (frm.is_new() && frm.doc.__islocal) {
+            setTimeout(() => {
+                frm.trigger('get_inventory');
+            }, 500);
+        } 
         let key_name_filter = "";
 
         if (frappe.user.has_role('Warehouse Manager') || frappe.user.has_role('System Manager')) {
@@ -37,23 +50,38 @@ frappe.ui.form.on("Transfer Single Item", {
                 };
             });
         }
+
+        frm.set_query('location_to', function() {
+            return {
+                filters: {
+                    // filter data kamu di sini jika ada
+                    'docstatus': 0
+                },
+                // Mencoba memaksa urutan berdasarkan field tertentu
+                order_by: 'name DESC' 
+            };
+        });
+
     },
+
     get_inventory:function(frm){
+
         let d = new frappe.ui.form.MultiSelectDialog({
             doctype: "Inventory",
             target: this.cur_frm,
             columns: ["name", "part", "lot_serial", "warehouse_location", "qty_on_hand"],
             setters: {
-                part: null, 
+                part: frm.doc.part ? frm.doc.part : null , 
                 lot_serial: null, 
-                warehouse_location: null, 
-                qty_on_hand:[">", 0],
-            },
-            get_query() {
-                return {
-                    filters: { qty_on_hand: [">", 0] }
-                }
+                warehouse_location: frappe.user.has_role('Production Operator') || frappe.user.has_role('System Manager') ?  "WH04" : null, 
+                qty_on_hand:null,
+                inventory_status:null,
             }, 
+           /*  get_query() {
+                return {
+                    filters: [{qty_on_hand: [">", 0]}]
+                };
+            },   */ 
             action(selections) {
                 // 'selections' berisi array ID (name) dari record yang dipilih
                 if (selections.length === 0) {
@@ -74,6 +102,7 @@ frappe.ui.form.on("Transfer Single Item", {
                 frm.set_df_property('lotserial_from', 'read_only', 1);
                 frm.set_df_property('current_quantity', 'read_only', 1);
                 frm.set_df_property('status', 'read_only', 1);
+
 
                 // Iterasi setiap lokasi yang dipilih
                 selections.forEach(inventory => {
@@ -98,6 +127,8 @@ frappe.ui.form.on("Transfer Single Item", {
                         frm.set_value('status', doc.inventory_status);
                         frm.set_value('expire', doc.expire_date);
                         frm.set_value('inventory_name', doc.name);
+
+
               
                     });
                 });
@@ -107,7 +138,7 @@ frappe.ui.form.on("Transfer Single Item", {
             }
         });
         d.dialog.get_secondary_btn().hide();
-
+            
         setTimeout(() => {
         if (d.dialog) {
             d.dialog.get_secondary_btn().hide();

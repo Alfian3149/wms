@@ -600,12 +600,41 @@ def picked_confirm():
     doc_parent.set("users_picker", frappe.session.user)
     doc_parent.save(ignore_permissions=True)
     frappe.db.commit()
+
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
+    frappe.enqueue(
+        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.completion_picking_percentage",
+        queue="default",
+        timeout=300,
+        is_async=True,
+        enqueue_after_commit=False,
+        warehouse_task_name=latest_doc_parent.name,
+        picklist_name=latest_doc_parent.reference_name,
+    )   
+
     if latest_doc_parent.status == "Completed" :
         latest_doc_parent.submit()
 
-        frappe.db.set_value("Item Picklist", latest_doc_parent.reference_name, "complete_percentage", 50)
+        #frappe.db.set_value("Item Picklist", latest_doc_parent.reference_name, "complete_percentage", 50)
     return data
+
+@frappe.whitelist()
+def completion_picking_percentage(warehouse_task_name, picklist_name):
+    result = frappe.db.sql("""
+        SELECT 
+            SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as complete_count,
+            COUNT(*) as total_count
+        FROM `tabWarehouse Task Detail`
+        WHERE parent = %s
+    """, (warehouse_task_name), as_dict=True)
+    complete_count = result[0].get('complete_count') or 0
+    total_count = result[0].get('total_count') or 0
+    percentage_complete = (complete_count / total_count * 100) if total_count > 0 else 0
+    data =  str(int(complete_count)) + "/" + str(int(total_count))
+    frappe.db.set_value("Item Picklist", picklist_name, "complete_percentage", percentage_complete)
+    frappe.db.set_value("Item Picklist", picklist_name, "completion_data", data)
+    frappe.db.commit()
+
 
 @frappe.whitelist()
 def scan_item_putaway(item, lotserial):
@@ -634,12 +663,12 @@ def scan_item_putaway(item, lotserial):
         "data": None
         }
  
-def po_receipt_task_confirmation_in_web(transactionSuccess, parent_doc_name):
+def po_receipt_task_confirmation_in_web(transactionSuccess, doctype, parent_doc_name):
     for d in transactionSuccess:
         d_site = d.get("site") or "1000"
         d_poline = d.get("poline"),
         data = {
-			"doctype_source":"Warehouse Task",
+			"doctype_source":doctype,
 			"data_link":parent_doc_name,
 			"transType":"RCT-PO",
 			"site":d_site,
@@ -656,24 +685,14 @@ def po_receipt_task_confirmation_in_web(transactionSuccess, parent_doc_name):
         init_sl = make_sl_entry(**data)
         init_sl.create_new()
     frappe.db.commit()
-    """ update_inventory_qty(
-        "Warehouse Task", parent_doc_name, "RCT-PO", d.get("effdate"), 
-        d_site, d.get("part"), d.get("lotserial"), d.get("ref"), 
-        d.get("location"), d.get("qty"), d.get("ldstatus"), 
-        d.get("expire"), d.get("ponumber"), int(d.get("poline", 0))
-    ) """
 
 @frappe.whitelist() 
 def get_picklist_outstanding_tasks(user):
     user_roles = frappe.get_roles(user)
     tasks = frappe.get_all("Warehouse Task", 
     filters=[
-        ["task_type", "=", "Picking"],
+        ["task_type", "in", ["Picking", "Return"]],
         ["status", "!=", "Completed"],
-        #["or", 
-        #    ["assign_to_user", "=", user],
-        #    ["assign_to_role", "in", user_roles]
-        #]
     ],
     fields=["name", "reference_name", "date_instruction", "time_instruction", "assign_to_role"],)
 
@@ -702,7 +721,7 @@ def get_handover_outstanding_tasks(user):
     tasks = frappe.get_all("Warehouse Task", 
     filters=[
         ["task_type", "=", "Picking"],
-        ["status", "=", "Completed"],
+        #["status", "=", "Completed"],
         ["is_needed_handover", "=", 1]
         #["or", 
         #    ["assign_to_user", "=", user],
@@ -715,8 +734,8 @@ def get_handover_outstanding_tasks(user):
     items = []
     for data in tasks:
         task_items = frappe.get_all("Warehouse Task Detail",
-                filters={"parent": data.name, "status":"Completed"},
-                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_confirmation as quantity","locationdestination as location", "qty_handover as handedOverQty", "has_handovered as status"],order_by='item asc, lotserial asc')
+                filters={"parent": data.name},
+                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_confirmation as quantity","locationdestination as location", "qty_handover as handedOverQty", "has_handovered as status", "status as pickingStatus"],order_by='item asc, lotserial asc')
 
         #picklist = frappe.db.get_value("Item Picklist", data.reference_name, ["priority", "needed_date"], as_dict=True) 
         
@@ -746,6 +765,6 @@ def handover_confirm(task):
     
     taskdoc = frappe.get_doc("Warehouse Task", task)
     frappe.db.set_value("Warehouse Task", task, "is_needed_handover", 0)
-    frappe.db.set_value("Item Picklist", taskdoc.reference_name, "complete_percentage", 100)
+    #frappe.db.set_value("Item Picklist", taskdoc.reference_name, "complete_percentage", 100)
 
     return task 

@@ -94,9 +94,9 @@ def component_issued_API(wo_comp_issued_name):
         "reference_name": wo_comp_issued_name
     })
     int_log.insert(ignore_permissions=True)
-
+    frappe.db.commit()
     try:
-        response = requests.request("POST", url, data=payload, headers=headers, timeout=30)
+        response = requests.request("POST", url, data=payload, headers=headers, timeout=300)
         int_log.output = response.text # Simpan respon mentah
         if response.status_code == 200:
             root = ET.fromstring(response.text)
@@ -129,7 +129,7 @@ def component_issued_API(wo_comp_issued_name):
         int_log.status = "Failed"
         int_log.error_log = frappe.get_traceback()
         int_log.save(ignore_permissions=True)
-        #frappe.log_error(frappe.get_traceback(), "QAD Get PO API Error")
+        frappe.db.commit()
         frappe.throw(_("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e)))
         return {
             "status": "failed",

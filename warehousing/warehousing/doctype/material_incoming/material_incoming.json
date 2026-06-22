@@ -423,7 +423,7 @@
    "link_fieldname": "material_incoming_link"
   }
  ],
- "modified": "2026-05-21 08:09:48.516195",
+ "modified": "2026-06-12 09:16:14.249752",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Material Incoming",
@@ -445,6 +445,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
+ "search_fields": "purchase_order,receiver",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [

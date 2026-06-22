@@ -5,8 +5,51 @@ import frappe
 from frappe.model.document import Document
 from frappe.model.naming import getseries
 from frappe.utils import getdate, nowdate
-
+import time
 class ItemInspection(Document):
+	def validate(self):
+		if self.doc_status == 1:
+			detail_table_field = "inspection_details"
+			self.set(detail_table_field, [
+				d for d in self.get(detail_table_field) if d.is_selected
+			])
+
+			new_itmreq = frappe.new_doc("Item Request")
+			new_itmreq.purpose = "Return Supplier"
+			new_itmreq.supplier = self.supplier
+			new_itmreq.supplier_name = self.supplier_name
+			new_itmreq.material_incoming_id = self.material_incoming_id
+			new_itmreq.receiver = self.receiver
+			new_itmreq.posting_date = getdate(nowdate())
+			new_itmreq.required_by = self.return_for_date
+			new_itmreq.requestor_by = frappe.session.user
+			new_itmreq.target_location = self.return_location
+			new_itmreq.doctype_source = "Item Inspection"
+			new_itmreq.link = self.name
+
+			purchase_order = ""
+			for item in self.inspection_details:
+				um, group =  frappe.db.get_value("Part Master", self.part, ["um", "item_group"])
+				new_item = new_itmreq.append("items")
+				new_item.site = "1000"
+				new_item.purchase_order = item.purchase_order
+				new_item.line_order = item.line_order
+				new_item.part = item.part
+				new_item.um = um
+				new_item.quantity_requested = item.quantity
+				new_item.quantity_picked = 0
+				new_item.from_location = item.location
+				new_item.lotserial = item.lotserial
+				new_item.target_location = self.return_location
+				new_item.supplier = item.supplier
+				new_item.item_group = group
+
+				purchase_order = item.purchase_order
+			new_itmreq.purchase_order = purchase_order
+
+			new_itmreq.insert()
+			new_itmreq.submit()
+
 	def autoname(self):
 		today = getdate(nowdate())
 		year = today.strftime("%y")
@@ -17,13 +60,14 @@ class ItemInspection(Document):
 @frappe.whitelist()
 def get_incoming_information(part, lotserial): 
 	incoming_no = frappe.db.get_value("Material Label", {"item":part, "lotserial":lotserial}, ["material_incoming_link"] )
-	mt_incoming = frappe.get_doc("Material Incoming", incoming_no)
-	if mt_incoming : 
-		return {
-			"status": "success",
-			"message": "Data found",
-			"data" : mt_incoming
-		}
+	if incoming_no:
+		mt_incoming = frappe.get_doc("Material Incoming", incoming_no)
+		if mt_incoming : 
+			return {
+				"status": "success",
+				"message": "Data found",
+				"data" : mt_incoming
+			}
 	
 	return {
 		"status": "failed",
@@ -33,9 +77,10 @@ def get_incoming_information(part, lotserial):
 	}
 
 @frappe.whitelist()
-def get_item_received(part): 
+def get_item_received(part):
+	time.sleep(1) 
 	data = []
-	inventory = frappe.db.get_list("Inventory", filters={"site":"1000", "part":part}, fields=["name", "part", "lot_serial", "qty_on_hand", "warehouse_location"], order_by="lot_serial asc")
+	inventory = frappe.db.get_list("Inventory", filters={"site":"1000", "part":part, "qty_on_hand": [">", 0]}, fields=["name", "part", "lot_serial", "qty_on_hand", "warehouse_location", "inventory_status"], order_by="lot_serial asc")
 
 	if not inventory: 
 		return {
@@ -56,6 +101,7 @@ def get_item_received(part):
 				"lot_serial": inv.lot_serial,
 				"location": inv.warehouse_location,
 				"stock": inv.qty_on_hand,
+				"inventory_status": inv.inventory_status,
 			})
 		else :
 			data.append({
@@ -68,6 +114,7 @@ def get_item_received(part):
 				"lot_serial": inv.lot_serial,
 				"location": inv.warehouse_location,
 				"stock": inv.qty_on_hand,
+				"inventory_status": inv.inventory_status,
 			})
 
 	return {
@@ -79,7 +126,9 @@ def get_item_received(part):
 @frappe.whitelist()
 def lotserial_selected(inv_id_list):
 	if inv_id_list:
-		inv_id_str = ','.join([f'"{inv_id}"' for inv_id in inv_id_list])
-		frappe.msgprint(f"Selected Inventory IDs: {inv_id_str}")
+		data = []
+		for inv in inv_id_list:
+			get_inventory = frappe.get_doc("Inventory", inv)
+			
 	else:
 		frappe.msgprint("No Inventory IDs selected.")

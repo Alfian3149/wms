@@ -8,22 +8,26 @@
   "section_break_ozcl",
   "part",
   "description",
+  "status",
+  "doc_status",
   "column_break_nlkb",
+  "um",
+  "column_break_zmdk",
   "lotserial",
   "qty",
-  "column_break_zmdk",
-  "current_position",
   "column_break_ghqv",
+  "current_position",
   "current_status",
   "reason_section",
   "reported_date",
   "reported_by",
   "column_break_dxzf",
   "reason",
-  "data_ethk",
+  "remarks",
   "section_break_krhh",
   "material_incoming_id",
   "po_number",
+  "message",
   "column_break_mxgp",
   "receiver",
   "receipt_date",
@@ -39,8 +43,11 @@
   "column_break_rsfk",
   "column_break_oimt",
   "column_break_oyab",
+  "return_location",
+  "return_for_date",
   "column_break_brzz",
-  "total_qty"
+  "total_qty",
+  "amended_from"
  ],
  "fields": [
   {
@@ -93,8 +100,7 @@
    "fieldname": "qty",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Qty",
-   "read_only": 1
+   "label": "Qty"
   },
   {
    "collapsible": 1,
@@ -144,16 +150,10 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "data_ethk",
-   "fieldtype": "Data",
-   "label": "Remarks"
-  },
-  {
    "fetch_from": "part.description",
    "fieldname": "description",
    "fieldtype": "Small Text",
-   "label": "Description",
-   "read_only": 1
+   "label": "Description"
   },
   {
    "fieldname": "supplier_name",
@@ -179,6 +179,7 @@
   {
    "fieldname": "inspection_details",
    "fieldtype": "Table",
+   "label": "When row selected it will request Warehouse picking item from rack to your destination location",
    "options": "Item Inspection Detail"
   },
   {
@@ -200,7 +201,7 @@
   {
    "fieldname": "select_itemlot",
    "fieldtype": "Button",
-   "label": "Select The Item / Lot will returning"
+   "label": "<i class=\"fa fa-search\"></i> Fetching lotserial received based on item reported"
   },
   {
    "fieldname": "section_break_lmtx",
@@ -223,16 +224,74 @@
    "fieldtype": "Column Break"
   },
   {
+   "bold": 1,
    "fieldname": "total_qty",
    "fieldtype": "Float",
-   "label": "Total Qty"
+   "label": "Total Qty Selected",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "part.um",
+   "fieldname": "um",
+   "fieldtype": "Data",
+   "label": "UM"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Item Inspection",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "doc_status",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Doc Status"
+  },
+  {
+   "default": "New",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "New\nProcessed\nCollected\nReturned"
+  },
+  {
+   "fieldname": "return_for_date",
+   "fieldtype": "Date",
+   "label": "Return for Date?"
+  },
+  {
+   "fieldname": "return_location",
+   "fieldtype": "Link",
+   "label": "Return Location",
+   "options": "Warehouse Location"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "HTML"
   }
  ],
  "grid_page_length": 50,
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-06-08 23:42:01.174712",
+ "links": [
+  {
+   "link_doctype": "Item Request",
+   "link_fieldname": "link"
+  }
+ ],
+ "modified": "2026-06-10 23:45:22.537015",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Inspection",
@@ -255,5 +314,26 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [
+  {
+   "color": "Red",
+   "title": "New"
+  },
+  {
+   "color": "Orange",
+   "title": "Processed"
+  },
+  {
+   "color": "Blue",
+   "title": "Collected"
+  },
+  {
+   "color": "Green",
+   "title": "Returned"
+  },
+  {
+   "color": "Green",
+   "title": "Completed"
+  }
+ ]
 }

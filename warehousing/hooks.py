@@ -29,7 +29,7 @@ allow_tests = True
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/warehousing/css/warehousing.css"
-# app_include_js = "/assets/warehousing/js/warehousing.js"
+app_include_js = "/assets/warehousing/js/utils.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/warehousing/css/warehousing.css"

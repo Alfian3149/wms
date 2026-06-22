@@ -8,10 +8,14 @@
   "section_break_j2i3",
   "amended_from",
   "select_request",
-  "complete_percentage",
+  "picklist_for_request_type",
   "column_break_iwes",
   "priority",
   "needed_date",
+  "complete_percentage",
+  "completion_data",
+  "ho_completion_",
+  "ho_completion_data",
   "section_break_zlyp",
   "get_item_stock",
   "item_picklist_summary",
@@ -34,6 +38,7 @@
    "search_index": 1
   },
   {
+   "description": "Request Type => Purchase: PUR, Material Transfer: MTF, Material Issue: MIS, Manufacturing: MFG, Return Supplier: RSP, Return Rack: RRK,",
    "fieldname": "select_request",
    "fieldtype": "Table MultiSelect",
    "label": "Select Multiple Request",
@@ -85,17 +90,47 @@
   },
   {
    "allow_on_submit": 1,
+   "default": "0",
    "fieldname": "complete_percentage",
    "fieldtype": "Int",
-   "label": "Complete Percentage"
+   "label": "PK Completion (%)",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "picklist_for_request_type",
+   "fieldtype": "Data",
+   "label": "Picklist For Request Type"
+  },
+  {
+   "fieldname": "completion_data",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "PK Completion Data"
+  },
+  {
+   "fieldname": "ho_completion_",
+   "fieldtype": "Int",
+   "label": "HO Completion (%)"
+  },
+  {
+   "fieldname": "ho_completion_data",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "HO completion Data"
   }
  ],
  "grid_page_length": 50,
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2026-05-29 00:05:37.522455",
+ "links": [
+  {
+   "link_doctype": "Warehouse Task",
+   "link_fieldname": "reference_name"
+  }
+ ],
+ "modified": "2026-06-18 11:16:58.324097",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist",

@@ -103,13 +103,20 @@ class ItemPicklist(Document):
 			itemRequest.update_status_based_on_details()
 			itemRequest.save()
 
+		need_handover = 1
+		picklist_type = "Picking"
+		if self.picklist_for_request_type == "RSP" : 
+			need_handover = 0
+			picklist_type = "Return"
+	
 		try:
+
 			new_task = frappe.new_doc("Warehouse Task")
-			new_task.task_type = "Picking"
+			new_task.task_type = picklist_type
 			new_task.reference_doctype = "Item Picklist"
 			new_task.reference_name = self.name
 			new_task.source_id = ", ".join(itemRequestDoc)
-			new_task.is_needed_handover = 1
+			new_task.is_needed_handover = need_handover
 			new_task.wo_split_number = ", ".join(itemRequestDoc)
 			""" new_task.assign_to_user = assigned_to_person
 			new_task.assign_to_role = assigned_to_role """

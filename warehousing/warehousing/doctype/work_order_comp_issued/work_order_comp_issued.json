@@ -8,10 +8,13 @@
  "field_order": [
   "section_break_wmzx",
   "naming_series",
+  "production_activity_to_be_carried_out",
+  "is_closed",
   "column_break_qghv",
-  "for_material_packaging__blending",
-  "column_break_afrn",
+  "wo_weighing_number",
   "work_order_number",
+  "column_break_afrn",
+  "qty_product_completed_to_be_issued",
   "work_order_split_number",
   "mts_number",
   "section_break_whir",
@@ -26,12 +29,11 @@
   "fg_description",
   "um",
   "section_break_ohjt",
-  "qty_product_completed_to_be_issued",
-  "column_break_vmkw",
+  "column_break_fciv",
   "quantity_ordered",
-  "column_break_tlyb",
+  "column_break_vmkw",
   "quantity_completed",
-  "column_break_hikb",
+  "column_break_tlyb",
   "quantity_rejected",
   "work_order_detail_section",
   "wo_api",
@@ -39,9 +41,10 @@
   "all_components_section",
   "lotserial_has_received",
   "section_break_plet",
+  "get_material_stock",
   "item_summary_to_issued",
   "section_break_cedb",
-  "get_material_stock",
+  "select_ingredient__packaging_from_inventory",
   "item_issued"
  ],
  "fields": [
@@ -85,16 +88,10 @@
    "label": "Data Selection "
   },
   {
-   "fieldname": "for_material_packaging__blending",
-   "fieldtype": "Select",
-   "label": "For Material Packaging / Blending? ",
-   "options": "\nPackaging\nBlending",
-   "reqd": 1
-  },
-  {
    "fieldname": "work_order_number",
    "fieldtype": "Data",
-   "label": "Work order "
+   "label": "Work order ",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_cedb",
@@ -104,8 +101,9 @@
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Master ID",
-   "options": "WO-COMP-ISS-.YYYY.-"
+   "options": "WO-ISS-.YYYY.-"
   },
   {
    "fieldname": "column_break_uhig",
@@ -146,10 +144,6 @@
    "fieldtype": "Float",
    "label": "Quantity Completed",
    "read_only": 1
-  },
-  {
-   "fieldname": "column_break_hikb",
-   "fieldtype": "Column Break"
   },
   {
    "fetch_from": "work_order_split_number.quantity_rejected",
@@ -207,18 +201,21 @@
    "label": "FG UM"
   },
   {
+   "description": "*Reference for calculating raw materials",
    "fetch_from": "work_order_split_number.quantity_to_be_produced_immediately",
    "fieldname": "qty_product_completed_to_be_issued",
    "fieldtype": "Float",
-   "label": "Qty Product Completed To be Issued"
+   "hidden": 1,
+   "label": "Qty Product that have been or will be Completed"
   },
   {
    "collapsible": 1,
    "fieldname": "all_components_section",
    "fieldtype": "Section Break",
-   "label": "Finsh Goods Lot/serial data that has been received"
+   "label": "Finish Goods Lot/serial data that has been received"
   },
   {
+   "collapsible": 1,
    "fieldname": "section_break_plet",
    "fieldtype": "Section Break",
    "label": "Material Summary To Issued"
@@ -247,6 +244,36 @@
    "fieldtype": "Link",
    "label": "MTS Number",
    "options": "Work Order Split"
+  },
+  {
+   "fieldname": "production_activity_to_be_carried_out",
+   "fieldtype": "Select",
+   "label": "Production Activity",
+   "options": "\nPackaging\nWeighing\nBlending",
+   "reqd": 1
+  },
+  {
+   "fieldname": "wo_weighing_number",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "WO Weighing Number",
+   "options": "Work Order Comp Issued"
+  },
+  {
+   "fieldname": "column_break_fciv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_closed",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Closed?"
+  },
+  {
+   "fieldname": "select_ingredient__packaging_from_inventory",
+   "fieldtype": "Button",
+   "label": "Select Ingredient / Packaging From Inventory "
   }
  ],
  "grid_page_length": 50,
@@ -254,7 +281,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-29 00:23:00.026564",
+ "modified": "2026-06-17 16:06:49.722302",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Comp Issued",
@@ -277,6 +304,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
+ "search_fields": "work_order_number,finish_good,qty_product_completed_to_be_issued",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

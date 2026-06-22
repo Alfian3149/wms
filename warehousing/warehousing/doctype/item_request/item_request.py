@@ -5,7 +5,23 @@ import frappe
 from frappe.model.document import Document
 import json
 from frappe.utils import flt
+from frappe.model.naming import getseries
 class ItemRequest(Document):
+    def autoname(self):
+        type_codes = {
+            "Material Transfer": "MTF",
+            "Material Issue": "MIS",
+            "Manufacture": "MFG",
+            "Return Supplier": "RSP",
+            "Return Rack": "RRK",
+        }
+        code = type_codes.get(self.purpose, "MFG")
+        year = frappe.utils.nowdate()[:4][-2:] #2 digit year
+        label_prefix = f"ITEM-REQUEST-{code}-{year}"
+        label_running_number = getseries(label_prefix, 3)
+        self.name = f"{code}-{year}{label_running_number}"
+
+
     def on_update_after_submit(self):
         qty_needed = 0
         for request in self.items:
@@ -15,8 +31,8 @@ class ItemRequest(Document):
             self.request_status = "Partially Picked"
         elif self.items and qty_needed <= 0:
             self.request_status = "Fully Picked"
-            if self.link:
-                frappe.db.set_value("Work Order Split", self.link, "request_status", "Ready For Weighing")
+            if self.doctype_source == "Work Order Split" and self.link: 
+                frappe.db.set_value("Work Order Split", self.link, "status", "Ready For Weighing") 
         else:
             self.request_status = "Open"
     
@@ -28,15 +44,20 @@ class ItemRequest(Document):
         for item in self.items:
             item.target_location = self.target_location
 
-        self.update_status_based_on_details()
+        if self.request_status != "Fully Picked" : 
+            self.update_status_based_on_details()
 
     def update_status_based_on_details(self):
         if not self.items:
             self.request_status = "Open"
             return
-
+                
+        if self.request_status == "Ready To Issued" or self.request_status == "Completed" :
+             return
+             
         all_complete = all(flt(d.quantity_requested) - flt(d.quantity_picked) <= 0 for d in self.items)
-        
+
+
         if all_complete:
             self.request_status = "Fully Picked"
         else:

@@ -6,14 +6,24 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "site",
+  "column_break_gixe",
   "part",
   "description",
   "um",
-  "quantity_requested",
-  "quantity_picked",
+  "item_group",
+  "column_break_yrpb",
+  "site",
+  "purchase_order",
+  "line_order",
+  "supplier",
+  "work_order",
+  "column_break_ofgu",
+  "from_location",
+  "lotserial",
   "target_location",
-  "item_group"
+  "column_break_bnec",
+  "quantity_requested",
+  "quantity_picked"
  ],
  "fields": [
   {
@@ -50,6 +60,7 @@
    "default": "1000",
    "fieldname": "site",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Site",
    "read_only": 1,
    "reqd": 1
@@ -58,7 +69,7 @@
    "fieldname": "quantity_requested",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Qty Requested",
+   "label": "Qty Confirm",
    "non_negative": 1,
    "reqd": 1
   },
@@ -73,13 +84,62 @@
    "fieldname": "item_group",
    "fieldtype": "Data",
    "label": "Group"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "from_location",
+   "fieldtype": "Data",
+   "label": "From Location"
+  },
+  {
+   "fieldname": "lotserial",
+   "fieldtype": "Data",
+   "label": "Lot/Serial"
+  },
+  {
+   "fieldname": "column_break_gixe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bnec",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ofgu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Data",
+   "label": "Supplier"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "purchase_order",
+   "fieldtype": "Data",
+   "label": "Purchase Order"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "line_order",
+   "fieldtype": "Int",
+   "label": "Line Order"
+  },
+  {
+   "fieldname": "column_break_yrpb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "work_order",
+   "fieldtype": "Data",
+   "label": "Work Order"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-05-26 10:19:43.606300",
+ "modified": "2026-06-22 13:44:11.505599",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request Detail",

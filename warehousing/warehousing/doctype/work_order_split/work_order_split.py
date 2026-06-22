@@ -79,6 +79,7 @@ class WorkOrderSplit(Document):
 
 					new_item = new_itmreq.append("items")
 					new_item.site = self.site
+					new_item.work_order = self.work_order
 					new_item.part = item.part
 					new_item.um = item.um
 					new_item.quantity_requested = item.qty_confirm
@@ -94,7 +95,7 @@ class WorkOrderSplit(Document):
 
 			
 @frappe.whitelist() 
-def get_stock_availability_in_production(site, part, warehouse_location, wo_split_number=None):
+def get_stock_availability_in_production(site, part, warehouse_location, wo_number=None):
 	#getStock = frappe.db.get_value("Inventory", {"site": site, "part": part, "warehouse_location": warehouse_location}, "SUM(qty_on_hand) as qty_on_hand")
 	getStock = frappe.db.sql("""
             SELECT 
@@ -117,20 +118,39 @@ def get_stock_availability_in_production(site, part, warehouse_location, wo_spli
 
 	
 	#getQtyRequested =  frappe.db.get_value("Work Order Split Detail", {"part": part,  "is_closed": 0, "parent": ['not like', f"%{wo_split_number}%"]}, "SUM(actual_required) as actual_required")
-	getQtyRequested =  frappe.db.get_value("Work Order Split Detail", {"part": part,  "is_closed": 0}, "SUM(actual_required) as actual_required")
+	#getQtyRequested =  frappe.db.get_value("Work Order Split Detail", {"part": part,  "is_closed": 0}, "SUM(actual_required) as actual_required")
 
-	#getReserved = frappe.db.get_value("Reserved Task Entry", {"site": site, "part": part, "destination_location": warehouse_location}, "SUM(qty) as qty")
-	#print(f"Item: {part}, getStock: {getStock}, getQtyRequested: {getQtyRequested}")
+	target_statuses = ["Open", "Partially Picked"]
+	result = frappe.db.sql("""
+        SELECT 
+            SUM(COALESCE(child.quantity_requested, 0) - COALESCE(child.quantity_picked, 0)) as total_outstanding
+        FROM 
+            `tabItem Request Detail` child
+        INNER JOIN 
+            `tabItem Request` parent ON child.parent = parent.name
+        WHERE 
+            child.part = %s 
+            AND child.work_order = %s 
+			AND child.parenttype = 'Item Request'
+            AND parent.request_status IN %s
+            
+    """, (part, wo_number, target_statuses), as_dict=True)
+    
+	getOutstanding = result[0].get("total_outstanding") if result and result[0].get("total_outstanding") else 0
+
 	availability = 0
 	if getStock and getStock[0].qty_on_hand is not None:
 		availability = getStock[0].qty_on_hand
-	if getQtyRequested :
-		availability -= getQtyRequested
+	if getOutstanding :
+		availability -= getOutstanding
 	
 	if availability < 0:
 		availability = 0
 
-	return {"availability": availability}
+	return {
+		"outstanding" : getOutstanding ,
+		"availability": availability
+	}
 
 @frappe.whitelist() 
 def get_material_transfer_slip_history_by_wo(work_order):

@@ -40,7 +40,7 @@ def get_current_qad_inventory(part, bulk_insert=False):
     })
     int_log.insert(ignore_permissions=True)
     try:
-        response = requests.request("POST", url, data=payload, headers=headers, timeout=30)
+        response = requests.request("POST", url, data=payload, headers=headers, timeout=200)
         int_log.output = response.text # Simpan respon mentah
         if response.status_code == 200:
             xml_response = response.text

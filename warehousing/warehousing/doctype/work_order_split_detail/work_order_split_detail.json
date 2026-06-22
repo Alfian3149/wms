@@ -14,11 +14,17 @@
   "column_break_dbky",
   "qty_per_pallet",
   "net_weight",
+  "qty_in_packaging",
   "column_break_syup",
   "qty_required",
   "qty_issued",
+  "ori_cur_req",
   "actual_required",
+  "cur_req_by_pckg",
+  "free_qty",
+  "free_qty_usage",
   "qty_confirm",
+  "outstanding",
   "column_break_mrxf",
   "availability",
   "availability_in_percent",
@@ -39,12 +45,12 @@
   {
    "fieldname": "qty_required",
    "fieldtype": "Float",
-   "label": "Full Required"
+   "label": "Full Req"
   },
   {
    "fieldname": "qty_issued",
    "fieldtype": "Float",
-   "label": "Full Issued"
+   "label": "Has Issued"
   },
   {
    "fieldname": "qty_per_pallet",
@@ -92,13 +98,13 @@
   {
    "fieldname": "actual_required",
    "fieldtype": "Float",
-   "label": "Actual Needed"
+   "label": "Act. Req"
   },
   {
    "fieldname": "qty_confirm",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Qty Request",
+   "label": "Qty Req",
    "reqd": 1
   },
   {
@@ -113,13 +119,43 @@
    "fieldtype": "Check",
    "label": "is_closed?",
    "search_index": 1
+  },
+  {
+   "fieldname": "outstanding",
+   "fieldtype": "Float",
+   "label": "Outstanding"
+  },
+  {
+   "fieldname": "ori_cur_req",
+   "fieldtype": "Float",
+   "label": "Ori Cur. Req"
+  },
+  {
+   "fieldname": "cur_req_by_pckg",
+   "fieldtype": "Float",
+   "label": "Cur. Req By Pckg"
+  },
+  {
+   "fieldname": "free_qty",
+   "fieldtype": "Float",
+   "label": "Free Qty"
+  },
+  {
+   "fieldname": "free_qty_usage",
+   "fieldtype": "Float",
+   "label": "Free Qty Usage"
+  },
+  {
+   "fieldname": "qty_in_packaging",
+   "fieldtype": "Float",
+   "label": "Qty In Packaging"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-04-15 16:18:41.156597",
+ "modified": "2026-06-22 14:14:50.551183",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split Detail",

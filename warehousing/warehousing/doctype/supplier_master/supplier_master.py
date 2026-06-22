@@ -5,7 +5,5 @@
 from frappe.model.document import Document
 
 
-class ReservedTaskEntry(Document):
-	def on_update(self):
-		if self.qty <= 0: 
-			frappe.delete_doc(self.doctype, self.name, ignore_permissions=True)
+class SupplierMaster(Document):
+	pass

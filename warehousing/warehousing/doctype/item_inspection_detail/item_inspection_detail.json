@@ -6,13 +6,19 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "supplier",
+  "supplier_name",
+  "purchase_order",
+  "line_order",
+  "column_break_xxuo",
   "part",
   "quantity",
   "column_break_azsv",
   "location",
   "lotserial",
   "column_break_nhqg",
-  "inventory_status"
+  "inventory_status",
+  "is_selected"
  ],
  "fields": [
   {
@@ -54,13 +60,45 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Inventory Status"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Supplier"
+  },
+  {
+   "fieldname": "supplier_name",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Supplier Name"
+  },
+  {
+   "fieldname": "column_break_xxuo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_selected",
+   "fieldtype": "Check",
+   "label": "Is Selected?"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Data",
+   "label": "Purchase Order"
+  },
+  {
+   "fieldname": "line_order",
+   "fieldtype": "Int",
+   "label": "Line Order"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-06-05 15:23:07.753734",
+ "modified": "2026-06-11 01:35:52.869844",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Inspection Detail",

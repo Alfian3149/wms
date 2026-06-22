@@ -18,9 +18,17 @@ class TransferSingleItem(Document):
 		if self.location_from == self.location_to: 
 			frappe.throw(_("Location from should be different with location from"))
 		
-
 		if self.remarks and len(self.remarks) > 10 : 
-			frappe.throw(_("Remarks only allowed 8 digits "))
+			frappe.throw(_("MTS Number only allowed 10 digits "))
+		
+		if self.quantity <= 0 :
+			frappe.throw(_("Quantity to transfer must be greater than 0"))
+		
+		if "Production" in frappe.get_roles(frappe.session.user):
+			can_reserved_for_wo_comp_issued = frappe.db.get_value("Warehouse Location", self.location_from, "can_reserved_for_wo_comp_issued")
+			if not can_reserved_for_wo_comp_issued:
+				frappe.throw(_("You are not allowed to transfer item from this location"))
+
 		inventory = frappe.get_doc("Inventory", self.inventory_name) 
 		if self.quantity > inventory.qty_on_hand : 
 			frappe.throw(_("Quantity to transfer is over than stock "))
@@ -46,8 +54,26 @@ class TransferSingleItem(Document):
 			"useto":True,
 		})
 
+		if self.sent_the_transfer_action_to_qc_tim:
+			new_inspect = frappe.new_doc("Item Inspection")
+			new_inspect.part = self.part
+			new_inspect.um = self.um
+			new_inspect.description = self.description
+			new_inspect.lotserial = self.lotserial_from
+			new_inspect.qty = self.quantity
+			new_inspect.current_position = self.location_to
+			new_inspect.reported_date = getdate(nowdate())
+			new_inspect.reported_by = frappe.session.user
+			new_inspect.reason = self.reason
+			new_inspect.remarks = self.remarks_optional
+			new_inspect.return_for_date = getdate(nowdate())
+			new_inspect.return_location = "WH01"
+			new_inspect.insert()
+			new_inspect.save()
+
 		api_transfer = frappe.call("warehousing.warehousing.api_transfer.transfer_submit_detail_task", details=details, ref_doctype="Transfer Single Item", doc_name=self.name, wsa=wsa)
 		if api_transfer.get("status") == "success":
+
 			data = {
 				"doctype":"Inventory",
 				"doctype_link":self.inventory_name,

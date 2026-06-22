@@ -10,19 +10,29 @@
   "amended_from",
   "naming_series",
   "purpose",
+  "material_incoming_id",
+  "purchase_order",
+  "receiver",
   "column_break_igkz",
   "required_by",
   "posting_date",
+  "supplier",
+  "supplier_name",
   "column_break_dvie",
   "target_location",
   "requestor_by",
   "request_status",
+  "returned_section",
+  "return_receiver",
+  "column_break_ewgg",
+  "returned_date",
   "section_break_ngrt",
   "doctype_source",
   "picklist",
   "column_break_pjnk",
   "link",
   "section_break_smwc",
+  "open_and_select_inventory_list",
   "items",
   "item_picked_tracking_section",
   "reserved_task_entry",
@@ -57,7 +67,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Purpose",
-   "options": "Purchase\nMaterial Transfer\nMaterial Issue\nManufacture\nCustomer Provided",
+   "options": "Material Transfer\nMaterial Issue\nManufacture\nReturn Supplier\nReturn Rack",
    "reqd": 1
   },
   {
@@ -71,10 +81,10 @@
    "label": "Posting Date"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "required_by",
    "fieldtype": "Date",
-   "label": "Required for date",
-   "reqd": 1
+   "label": "Required for date"
   },
   {
    "allow_on_submit": 1,
@@ -89,7 +99,7 @@
   {
    "fieldname": "section_break_smwc",
    "fieldtype": "Section Break",
-   "label": "Material to Request"
+   "label": "Material Requested"
   },
   {
    "allow_on_submit": 1,
@@ -128,7 +138,8 @@
    "fieldname": "requestor_by",
    "fieldtype": "Link",
    "label": "Requestor By",
-   "options": "User"
+   "options": "User",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_dvie",
@@ -146,6 +157,7 @@
    "collapsible": 1,
    "fieldname": "item_picked_tracking_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Item Picked Tracking"
   },
   {
@@ -159,11 +171,74 @@
   },
   {
    "allow_on_submit": 1,
+   "default": "Open",
    "fieldname": "request_status",
    "fieldtype": "Select",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Request Status",
-   "options": "Open\nPartially Picked\nFully Picked"
+   "options": "Open\nPartially Picked\nFully Picked\nReady To Issued\nCompleted"
+  },
+  {
+   "fetch_from": "material_incoming_id.supplier",
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Supplier",
+   "options": "Supplier Master"
+  },
+  {
+   "fetch_from": "material_incoming_id.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Small Text",
+   "hidden": 1,
+   "label": "Supplier Name"
+  },
+  {
+   "fieldname": "material_incoming_id",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Material Incoming ID",
+   "options": "Material Incoming"
+  },
+  {
+   "fetch_from": "material_incoming_id.purchase_order",
+   "fieldname": "purchase_order",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Purchase Order"
+  },
+  {
+   "fetch_from": "material_incoming_id.receiver",
+   "fieldname": "receiver",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Incoming Receiver"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "returned_section",
+   "fieldtype": "Section Break",
+   "label": "Returned"
+  },
+  {
+   "fieldname": "return_receiver",
+   "fieldtype": "Data",
+   "label": "Return Receiver"
+  },
+  {
+   "fieldname": "column_break_ewgg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "returned_date",
+   "fieldtype": "Date",
+   "label": "Returned Date"
+  },
+  {
+   "fieldname": "open_and_select_inventory_list",
+   "fieldtype": "Button",
+   "label": "Open and Select Inventory List"
   }
  ],
  "grid_page_length": 50,
@@ -171,7 +246,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-03 23:03:20.578977",
+ "modified": "2026-06-22 23:36:17.134248",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request",
