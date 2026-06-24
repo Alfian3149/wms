@@ -16,6 +16,7 @@ from warehousing.warehousing.doctype.stock_ledger.stock_ledger import make_sl_en
 from warehousing.warehousing.utils.connection import test_internal_api
 from warehousing.warehousing.utils.inventory_validator import InventoryValidator
 from warehousing.warehousing.utils.connection import get_url
+from frappe import _
 
 class WarehouseTask(Document):
     def on_submit(self):
@@ -714,7 +715,7 @@ def get_picklist_outstanding_tasks(user):
             "items": task_items
         })
     return picklistTask
-
+    
 @frappe.whitelist() 
 def get_handover_outstanding_tasks(user):
     user_roles = frappe.get_roles(user)

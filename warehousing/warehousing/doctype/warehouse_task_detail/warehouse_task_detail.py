@@ -6,6 +6,7 @@ from frappe.model.document import Document
 from warehousing.warehousing.doctype.inventory.inventory import update_inventory_qty
 from frappe.utils import getdate,  nowdate, formatdate
 from warehousing.warehousing.doctype.stock_ledger.stock_ledger import make_sl_entry
+from frappe import _
 
 class WarehouseTaskDetail(Document):
 	def update_transferred(self):
