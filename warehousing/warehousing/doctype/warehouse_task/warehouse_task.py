@@ -664,12 +664,12 @@ def scan_item_putaway(item, lotserial):
         "data": None
         }
  
-def po_receipt_task_confirmation_in_web(transactionSuccess, doctype, parent_doc_name):
+def po_receipt_task_confirmation_in_web(transactionSuccess, parent_doc_name):
     for d in transactionSuccess:
         d_site = d.get("site") or "1000"
         d_poline = d.get("poline"),
         data = {
-			"doctype_source":doctype,
+			"doctype_source":"Warehouse Task",
 			"data_link":parent_doc_name,
 			"transType":"RCT-PO",
 			"site":d_site,
@@ -715,7 +715,7 @@ def get_picklist_outstanding_tasks(user):
             "items": task_items
         })
     return picklistTask
-    
+
 @frappe.whitelist() 
 def get_handover_outstanding_tasks(user):
     user_roles = frappe.get_roles(user)

@@ -500,7 +500,6 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
                         is_async=True,
                         enqueue_after_commit=False,
                         transactionSuccess=transactionSuccess,
-                        doctype='Warehouse Task',
                         parent_doc_name=parent_doc_name,
                     )   
                     
