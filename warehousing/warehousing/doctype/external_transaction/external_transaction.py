@@ -26,16 +26,16 @@ def receive_qad_transaction_history():
 			})
 		External_Transaction.insert(ignore_permissions=True)
 
-		job = frappe.enqueue(
+		""" job = frappe.enqueue(
 			"warehousing.warehousing.api_transfer.transfer_submit_detail_task",
 			details=payload,
 			ref_doctype="External Transaction",
 			doc_name=External_Transaction.name,
 			wsa=wsa,
-			queue="short",
+			queue="short", 
 			timeout=600,
 			is_async=True,
-			enqueue_after_commit=True)
+			enqueue_after_commit=True) """
 		return {"status": "success", "message": f"name : {External_Transaction.name}"}
 	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), _("QAD Integration Error"))
@@ -43,3 +43,4 @@ def receive_qad_transaction_history():
 
 
 def update_external_transaction_status(payload):
+	pass
