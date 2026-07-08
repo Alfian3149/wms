@@ -546,10 +546,12 @@ def putaway_transfer_confirm():
     doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     doc_parent.set("users_picker", frappe.session.user)
     doc_parent.save(ignore_permissions=True)
-    frappe.db.commit()
+   
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
     if latest_doc_parent.status == "Completed" :
-        latest_doc_parent.submit()       
+        latest_doc_parent.submit()     
+
+    frappe.db.commit()
     return {
         "status": "success",
         "name": latest_doc_parent.name,
@@ -670,6 +672,29 @@ def po_receipt_task_confirmation_in_web(transactionSuccess, parent_doc_name):
         d_poline = d.get("poline"),
         data = {
 			"doctype_source":"Warehouse Task",
+			"data_link":parent_doc_name,
+			"transType":"RCT-PO",
+			"site":d_site,
+			"part":d.get("part"),
+			"lotSerial":d.get("lotserial"),
+			"location":d.get("location"),
+			"invStatus":d.get("ldstatus"),
+			"qtyChg":d.get("qty"),
+			"postingDate":d.get("effdate"),
+			"invExpire": d.get("expire"),
+			"poNumber":d.get("ponumber"),
+			"poLine":d.get("poline", "0")
+		}
+        init_sl = make_sl_entry(**data)
+        init_sl.create_new()
+    frappe.db.commit()
+
+def po_receipt_and_return_confirmation_in_web(transactionSuccess, doctype, parent_doc_name):
+    for d in transactionSuccess:
+        d_site = d.get("site") or "1000"
+        d_poline = d.get("poline"),
+        data = {
+			"doctype_source":doctype,
 			"data_link":parent_doc_name,
 			"transType":"RCT-PO",
 			"site":d_site,

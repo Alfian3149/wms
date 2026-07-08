@@ -146,6 +146,12 @@ app_include_js = "/assets/warehousing/js/utils.js"
 # Scheduled Tasks
 # ---------------
 
+scheduler_events = {
+    "hourly": [
+        "warehousing.warehousing.utils.scheduler_func.delete_zero_quantity_items"
+    ],
+}
+
 # scheduler_events = {
 # 	"all": [
 # 		"warehousing.tasks.all"

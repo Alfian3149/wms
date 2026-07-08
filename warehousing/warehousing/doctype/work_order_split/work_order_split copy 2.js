@@ -25,6 +25,33 @@ frappe.ui.form.on('Work Order Split', {
                 })
             });
         
+            /* frm.page.set_primary_action(__('Submit'), function() {
+                let d = new frappe.ui.Dialog({
+                    title: 'Konfirmasi Permintaan Material',
+                    fields: [
+                        {
+                            label: 'Metode Perhitungan Permintaan',
+                            fieldname: 'request_option',
+                            fieldtype: 'Select',
+                            options: [
+                                {"value": 1, "label": __("Berdasarkan Aktual Kebutuhan Saja")},
+                                {"value": 2, "label": __("Akumulasi Aktual Kebutuhan & Ketersediaan")}
+                            ],
+                            default:1,
+                            render_input: 1 
+                        }
+                    ],
+                    primary_action_label: 'Submit',
+                    primary_action(values) {
+                        frm.set_value("calculation_request_method", values.request_option);
+                        frm.set_value("status", "Submitted");
+                        d.hide();
+                        frm.save('Submit');
+                    }
+                });
+                
+                d.show();
+            }); */
         }
 	    frm.fields_dict['work_order'].$input.on('blur', function() {
 
@@ -36,10 +63,10 @@ frappe.ui.form.on('Work Order Split', {
                 frm.set_value("qty_in_tonnase",0);
                 //frm.set_value("shopfloor_location","");
                 frm.trigger('fetch_workorder_from_qad');
+                console.log("INPUT WORK ORDER");
                 setTimeout(() => { 
-                    
+                    console.log("load history");
                     frm.trigger('load_wo_history');
-                    frm.scroll_to_field('quantity_to_be_produced_immediately');
                 }, 500); 
             }
             
@@ -64,124 +91,79 @@ frappe.ui.form.on('Work Order Split', {
         frm.trigger('get_availablity_stock');
     },
 
-    fetch_simulated_picklist_item: async function(frm) {
-        // 1. Bekukan layar di awal proses
+	
+    fetch_simulated_picklist_item:async function(frm){
         frappe.dom.freeze(__("Sedang proses verifikasi data..."));
 
-        try {
-            // SOLUSI PERMISSION: Ambil buffer_tolerance SEKALI SAJA di awal.
-            // Jika masih error permission, gunakan Solusi Python yang dibahas sebelumnya.
-            let buffer_tolerance = 0;
-            try {
-                buffer_tolerance = await frappe.db.get_single_value('Work Order Activity Control', 'buffer_tollerance');
-            } catch (e) {
-                console.warn("Gagal mengambil buffer_tolerance karena permission. Default ke 0.");
-                // Alternatif: panggil method python penembus permission kamu di sini jika sudah dibuat
-            }
+            frappe.call({
+            method: "warehousing.warehousing.allAPI.get_simulated_picklist_item", 
+            args:{workOrder:frm.doc.work_order, site: frm.doc.site, part:frm.doc.finish_good, qty:frm.doc.quantity_to_be_produced_immediately, domain: "SMII"}, 
+            freeze: false, 
+            freeze_message: __("Sedang memproses Work Order..."),
+            callback: function(r) {
+                if (r.message) {
+                    let data = r.message.ttdet_table;
+                    data.forEach(api_row => {
+                        // 3. Cari baris di child table yang part-nya sama
+                        let target_row = (frm.doc.work_order_split_detail || []).find(row => row.part === api_row.ttdet_component);
+                
+                        if (target_row) {
+                            frappe.model.set_value(target_row.doctype, target_row.name, 'ori_cur_req', api_row.ttdet_qty_req);
+                            frappe.db.get_single_value('Work Order Activity Control', 'buffer_tollerance')
+                            .then(value => {
+                               
+                                let percent = 0;
+                                let required = 0;
+                                required = flt(api_row.ttdet_qty_req) + (flt(api_row.ttdet_qty_req) * flt(value) / 100) ;
+                                
+                                //FREE QTY
+                                frappe.call({
+                                    method: "warehousing.warehousing.doctype.work_order_split.work_order_split.get_work_order_split_detail",
+                                    args: {
+                                        component: api_row.ttdet_component, 
+                                    },
+                                    callback: function(r) {
+                                        if (r.message) {
+                                            let nilai_positif = r.message;
+                                             frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty_usage', r.message); 
+                                            required = required - flt(r.message);
+                                        }
+                                    }
+                                });
 
-            // 2. Ambil data dari API Utama
-            const response = await frappe.call({
-                method: "warehousing.warehousing.allAPI.get_simulated_picklist_item", 
-                args: {
-                    workOrder: frm.doc.work_order, 
-                    site: frm.doc.site, 
-                    part: frm.doc.finish_good, 
-                    qty: frm.doc.quantity_to_be_produced_immediately, 
-                    domain: "SMII"
-                }
-            });
+                                    
+                                frappe.model.set_value(target_row.doctype, target_row.name, 'actual_required', required);
+                                if (target_row.availability > 0) {
+                                    percent = flt(target_row.availability / required * 100, 0);
+                                    percent = cint(percent)
+                                    frappe.model.set_value(target_row.doctype, target_row.name, 'availability_in_percent', percent);
+                                }
 
-            if (response && response.message) {
-                let data = response.message.ttdet_table || [];
-
-                // Ganti .forEach menjadi for...of agar bisa menggunakan AWAIТ di dalam loop
-                for (let api_row of data) {
-                    
-                    // 3. Cari baris di child table yang part-nya sama
-                    let target_row = (frm.doc.work_order_split_detail || []).find(row => row.part === api_row.ttdet_component);
-
-                    if (target_row) {
-                        // Set nilai awal dari API
-                        frappe.model.set_value(target_row.doctype, target_row.name, 'ori_cur_req', api_row.ttdet_qty_req);
-
-                        // Hitung requirement awal dengan buffer tolerance
-                        let required = flt(api_row.ttdet_qty_req) + (flt(api_row.ttdet_qty_req) * flt(buffer_tolerance) / 100);
-                         // Set nilai actual required akhir
-                        frappe.model.set_value(target_row.doctype, target_row.name, 'actual_required', required);
-                        
-                        // 4. Ambil FREE QTY dari server (Menunggu hingga selesai/Await)
-                        const free_qty_can_used_api = await frappe.call({
-                            method: "warehousing.warehousing.doctype.work_order_split.work_order_split.get_work_order_split_detail",
-                            args: { component: api_row.ttdet_component }
-                        });
-
-                        let free_qty_can_used = 0;
-                        let min_requested = 0;
-                        let base_requested = 0;
-                        if (free_qty_can_used_api && free_qty_can_used_api.message !== undefined) {
-                            free_qty_can_used = flt(free_qty_can_used_api.message);
-
-                            // Kurangi required dengan free_qty
-                            //required = required - free_qty_usage;
-                        }
-
-                        base_requested = required;
-                        if (free_qty_can_used > 0) {
-                            min_requested = Math.min(required, free_qty_can_used);
-                            base_requested = required - min_requested;
-
-                            frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty_usage', min_requested); 
-                        }
-                        console.log(required + " - " + free_qty_can_used + " - " + min_requested + " - " + base_requested);
-                        let qty_request_by_pack = 0;
-                        if (base_requested > 0) {
-                            const qty_pack_item = await frappe.call({
-                                method: "warehousing.warehousing.doctype.part_master.part_master.get_item_pack",
-                                args: { part_number: api_row.ttdet_component }
+                                /* frappe.db.get_value("Um Conversion Factor", {"parent": api_row.ttdet_component, "default":1}, "conversion_factor")
+                                .then(qty_packaging => {
+                                    const qty_request_by_pack = calculateQtyRequiredByPackaging(required, qty_packaging);
+                                    const free_qty = qty_request_by_pack -  api_row.ttdet_qty_req;
+                                    frappe.model.set_value(target_row.doctype, target_row.name, 'qty_in_packaging', qty_packaging);
+                                    frappe.model.set_value(target_row.doctype, target_row.name, 'cur_req_by_pckg', qty_request_by_pack);
+                                    frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty', free_qty);
+                                    
+                                }) */
+                                
                             });
 
-
-                            if (qty_pack_item && qty_pack_item.message !== undefined) {
-                                qty_request_by_pack = calculateQtyRequiredByPackaging(base_requested, qty_pack_item.message );
-                                const free_qty_to_given = qty_request_by_pack -  Math.ceil(base_requested);
-                                frappe.model.set_value(target_row.doctype, target_row.name, 'qty_in_packaging', qty_pack_item.message );
-                                frappe.model.set_value(target_row.doctype, target_row.name, 'cur_req_by_pckg', qty_request_by_pack);
-                                frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty', free_qty_to_given);
-                                
-                               
-                            }
                         }
-                        frappe.model.set_value(target_row.doctype, target_row.name,  "qty_confirm", qty_request_by_pack);
-
-        
-                        /* if (target_row.availability > 0 && required > 0) {
-                            let percent = cint(flt(target_row.availability / required * 100, 0));
-                            frappe.model.set_value(target_row.doctype, target_row.name, 'availability_in_percent', percent);
-                        } else {
-                            frappe.model.set_value(target_row.doctype, target_row.name, 'availability_in_percent', 0);
-                        } */
-                    }
-                }
-
-                // 5. Refresh UI Child Table setelah loop SELESAI semua
-                frm.refresh_field('work_order_split_detail');
+                    });
                 
-                /* setTimeout(() => { 
+                    // 5. Refresh UI & Berikan feedback
+                    frm.refresh_field('work_order_split_detail');
+                    setTimeout(() => { 
                     frm.trigger('get_availablity_stock');
-                }, 500); */
-
-            }
-
-        } catch (error) {
-            console.error("Error pada fetch_simulated_picklist_item:", error);
-            frappe.msgprint(__("Terjadi kesalahan saat memproses data. Silakan cek konsol browser."));
-            
-        } finally {
-            // 6. Pastikan layar SELALU terbuka kembali baik sukses maupun gagal
-            frappe.dom.unfreeze();
-        }
+                    }, 500);
+                }
+            },
+        })
     },
-        
+    
     get_availablity_stock:function(frm) {
         frm.doc.work_order_split_detail.forEach(row => {
             if (row.part) {

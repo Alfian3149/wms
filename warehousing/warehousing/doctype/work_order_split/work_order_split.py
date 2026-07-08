@@ -163,3 +163,35 @@ def get_material_transfer_slip_history_by_wo(work_order):
 		doc["items"] = frappe.db.get_all("Work Order Split Detail", filters={"parent":doc.name, "qty_confirm": [">", 0]}, fields=["part","qty_confirm","description", "um", "item_group"])
 
 	return getList
+
+@frappe.whitelist()
+def get_work_order_split_detail(component):
+	""" summary = frappe.db.get_all(
+    "Work Order Split Detail",
+    filters={'part': component},
+    fields=['sum(free_qty) as total_free_qty', 'sum(free_qty_usage) as total_free_qty_usage']) """
+
+	summary = frappe.db.sql("""
+    SELECT 
+        SUM(child.free_qty) AS total_free_qty,
+        SUM(child.free_qty_usage) AS total_free_qty_usage
+    FROM 
+        `tabWork Order Split Detail` child
+    INNER JOIN 
+        `tabWork Order Split` parent ON child.parent = parent.name
+    WHERE 
+        child.part = %s 
+        AND parent.docstatus = 1
+""", (component,), as_dict=True)
+
+	if summary:
+		total_free = summary[0].get('total_free_qty') or 0
+		total_usage = summary[0].get('total_free_qty_usage') or 0
+	else:
+		total_free = 0
+		total_usage = 0
+
+	qty_can_be_used = flt(total_free) - flt(total_usage)
+
+	return qty_can_be_used
+

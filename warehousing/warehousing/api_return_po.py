@@ -116,7 +116,7 @@ def po_return_confirmation(parent_doc_name):
                 
                 if isNotOk == "false":
                     frappe.enqueue(
-                        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.po_receipt_task_confirmation_in_web",
+                        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.po_return_task_confirmation_in_web",
                         queue="default",
                         timeout=600,
                         is_async=True,

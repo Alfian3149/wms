@@ -18,8 +18,8 @@ class ItemRequest(Document):
         code = type_codes.get(self.purpose, "MFG")
         year = frappe.utils.nowdate()[:4][-2:] #2 digit year
         label_prefix = f"ITEM-REQUEST-{code}-{year}"
-        label_running_number = getseries(label_prefix, 3)
-        self.name = f"{code}-{year}{label_running_number}"
+        label_running_number = getseries(label_prefix, 4)
+        self.name = f"{code}{year}{label_running_number}"
 
 
     def on_update_after_submit(self):

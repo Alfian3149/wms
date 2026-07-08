@@ -94,23 +94,9 @@ def get_qad_item_update():
             "integration_request_service": "Update Item QAD",
             "url": "/api/method/warehousing.warehousing.doctype.part_master.part_master.get_qad_item_update",
             "data": raw_data,
-            "status": "Queued",
+            "status": "Completed",
         })
         int_log.insert(ignore_permissions=True)
-
-        # 2. Simpan ke Integration Log (DocType bawaan atau Custom)
-        # Jika menggunakan DocType custom 'Integration Log'
-        log = frappe.get_doc({
-            "doctype": "Integration Request", # Ganti dengan nama DocType log Anda
-            "direction": "Inbound",
-            "integration_type": "QAD QXtend",
-            "status": "Queued",
-            "payload": raw_data.decode('utf-8') if isinstance(raw_data, bytes) else raw_data,
-            "reference_doctype": "Part Master",
-            "is_remote_request": 1,
-        })
-        log.insert(ignore_permissions=True)
-        int_log.save(ignore_permissions=True)
 
         # 3. Jalankan pemrosesan di Background Job agar QAD tidak menunggu
         """ frappe.enqueue(
@@ -240,3 +226,12 @@ def syncronize_part_master_to_qad(part_list):
         )
     
     frappe.db.commit() 
+
+@frappe.whitelist()
+def get_item_pack(part_number):
+    val = 1;
+    item_pack = frappe.db.get_value("Um Conversion Factor", {"parent": part_number, "default":1}, "conversion_factor")
+    if item_pack :
+        val = item_pack
+
+    return val

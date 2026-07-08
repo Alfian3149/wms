@@ -494,12 +494,13 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
                 
                 if isNotOk == "false":
                     frappe.enqueue(
-                        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.po_receipt_task_confirmation_in_web",
+                        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.po_receipt_and_return_confirmation_in_web",
                         queue="default",
                         timeout=600,
                         is_async=True,
                         enqueue_after_commit=False,
                         transactionSuccess=transactionSuccess,
+                        doctype='Warehouse Task',
                         parent_doc_name=parent_doc_name,
                     )   
                     

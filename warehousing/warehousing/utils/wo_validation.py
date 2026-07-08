@@ -20,4 +20,3 @@ class WorkOrderValidator:
                     exc=frappe.ValidationError)
                     
                 return 
-    

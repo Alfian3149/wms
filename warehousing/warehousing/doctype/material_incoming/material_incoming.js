@@ -577,11 +577,13 @@ frappe.ui.form.on("Material Incoming", {
                                 child.qty_order = row.pod_qtyord;
                                 child.qty_received = row.pod_qtyrcvd;
                                 child.requisition = row.pod_reqnbr;
-
-                                frappe.db.get_value("Part Master", {"name": row.podpart}, ["qty_per_pallet","expire_date_required"]).then(value => {
+                                child.qty_per_pallet = row.pt_qtypallet;
+                                frappe.db.get_value("Part Master", row.podpart, ["qty_per_pallet","expire_date_required"]).then(value => {
                                     if (value.message && value.message.qty_per_pallet){ 
-                                        child.qty_per_pallet= value.message.qty_per_pallet;
-                                    } 
+                                        if (row.pt_qtypallet == 0) {
+                                            child.qty_per_pallet = value.message.qty_per_pallet;
+                                        }
+                                    }  
                                     if (value.message && value.message.expire_date_required){
                                         child.expired_date = frappe.datetime.add_months(this_today, 6);
                                     }
@@ -608,7 +610,7 @@ frappe.ui.form.on("Material Incoming", {
                             frm.refresh_field('material_incoming_item');
                             frm.fields_dict['material_incoming_item'].grid.wrapper.find('.grid-row-checkbox').hide();
                             frm.fields_dict['material_incoming_item'].grid.wrapper.find('.row-check').hide();
-                        }, 1000);
+                        }, 1300);
 
                        
                         

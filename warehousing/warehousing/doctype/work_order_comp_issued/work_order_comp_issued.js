@@ -284,7 +284,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                                     item: item,
                                     lotserial: lotSerial,
                                     status: "P-GOOD",
-                                    qty_needed:row_found.qty_needed,
+                                    qty_needed:0,
                                 },
                                 callback: function(r) {
                                     if(r.message.status == "failed"){

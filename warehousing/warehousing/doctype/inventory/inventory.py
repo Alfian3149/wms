@@ -257,13 +257,14 @@ def get_fifo_picklist_with_reserved(itemPicklistName, item_status, request, requ
                 WHERE 
                     inv.site = %(site)s 
                     AND inv.part = %(part)s 
-                    AND inv.inventory_status = %(status)s
+                    AND inv.inventory_status IN (%(status1)s, %(status2)s)
                     AND loc.is_active = 1 
                     AND loc.can_picking_reserved = 1
             """, {
                 "site": site,
                 "part": item.part,
-                "status": item_status
+                "status1": "F-GOOD",
+                "status2": "P-GOOD",
             }, as_dict=True)
 
 
@@ -300,7 +301,7 @@ def get_fifo_picklist_with_reserved(itemPicklistName, item_status, request, requ
                 WHERE 
                     inv.site = %s 
                     AND inv.part = %s 
-                    AND inv.inventory_status = %s
+                    AND inv.inventory_status IN (%s, %s)
                     AND (inv.expire_date > %s OR inv.expire_date IS NULL OR inv.expire_date = '')
                     AND inv.qty_on_hand > 0
                     AND loc.is_active = 1
@@ -308,7 +309,7 @@ def get_fifo_picklist_with_reserved(itemPicklistName, item_status, request, requ
                 ORDER BY 
                     IFNULL(inv.expire_date, '9999-12-31') ASC,
                     inv.lot_serial ASC
-            """, (site, item.part, item_status, frappe.utils.nowdate()), as_dict=True)
+            """, (site, item.part, "F-GOOD","P-GOOD", frappe.utils.nowdate()), as_dict=True)
 
         
             allocated_qty = 0
