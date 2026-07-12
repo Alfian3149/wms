@@ -20,6 +20,7 @@
   "item_status",
   "column_break_nxpp",
   "qty_per_pallet",
+  "net_weight",
   "category",
   "item_group",
   "conversion_tab",
@@ -132,12 +133,17 @@
    "fieldname": "item_status",
    "fieldtype": "Data",
    "label": "Item Status"
+  },
+  {
+   "fieldname": "net_weight",
+   "fieldtype": "Float",
+   "label": "Net Weight"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-24 08:59:35.628802",
+ "modified": "2026-07-09 10:16:41.875461",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Part Master",

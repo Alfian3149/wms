@@ -45,12 +45,43 @@ frappe.ui.form.on('Work Order Split', {
             
 	    });  
 	 
-	    frm.fields_dict['quantity_to_be_produced_immediately'].$input.on('blur', function() {
-            //alert("test");
+	    frm.fields_dict['quantity_to_be_produced_immediately'].$input.on('blur', async function() {
 	        if(frm.doc.quantity_to_be_produced_immediately > 0 && frm.doc.work_order){
-                frm.set_value("qty_in_tonnase", flt(frm.doc.quantity_to_be_produced_immediately) * flt(frm.doc.fg_netwt) / 1000);
-	            frm.trigger('fetch_simulated_picklist_item');
+                try {
+                    const response = await frappe.db.get_list('Work Order Split', {
+                        filters: {
+                            'work_order': frm.doc.work_order,
+                            'docstatus': 1
+                        },
+                        fields: ['quantity_to_be_produced_immediately', 'quantity_ordered', 'quantity_completed', 'um']
+                    });
+                                
+                    let totalInputed = 0;
+                    if (response && response.length > 0) {
+                        totalInputed = response.reduce((sum, row) => sum + (row.quantity_to_be_produced_immediately || 0), 0);
+                    }
+                    let totalQtyAllowed = flt(frm.doc.quantity_ordered) + flt(((frm.doc.quantity_ordered * 10) / 100));
+                    let qtyAllowed = totalQtyAllowed - flt(totalInputed);
+                    
+                    if (totalQtyAllowed < flt(frm.doc.quantity_to_be_produced_immediately) + flt(totalInputed)) {
+                        frm.set_value("quantity_to_be_produced_immediately", 0);
+                        frm.scroll_to_field('quantity_to_be_produced_immediately');
+                        frappe.msgprint({
+                            title: __('MESSAGE'),
+                            indicator: 'red',
+                            message: __('Qty input over than allowed. Maximal Qty input is only ' + String(qtyAllowed) )
+                        });
+                        return; // Stop further execution if the condition is met
 
+                    } 
+                    else {
+                        frm.set_value("qty_in_tonnase", flt(frm.doc.quantity_to_be_produced_immediately) * flt(frm.doc.fg_netwt) / 1000);
+                        frm.trigger('fetch_simulated_picklist_item');         
+                    }     
+
+                } catch (error) {
+                    console.error("Gagal mengambil data dari Work Order Split:", error);
+                }
 	        }
 	    });
 	    
@@ -69,14 +100,12 @@ frappe.ui.form.on('Work Order Split', {
         frappe.dom.freeze(__("Sedang proses verifikasi data..."));
 
         try {
-            // SOLUSI PERMISSION: Ambil buffer_tolerance SEKALI SAJA di awal.
-            // Jika masih error permission, gunakan Solusi Python yang dibahas sebelumnya.
             let buffer_tolerance = 0;
             try {
                 buffer_tolerance = await frappe.db.get_single_value('Work Order Activity Control', 'buffer_tollerance');
             } catch (e) {
                 console.warn("Gagal mengambil buffer_tolerance karena permission. Default ke 0.");
-                // Alternatif: panggil method python penembus permission kamu di sini jika sudah dibuat
+
             }
 
             // 2. Ambil data dari API Utama

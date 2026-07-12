@@ -62,12 +62,11 @@
    "options": "IR-.YYYY.-"
   },
   {
-   "default": "Manufacture",
    "fieldname": "purpose",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Purpose",
-   "options": "Material Transfer\nMaterial Issue\nManufacture\nReturn Supplier\nReturn Rack",
+   "options": "\nMaterial Transfer\nMaterial Issue\nManufacture\nReturn Supplier\nReturn Rack",
    "reqd": 1
   },
   {
@@ -246,7 +245,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-22 23:36:17.134248",
+ "modified": "2026-07-10 07:57:30.982925",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request",

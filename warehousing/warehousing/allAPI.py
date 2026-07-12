@@ -20,8 +20,8 @@ def get_simulated_picklist_item(workOrder, site, part, qty, domain):
     if not part:
         frappe.throw(_("Part harus diisi"))
         return
-    validator = WorkOrderValidator(workOrder)
-    validator.qty_tobe_produced(qty)
+    """ validator = WorkOrderValidator(workOrder)
+    validator.qty_tobe_produced(qty) """
 
     input_data = {
         "ttip_table": [
@@ -493,25 +493,19 @@ def po_receipt_confirmation(parent_doc_name, material_incoming_name):
                 isNotOk = str(data_dict.get("opnotok", "false")).lower()
                 
                 if isNotOk == "false":
-                    frappe.enqueue(
-                        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.po_receipt_task_confirmation_in_web",
-                        queue="default",
-                        timeout=600,
-                        is_async=True,
-                        enqueue_after_commit=False,
-                        transactionSuccess=transactionSuccess,
-                        parent_doc_name=parent_doc_name 
-                    )   
+                    create_stock_ledger_from_external_trans = frappe.db.get_single_value('Qad Integrations', 'create_stock_ledger_from_external_trans')
                     
-                    """ frappe.enqueue(
-                        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.create_putaway_transfer_task",
-                        queue="default",
-                        timeout=600,
-                        enqueue_after_commit=False,
-                        source_doc=parent_doc_name,
-                        task_type="Putaway Transfer",
-                    )    """
-
+                    if create_stock_ledger_from_external_trans == False:
+                        frappe.enqueue(
+                            "warehousing.warehousing.doctype.warehouse_task.warehouse_task.po_receipt_task_confirmation_in_web",
+                            queue="default",
+                            timeout=600,
+                            is_async=True,
+                            enqueue_after_commit=False,
+                            transactionSuccess=transactionSuccess,
+                            parent_doc_name=parent_doc_name 
+                        )
+    
                     for d in transactionSuccess:
                         receiver = d.get("receiver")
                         break

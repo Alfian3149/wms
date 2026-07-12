@@ -23,7 +23,9 @@
   "target_location",
   "column_break_bnec",
   "quantity_requested",
-  "quantity_picked"
+  "quantity_picked",
+  "fullfilled",
+  "handovered"
  ],
  "fields": [
   {
@@ -133,13 +135,23 @@
    "fieldname": "work_order",
    "fieldtype": "Data",
    "label": "Work Order"
+  },
+  {
+   "fieldname": "fullfilled",
+   "fieldtype": "Float",
+   "label": "Fullfilled"
+  },
+  {
+   "fieldname": "handovered",
+   "fieldtype": "Float",
+   "label": "Handovered Qty"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-06-22 13:44:11.505599",
+ "modified": "2026-07-10 11:46:03.238357",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request Detail",

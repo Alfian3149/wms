@@ -42,7 +42,8 @@ class ItemRequest(Document):
             return
 
         for item in self.items:
-            item.target_location = self.target_location
+            if not item.target_location:
+                item.target_location = self.target_location
 
         if self.request_status != "Fully Picked" : 
             self.update_status_based_on_details()

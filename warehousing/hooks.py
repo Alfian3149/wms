@@ -150,6 +150,7 @@ scheduler_events = {
     "hourly": [
         "warehousing.warehousing.utils.scheduler_func.delete_zero_quantity_items"
     ],
+    
 }
 
 # scheduler_events = {

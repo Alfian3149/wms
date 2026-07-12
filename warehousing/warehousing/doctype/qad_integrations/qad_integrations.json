@@ -6,6 +6,8 @@
  "engine": "InnoDB",
  "field_order": [
   "wsa_url",
+  "receive_transactions_from_external_trans",
+  "create_stock_ledger_from_external_trans",
   "column_break_xite",
   "url"
  ],
@@ -27,13 +29,27 @@
    "fieldtype": "Data",
    "label": "URL",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "(Jika Yes maka transaksi dari QAD akan tercatat)",
+   "fieldname": "receive_transactions_from_external_trans",
+   "fieldtype": "Check",
+   "label": "Receive Transactions from external Trans?"
+  },
+  {
+   "default": "0",
+   "description": "(Jika Yes maka transaksi yang diterima dari QAD akan meng-update inventory)",
+   "fieldname": "create_stock_ledger_from_external_trans",
+   "fieldtype": "Check",
+   "label": "Create Stock Ledger from external Trans?"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-05-21 07:53:42.094214",
+ "modified": "2026-07-13 00:08:39.874986",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Qad Integrations",

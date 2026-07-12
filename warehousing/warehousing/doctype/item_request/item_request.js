@@ -9,10 +9,6 @@ frappe.ui.form.on('Item Request', {
         if (!frm.doc.requestor_by){
             frm.set_value('requestor_by', frappe.session.user); 
         }
-        if (!frm.doc.requestor_by){
-            frm.set_value('requestor_by', frappe.session.user); 
-        }
-        //frm.set_df_property('status', 'read_only', 1);
 
         frm.trigger('reserved_material_detail');
 
@@ -128,9 +124,12 @@ frappe.ui.form.on('Item Request', {
             //frm.clear_table('items');
             //frm.refresh_field('items');
         }
+        else if (frm.doc.purpose === "Manufacture"){
+            frm.set_df_property("open_and_select_inventory_list","hidden", 1);
+        }
         else {
             fields_to_hidden.forEach(field => {
-                 frm.set_df_property("open_and_select_inventory_list","hidden", 0);
+                frm.set_df_property("open_and_select_inventory_list","hidden", 0);
                 frm.set_df_property(field,"hidden", 1);
                 frm.set_df_property('material_incoming_id', 'reqd', 0);
             });

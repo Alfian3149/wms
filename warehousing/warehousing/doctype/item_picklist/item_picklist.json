@@ -14,7 +14,7 @@
   "needed_date",
   "complete_percentage",
   "completion_data",
-  "ho_completion_",
+  "ho_completion_percentage",
   "ho_completion_data",
   "section_break_zlyp",
   "get_item_stock",
@@ -109,15 +109,15 @@
    "label": "PK Completion Data"
   },
   {
-   "fieldname": "ho_completion_",
-   "fieldtype": "Int",
-   "label": "HO Completion (%)"
-  },
-  {
    "fieldname": "ho_completion_data",
-   "fieldtype": "Int",
+   "fieldtype": "Data",
    "hidden": 1,
    "label": "HO completion Data"
+  },
+  {
+   "fieldname": "ho_completion_percentage",
+   "fieldtype": "Int",
+   "label": "HO Completion (%)"
   }
  ],
  "grid_page_length": 50,
@@ -130,7 +130,7 @@
    "link_fieldname": "reference_name"
   }
  ],
- "modified": "2026-06-18 11:16:58.324097",
+ "modified": "2026-07-10 07:37:51.982971",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist",

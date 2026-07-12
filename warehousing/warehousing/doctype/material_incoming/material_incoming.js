@@ -92,7 +92,9 @@ frappe.ui.form.on("Material Incoming", {
                             });
 
                             setTimeout(() => {
-                               frappe.db.delete_doc('Warehouse Task', physical_verification_id);
+                                if (physical_verification_id) {
+                                    frappe.db.delete_doc('Warehouse Task', physical_verification_id);
+                                }
                             }, 800);
                         },
                         function() {
@@ -496,6 +498,19 @@ frappe.ui.form.on("Material Incoming", {
 
  	},
 
+    validate(frm){
+        frm.doc.material_incoming_item.forEach(d => {
+            if (d.expired_date && frappe.datetime.get_diff(d.expired_date, frappe.datetime.get_today()) < 180) {
+                frappe.msgprint({
+                    title: __('ERROR'),
+                    indicator: 'red',
+                    message: __('The item {0} has expired  < 180 days.', [d.item_number])
+                });
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        })
+    },
     onload: function(frm) {
         setTimeout(() => { 
             frm.refresh_field('material_incoming_item');

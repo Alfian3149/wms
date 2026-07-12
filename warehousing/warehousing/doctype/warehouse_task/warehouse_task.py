@@ -22,24 +22,11 @@ class WarehouseTask(Document):
     def on_submit(self):
         if self.task_type == "Picking" : 
             frappe.db.delete("Reserved Task Entry", filters={'task': self.name})
+            frappe.db.commit()
 
         if self.task_type == "Putaway Transfer" : 
             frappe.db.delete("Reserved Task Entry", filters={'task': self.name})
-            """ frappe.enqueue(
-            "warehousing.warehousing.api_transfer.transfer_submit_to_qad",
-            doc_name=self.name,
-            queue="long",       # Opsi: 'short', 'default', atau 'long'
-            timeout=600,        # Durasi maksimal pengerjaan (detik)
-            is_async=True,
-            enqueue_after_commit=True # Menjamin job jalan SETELAH transaksi DB selesai
-            )
-            #transfer = frappe.call("warehousing.warehousing.api_transfer.transfer_submit_to_qad", doc_name=self.name) """
-
-        """ frappe.publish_realtime('desktop_notification', {
-            'title': 'Warehouse Alert',
-            'message': 'Ada perbedaan stok pada Task Detail!',
-            'link': f'/app/warehouse-task/{self.name}'
-        }, user=self.owner) """
+            frappe.db.commit()
 
         operator_fullname = get_fullname(frappe.session.user)
         frappe.publish_realtime(
@@ -172,6 +159,7 @@ class WarehouseTask(Document):
     def after_delete(self):
         if self.task_type == "Picking" : 
             frappe.db.delete("Reserved Task Entry", filters={'task': self.name})
+            frappe.db.commit()
             
 @frappe.whitelist()
 def notify(owner) : 
@@ -638,6 +626,22 @@ def completion_picking_percentage(warehouse_task_name, picklist_name):
     frappe.db.set_value("Item Picklist", picklist_name, "completion_data", data)
     frappe.db.commit()
 
+@frappe.whitelist()
+def completion_handover_percentage(warehouse_task_name, picklist_name):
+    result = frappe.db.sql("""
+        SELECT 
+            SUM(CASE WHEN status = 'Completed' and has_handovered = 1 THEN 1 ELSE 0 END) as complete_count,
+            COUNT(*) as total_count
+        FROM `tabWarehouse Task Detail`
+        WHERE parent = %s
+    """, (warehouse_task_name), as_dict=True)
+    complete_count = result[0].get('complete_count') or 0
+    total_count = result[0].get('total_count') or 0
+    percentage_complete = (complete_count / total_count * 100) if total_count > 0 else 0
+    data =  str(int(complete_count)) + "/" + str(int(total_count))
+    frappe.db.set_value("Item Picklist", picklist_name, "ho_completion_percentage", percentage_complete)
+    frappe.db.set_value("Item Picklist", picklist_name, "ho_completion_data", data)
+    frappe.db.commit()
 
 @frappe.whitelist()
 def scan_item_putaway(item, lotserial):
@@ -777,11 +781,21 @@ def get_handover_outstanding_tasks(user):
 
 
 @frappe.whitelist()
-def handover_qty_submit(name, qty):
+def handover_qty_submit(name, qty, task, picklist):
     frappe.db.set_value("Warehouse Task Detail", name, "qty_handover", flt(qty))
     frappe.db.set_value("Warehouse Task Detail", name, "has_handovered", 1)
     frappe.db.set_value("Warehouse Task Detail", name, "user_handovered", frappe.session.user)
     frappe.db.set_value("Warehouse Task Detail", name, "time_handovered", frappe.utils.now())
+    frappe.db.commit()
+    frappe.enqueue(
+        "warehousing.warehousing.doctype.warehouse_task.warehouse_task.completion_handover_percentage",
+        queue="default",
+        timeout=300,
+        is_async=True,
+        enqueue_after_commit=False,
+        warehouse_task_name=task,
+        picklist_name=picklist,
+    )  
 
 @frappe.whitelist()
 def handover_confirm(task):

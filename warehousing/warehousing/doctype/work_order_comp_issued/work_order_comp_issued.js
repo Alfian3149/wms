@@ -289,7 +289,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                                 callback: function(r) {
                                     if(r.message.status == "failed"){
                                         frappe.show_alert({
-                                            message:__("Stock tidak ditemukan untuk item#lotserial yang sudah di scan."),
+                                            message:__("Stock tidak ditemukan untuk item#lotserial yang sudah di scan di area produksi."),
                                             indicator:'red'
                                         },2);
                                         $barcode_field.focus().select();
@@ -331,8 +331,9 @@ frappe.ui.form.on("Work Order Comp Issued", {
                         }
                         else { 
                             d.set_value('scan_input', '');
-                            frappe.show_alert(__("Item {0} dengan Lot {1} bukan material produksi untuk produksi ini", [item,lotSerial]));
-                             
+                            frappe.show_alert({
+                                message:__("Item {0} dengan Lot {1} bukan material produksi untuk produksi ini", [item,lotSerial]), indicator:'red'},2);
+         
                             e.preventDefault();
                             e.stopPropagation();
                         }

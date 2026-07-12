@@ -82,7 +82,7 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
     """
     Create: Membuat baris baru di tabel Inventory
     """
-    pallet_and_conversion = frappe.db.get_value("Material Label", {'item':part, 'lotserial':lot_serial}, ['um_packaging','conversion_factor', 'qty_per_pallet'], as_dict=1)
+    pallet_and_conversion = frappe.db.get_value("Material Label", {'item':part, 'lotserial':lot_serial}, ['um_packaging','conversion_factor', 'qty_per_pallet', 'um'], as_dict=1)
 
     new_inv = frappe.new_doc("Inventory")
     new_inv.site = site
@@ -93,13 +93,22 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
     new_inv.qty_on_hand = flt(initial_qty)
     new_inv.qty_reserverd = flt(qtyReservation)
 
-    if (pallet_and_conversion and pallet_and_conversion.um_packaging):
-        new_inv.um_packaging = pallet_and_conversion.um_packaging 
-    if (pallet_and_conversion and pallet_and_conversion.conversion_factor):
-        new_inv.conversion_factor = pallet_and_conversion.conversion_factor
-    if (pallet_and_conversion and pallet_and_conversion.qty_per_pallet):
-        new_inv.qty_per_pallet = pallet_and_conversion.qty_per_pallet
-        
+    if pallet_and_conversion :
+        new_inv.um_packaging = pallet_and_conversion.um_packaging if pallet_and_conversion.um_packaging else None
+        new_inv.conversion_factor = pallet_and_conversion.conversion_factor if pallet_and_conversion.conversion_factor else 1
+        new_inv.qty_per_pallet = pallet_and_conversion.qty_per_pallet if pallet_and_conversion.qty_per_pallet else 0
+        new_inv.um = pallet_and_conversion.um if pallet_and_conversion.um else None
+    else:
+        conversion = frappe.db.get_value("Um Conversion Factor", {"parent": part, "default": True}, ["conversion_factor", "in_packaging_um"])
+        if conversion:
+            new_inv.conversion_factor = conversion[0] 
+            new_inv.um_packaging = conversion[1]
+
+        part = frappe.db.get_value("Part Master", part, ["qty_per_pallet", "um"], as_dict=1)
+        if part:
+            new_inv.qty_per_pallet = part.qty_per_pallet if part.qty_per_pallet else 0
+            new_inv.um = part.um if part.um else None
+
     if expireDate: 
         new_inv.expire_date = expireDate 
     new_inv.inventory_status = invStatus

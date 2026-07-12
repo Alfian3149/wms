@@ -77,21 +77,9 @@ class make_sl_entry:
 		self.inOut = None 
 
 	def existingConsideration(self):
-		""" invExisting = frappe.db.get_value("Inventory", 
-        {"site": self.site, "part": self.part, "lot_serial": self.lotSerial, "warehouse_location": self.location}, ["name", "qty_on_hand", "inventory_status", "expire_date", "qty_reserved"], as_dict=True) """
+		invExisting = frappe.db.get_value("Inventory", 
+        {"site": self.site, "part": self.part, "lot_serial": self.lotSerial, "warehouse_location": self.location}, ["name", "qty_on_hand", "inventory_status", "expire_date", "qty_reserved"], as_dict=True)
 
-		query = """
-            SELECT name, qty_on_hand, inventory_status, expire_date, qty_reserved
-            FROM `tabInventory`
-            WHERE site = %s 
-              AND part = %s 
-              AND lot_serial = %s 
-              AND warehouse_location = %s
-            FOR UPDATE
-        """
-
-		res = frappe.db.sql(query, (self.site, self.part, self.lotSerial, self.location), as_dict=True)
-		invExisting = res[0] if res else None
 		current_qty = 0
 		current_reservation = 0
 		if invExisting : 

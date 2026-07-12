@@ -55,51 +55,40 @@ class WarehouseTaskDetail(Document):
 					exc=frappe.ValidationError
 				)
 
-			data = {
-				"doctype_source":"Warehouse Task Detail",
-				"data_link":self.name,
-				"transType":"ISS-TR",
-				"site":default_site,
-				"part":self.item,
-				"lotSerial":self.lotserial,
-				"location":self.locationsource,
-				"invStatus":getAtrribute.inventory_status,
-				"qtyChg":self.qty_confirmation,
-				"postingDate":posting_date,
-				"invExpire": getAtrribute.expire_date,
-				"poNumber":None,
-				"poLine":None
-			}
-			init_sl = make_sl_entry(**data)
-			init_sl.create_new()
+			create_stock_ledger_from_external_trans = frappe.db.get_single_value('Qad Integrations', 'create_stock_ledger_from_external_trans')
+			if create_stock_ledger_from_external_trans == False:
+				data = {
+					"doctype_source":"Warehouse Task Detail",
+					"data_link":self.name,
+					"transType":"ISS-TR",
+					"site":default_site,
+					"part":self.item,
+					"lotSerial":self.lotserial,
+					"location":self.locationsource,
+					"invStatus":getAtrribute.inventory_status,
+					"qtyChg":self.qty_confirmation,
+					"postingDate":posting_date,
+					"invExpire": getAtrribute.expire_date,
+					"poNumber":None,
+					"poLine":None
+				}
+				init_sl = make_sl_entry(**data)
+				init_sl.create_new()
 
-			data = {
-				"doctype_source":"Warehouse Task Detail",
-				"data_link":self.name,
-				"transType":"RCT-TR",
-				"site":default_site,
-				"part":self.item,
-				"lotSerial":self.lotserial,
-				"location":self.locationdestination,
-				"invStatus":getAtrribute.inventory_status,
-				"qtyChg":self.qty_confirmation,
-				"postingDate":posting_date,
-				"invExpire":getAtrribute.expire_date,
-				"poNumber":None,
-				"poLine":None
-			}
-			init_sl = make_sl_entry(**data)
-			init_sl.create_new()
-
-			""" job = frappe.enqueue(
-				"warehousing.warehousing.api_transfer.transfer_submit_detail_task",
-				details=details,
-				ref_doctype="Warehouse Task Detail",
-				doc_name=self.name,
-				wsa=wsa,
-				queue="default",       # Opsi: 'short', 'default', atau 'long'
-				timeout=600,        # Durasi maksimal pengerjaan (detik)
-				is_async=True,
-				enqueue_after_commit=True # Menjamin job jalan SETELAH transaksi DB selesai
-				)
-			frappe.db.commit() """
+				data = {
+					"doctype_source":"Warehouse Task Detail",
+					"data_link":self.name,
+					"transType":"RCT-TR",
+					"site":default_site,
+					"part":self.item,
+					"lotSerial":self.lotserial,
+					"location":self.locationdestination,
+					"invStatus":getAtrribute.inventory_status,
+					"qtyChg":self.qty_confirmation,
+					"postingDate":posting_date,
+					"invExpire":getAtrribute.expire_date,
+					"poNumber":None,
+					"poLine":None
+				}
+				init_sl = make_sl_entry(**data)
+				init_sl.create_new()

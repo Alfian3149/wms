@@ -87,10 +87,7 @@ frappe.ui.form.on("Item Picklist", {
         }
 
         $(frm.fields_dict['item_picklist_summary'].wrapper).on('click', 'input[type="checkbox"]', function(e) {
-            frappe.show_alert({
-                message: __("you are select line"),
-                indicator: 'green'
-            });
+
             let grid = frm.fields_dict['item_picklist_summary'].grid;
             
             // Ambil baris HTML tempat checkbox diklik
