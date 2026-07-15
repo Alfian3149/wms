@@ -72,7 +72,7 @@ class make_sl_entry:
 		self.postingDate = kwargs.get("postingDate")
 		self.inventory_doc_link = None
 		self.reference = None
-		self.newBalance = 0
+		self.newBalance = flt(kwargs.get("newBalance")) if kwargs.get("newBalance") else 0
 		self.reservationBalance = 0
 		self.inOut = None 
 
@@ -101,7 +101,8 @@ class make_sl_entry:
 			self.invExpire = self.invExpire if self.invExpire else invExisting.expire_date
 			self.invStatus = self.invStatus if self.invStatus else invExisting.inventory_status 
 
-		self.newBalance =  flt(current_qty) + flt(self.qtyChg) if self.inOut == "IN" else flt(current_qty) - flt(self.qtyChg)
+		if self.newBalance == 0 :
+			self.newBalance =  flt(current_qty) + flt(self.qtyChg) 
 		self.reservationBalance =  flt(current_reservation) + flt(self.qtyReserved) if self.inOut == "IN" else flt(current_reservation) - flt(self.qtyReserved)
 
 	def validator(self): 
@@ -128,7 +129,7 @@ class make_sl_entry:
 			"lot_serial": self.lotSerial,
 			"warehouse_location": self.location,
 			"status": self.invStatus if self.invStatus else None,
-			"actual_qty": flt(self.qtyChg) if self.inOut == "IN" else -flt(self.qtyChg),
+			"actual_qty": flt(self.qtyChg),
 			"qty_reserved" : flt(self.qtyReserved) if self.inOut == "IN" else -flt(self.qtyReserved),
 			"qty_after_transaction": flt(self.newBalance),
 			"reservation_after_transaction": flt(self.reservationBalance),

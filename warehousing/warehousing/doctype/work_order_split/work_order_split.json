@@ -112,7 +112,7 @@
   {
    "fieldname": "quantity_to_be_produced_immediately",
    "fieldtype": "Float",
-   "label": "Quantity To Be Produced Immediately",
+   "label": "Quantity Per Batch",
    "non_negative": 1,
    "reqd": 1
   },
@@ -127,8 +127,7 @@
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Master ID",
-   "options": "WO-.YYYY.-"
+   "label": "Master ID"
   },
   {
    "fieldname": "column_break_icbm",
@@ -294,7 +293,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-10 13:13:11.791032",
+ "modified": "2026-07-14 15:43:06.612637",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split",

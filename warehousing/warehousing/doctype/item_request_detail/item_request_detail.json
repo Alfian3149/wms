@@ -71,6 +71,7 @@
    "fieldname": "quantity_requested",
    "fieldtype": "Float",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Qty Confirm",
    "non_negative": 1,
    "reqd": 1
@@ -151,7 +152,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-10 11:46:03.238357",
+ "modified": "2026-07-15 10:49:55.471545",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request Detail",

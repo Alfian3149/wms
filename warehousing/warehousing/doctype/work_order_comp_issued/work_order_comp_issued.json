@@ -206,7 +206,7 @@
    "fieldname": "qty_product_completed_to_be_issued",
    "fieldtype": "Float",
    "hidden": 1,
-   "label": "Qty Product that have been or will be Completed"
+   "label": "Qty Per Batch"
   },
   {
    "collapsible": 1,
@@ -281,7 +281,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-17 16:06:49.722302",
+ "modified": "2026-07-14 15:35:14.249833",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Comp Issued",

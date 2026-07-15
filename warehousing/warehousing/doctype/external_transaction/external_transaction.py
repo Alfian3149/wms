@@ -73,11 +73,11 @@ def update_external_transaction_status(payload, external_trans_name):
 			"lotSerial":payload.get("tr_serial"),
 			"location":payload.get("tr_loc"),
 			"invStatus": inv_status if inv_status else None,
-			"qtyChg":abs(flt(payload.get("tr_qty_chg"))) if payload.get("tr_qty_chg") != "0" else abs(flt(payload.get("tr_qty_loc"))) if payload.get("tr_qty_loc") != "0" else 0,
+			"qtyChg":flt(payload.get("tr_qty_chg")) if payload.get("tr_qty_chg") != "0" else flt(payload.get("tr_qty_loc")) if payload.get("tr_qty_loc") != "0" else 0,
 			"postingDate":getdate(payload.get("tr_effdate")),
 			"invExpire": getdate(inv_expire) if inv_expire else None,
-			"poNumber":None,
-			"poLine":None
+			"poNumber":payload.get("tr_nbr"),
+			"poLine":payload.get("tr_line"),
 		}
 		init_sl = make_sl_entry(**data)
 		init_sl.create_new()

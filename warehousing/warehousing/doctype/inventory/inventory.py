@@ -11,8 +11,11 @@ from dataclasses import dataclass
 from dataclasses import asdict  
 import json
 class Inventory(Document):
-    pass
-    #def on_update(self):
+    def validate(self):
+        # Cek apakah qty_on_hand <= 0, jika ya, hapus dokumen ini
+        if flt(self.qty_on_hand) < 0:
+            frappe.delete_doc("Inventory", self.name, force=True)
+            frappe.logger().info(f"Inventory {self.name} dengan qty_on_hand <= 0 telah dihapus setelah insert.")
         
 @dataclass
 class PickingItem:

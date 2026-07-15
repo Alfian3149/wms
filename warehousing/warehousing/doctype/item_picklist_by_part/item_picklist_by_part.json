@@ -1,0 +1,194 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-14 16:29:51.067303",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_akbz",
+  "column_break_wzyn",
+  "purpose",
+  "column_break_ciut",
+  "all",
+  "ingredient",
+  "column_break_cejw",
+  "packaging",
+  "others",
+  "column_break_xncm",
+  "section_break_yvnv",
+  "manual_choose",
+  "selected_item",
+  "get_item_detail",
+  "section_break_tffr",
+  "amended_from",
+  "priority",
+  "needed_date",
+  "column_break_ivpq",
+  "picking_completion",
+  "picking_completion_data",
+  "column_break_rwsb",
+  "handover_completion",
+  "handover_completion_data"
+ ],
+ "fields": [
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_tffr",
+   "fieldtype": "Section Break",
+   "label": "ADDITIONAL DATA"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Item Picklist By Part",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "fieldname": "needed_date",
+   "fieldtype": "Date",
+   "label": "Needed Date"
+  },
+  {
+   "fieldname": "column_break_ivpq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "picking_completion",
+   "fieldtype": "Int",
+   "label": "Picking Completion"
+  },
+  {
+   "fieldname": "picking_completion_data",
+   "fieldtype": "Data",
+   "label": "Picking Completion Data"
+  },
+  {
+   "fieldname": "handover_completion",
+   "fieldtype": "Int",
+   "label": "Handover Completion"
+  },
+  {
+   "fieldname": "handover_completion_data",
+   "fieldtype": "Data",
+   "label": "Handover Completion Data"
+  },
+  {
+   "fieldname": "column_break_rwsb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_akbz",
+   "fieldtype": "Section Break",
+   "label": "FILTERING & GROUPING REQUESTS"
+  },
+  {
+   "default": "0",
+   "fieldname": "all",
+   "fieldtype": "Check",
+   "label": "All"
+  },
+  {
+   "fieldname": "column_break_ciut",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "ingredient",
+   "fieldtype": "Check",
+   "label": "Ingredient"
+  },
+  {
+   "fieldname": "column_break_xncm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "packaging",
+   "fieldtype": "Check",
+   "label": "Packaging"
+  },
+  {
+   "fieldname": "section_break_yvnv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "columns": 2,
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "options": "\nFor All\nMaterial Transfer\nMaterial Issue\nManufacture\nReturn Supplier\nReturn Rack",
+   "placeholder": "Select Purpose"
+  },
+  {
+   "fieldname": "selected_item",
+   "fieldtype": "Table",
+   "label": "Select item ",
+   "options": "Item Picklist Summary"
+  },
+  {
+   "fieldname": "manual_choose",
+   "fieldtype": "Button",
+   "hidden": 1,
+   "label": "Manual Choose"
+  },
+  {
+   "default": "0",
+   "fieldname": "others",
+   "fieldtype": "Check",
+   "label": "Others"
+  },
+  {
+   "fieldname": "column_break_cejw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "(Select this field first to start picklist) ",
+   "fieldname": "column_break_wzyn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "get_item_detail",
+   "fieldtype": "Button",
+   "label": "Get Item Detail"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-15 17:47:41.972727",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Item Picklist By Part",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -6,7 +6,14 @@ from frappe.model.document import Document
 from frappe.utils import flt
 from warehousing.warehousing.utils.wo_validation import WorkOrderValidator
 from frappe import _
+from frappe.model.naming import getseries
 class WorkOrderSplit(Document):
+	def autoname(self):
+		year = frappe.utils.nowdate()[:4][-2:] #2 digit year
+		label_prefix = f"MTS-{year}"
+		label_running_number = getseries(label_prefix, 5)
+		self.name = f"{year}{label_running_number}"
+
 	def on_cancel(self):
 		for row in self.work_order_split_detail:
 				frappe.db.set_value('Work Order Split Detail', row.name, 'is_closed', 1)

@@ -1,7 +1,7 @@
 import frappe
 
 def delete_zero_quantity_items():
-    items = frappe.get_all("Inventory", filters={"qty_on_hand": 0}, fields=["name"])
+    items = frappe.get_all("Inventory", filters={"qty_on_hand": ['=', 0]}, fields=["name"])
     for item in items:
         frappe.delete_doc("Inventory", item.name, force=True)
     if items : 

@@ -97,6 +97,53 @@ def get_current_qad_inventory(part, bulk_insert=False):
         }
 
 
+@frappe.whitelist()
+def get_inventory_detail(domain, site, location, part, lotserial, ref):
+    url = get_url()
+    payload = f"""<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <zzGetInventoryDet xmlns="urn:services-qad-com:smiiwsa:0001:smiiwsa">
+        <ipDomain>{domain}</ipDomain>
+        <ipSite>{site}</ipSite>
+        <ipLocation>{location}</ipLocation>
+        <ipPart>{part}</ipPart>
+        <ipLotserial>{lotserial}</ipLotserial>
+        <ipRef>{ref}</ipRef>
+        </zzGetInventoryDet>
+    </soap:Body>
+    </soap:Envelope>"""
+    headers = {
+    'Content-Type': 'text/xml; charset=utf-8',
+    'SOAPAction': '""'
+    }
+    try:
+        response = requests.request("POST", url, data=payload, headers=headers, timeout=200)
+        if response.status_code == 200:
+            xml_response = response.text
+            root = ET.fromstring(xml_response)
+            oot = ET.fromstring(response.text)
+            namespaces = {'qad': 'urn:services-qad-com:smiiwsa:0001:smiiwsa'}
+            opmessage = root.find('.//qad:opmessage', namespaces)
+            
+            msg = ""
+            for result in root.iter():
+                if 'oplcdataset' in result.tag:
+                    dataResponse = json.loads(result.text)
+            if opmessage:     
+                msg = opmessage.text.strip().lower()
+
+            return {
+                "status": "success",
+                "error": msg,
+                "message": dataResponse["dsInventory"]
+            }
+    except Exception as e:
+        return {
+            "status": "failed",
+            "message": _("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e))
+        }
+
 def delete_inventory_existing():
     frappe.db.delete("Inventory")
     frappe.db.commit()
