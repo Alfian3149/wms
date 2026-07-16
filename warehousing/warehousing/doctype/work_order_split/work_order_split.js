@@ -10,7 +10,7 @@ frappe.ui.form.on('Work Order Split', {
         }
     },
 	refresh(frm) {
-        frm.set_df_property('work_order_split_detail', 'cannot_add_rows', true);
+        //frm.set_df_property('work_order_split_detail', 'cannot_add_rows', true);
         if (frm.doc.docstatus === 0 && !frm.is_new()) {
             frm.page.set_primary_action(__('Submit'), function() {
                 frappe.confirm('Are you sure you want to proceed?',
@@ -39,7 +39,8 @@ frappe.ui.form.on('Work Order Split', {
                 setTimeout(() => { 
                     
                     frm.trigger('load_wo_history');
-                    frm.scroll_to_field('quantity_to_be_produced_immediately');
+                    frm.scroll_to_field('production_line');
+                    //frm.scroll_to_field('quantity_to_be_produced_immediately');
                 }, 500); 
             }
             
@@ -90,6 +91,9 @@ frappe.ui.form.on('Work Order Split', {
 	    } */
 	},
 
+    production_line: function(frm) {
+        frm.scroll_to_field('quantity_to_be_produced_immediately');
+    },
 	
     shopfloor_location: function(frm) {
         frm.trigger('get_availablity_stock');
@@ -378,6 +382,12 @@ frappe.ui.form.on('Work Order Split', {
         });
     },
 
+})
+
+frappe.ui.form.on('Work Order Split Detail', {
+    part: function(frm, cdt, cdn) {
+
+    }
 })
 
 function calculateQtyRequiredByPackaging(qtyRequired, qtyPackaging) {

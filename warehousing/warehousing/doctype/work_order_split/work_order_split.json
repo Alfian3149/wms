@@ -251,10 +251,12 @@
   {
    "allow_on_submit": 1,
    "default": "WH04",
+   "fetch_from": "production_line.location",
    "fieldname": "shopfloor_location",
    "fieldtype": "Link",
    "label": "Destination Location",
    "options": "Warehouse Location",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -264,9 +266,12 @@
   },
   {
    "fieldname": "production_line",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Production Line",
-   "options": "P1\nP2\nP3\nP4\nLiquid\nPastry"
+   "options": "Production Line Master",
+   "reqd": 1
   },
   {
    "fieldname": "input_remarks",
@@ -293,7 +298,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-14 15:43:06.612637",
+ "modified": "2026-07-16 11:06:06.494647",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split",

@@ -3,17 +3,14 @@ frappe.listview_settings['Part Master'] = {
         listview.page.add_inner_button(__('Syncronize Part'), function() {
             frappe.confirm('Data sudah ada akan di timpa dengan data yang didapatkan dari sinkronisasi.Apakah Anda yakin akan melakukan sinkronisasi data?', () => {
                 frappe.call({
-                    method: "warehousing.warehousing.doctype.material_label.material_label.generate_bulk_print_html",
-                    args: {
-                        docnames: names,
-                        doctype: "Inventory"
-                    },
+                    method: "warehousing.warehousing.doctype.part_master.part_master.get_syncronize_part_master_to_qad",
+                    args: {},
                     freeze: true,
-                    freeze_message: __("Preparing Labels..."),
+                    freeze_message: __("Syncronizing Part Master..."),
                     callback: function(r) {
                         frappe.msgprint({
-                            title: __('Feedback'),
-                            message: __([r.message.total_rows], ' rows succesfully updated'),
+                            title: __('Information'),
+                            message: __('Rows succesfully updated'),
                         });
                         setTimeout(() => { 
                             listview.refresh();

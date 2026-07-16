@@ -7,6 +7,7 @@ from frappe import _
 import requests
 import xml.etree.ElementTree as ET
 from frappe.utils import flt
+from warehousing.warehousing.utils.connection import get_url
 class PartMaster(Document):
 	def before_save(self):
 		conversion_factor = self.um_conversion_factor
@@ -113,7 +114,7 @@ def get_qad_item_update():
 
 @frappe.whitelist()
 def get_syncronize_part_master_to_qad():
-    url = "http://127.0.0.1:24079/wsa/smiiwsa"
+    url = get_url()
     domain = "SMII"
     payload = f"""<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -169,7 +170,7 @@ def get_syncronize_part_master_to_qad():
 def syncronize_part_master_to_qad(part_list):
     control = frappe.get_doc("Material Incoming Control")
     prodLineAllowed = [data.product_line for data in  control.part_group ]
-    unique_drw_loc = list(set(item['drawingLoc'] for item in part_list))
+    """ unique_drw_loc = list(set(item['drawingLoc'] for item in part_list))
     for drw_loc in unique_drw_loc:
         if not frappe.db.exists("Drawing Location", drw_loc):
             doc_drw_loc = frappe.get_doc({
@@ -177,7 +178,7 @@ def syncronize_part_master_to_qad(part_list):
                 "drawing_location": drw_loc if drw_loc else 'None'
             })
             doc_drw_loc.insert(ignore_if_duplicate=True)
-    
+     """
     unique_um_code = list(set(item['um'] for item in part_list))
     for um in unique_um_code:
         if not frappe.db.exists("Unit Of Masure", um):
@@ -205,13 +206,17 @@ def syncronize_part_master_to_qad(part_list):
                 new_part.item_group = itemGroup
                 new_part.insert(ignore_permissions=True)
             else:
-                data_master[part['part']] = {
+                """ data_master[part['part']] = {
                     "um": part['um'],
                     "product_line": part['prodLine'],
                     "item_status": part['itemStatus'],
                     "description": f"{part['desc1']} {part['desc2']}",
                     "drawing_location": drw_loc,
                     "qty_per_pallet": flt(part['qtyPerPallet']),
+                    "item_group":itemGroup,
+                } """
+                data_master[part['part']] = {                  
+                    "product_line": part['prodLine'],
                     "item_group":itemGroup,
                 }
     

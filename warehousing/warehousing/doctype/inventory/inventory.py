@@ -11,11 +11,11 @@ from dataclasses import dataclass
 from dataclasses import asdict  
 import json
 class Inventory(Document):
-    def validate(self):
-        # Cek apakah qty_on_hand <= 0, jika ya, hapus dokumen ini
+    pass
+    """ def validate(self):
         if flt(self.qty_on_hand) < 0:
             frappe.delete_doc("Inventory", self.name, force=True)
-            frappe.logger().info(f"Inventory {self.name} dengan qty_on_hand <= 0 telah dihapus setelah insert.")
+            frappe.logger().info(f"Inventory {self.name} dengan qty_on_hand = 0 telah dihapus setelah insert.") """
         
 @dataclass
 class PickingItem:
@@ -93,6 +93,7 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
     new_inv.lot_serial = lot_serial
     new_inv.reference = reference
     new_inv.warehouse_location = whs_location
+    new_inv.prod_line = frappe.db.get_value("Part Master", part, ["product_line"])
     new_inv.qty_on_hand = flt(initial_qty)
     new_inv.qty_reserverd = flt(qtyReservation)
 

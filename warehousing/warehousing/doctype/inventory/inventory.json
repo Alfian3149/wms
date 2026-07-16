@@ -21,6 +21,7 @@
   "warehouse_location",
   "inventory_status",
   "expire_date",
+  "prod_line",
   "column_break_ycbh",
   "um_packaging",
   "conversion_factor",
@@ -142,13 +143,20 @@
    "fieldname": "barcode_value",
    "fieldtype": "Data",
    "label": "Barcode Value"
+  },
+  {
+   "fetch_from": "part.product_line",
+   "fieldname": "prod_line",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Prod Line"
   }
  ],
  "grid_page_length": 50,
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-18 10:55:50.048246",
+ "modified": "2026-07-16 20:53:48.180441",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",

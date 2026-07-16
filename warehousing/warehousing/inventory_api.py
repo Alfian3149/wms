@@ -179,6 +179,7 @@ def bulk_insert_inventory(data):
             flt(item['ttqty_oh']),
             item['ttpart_um'],
             flt(item['ttpart_qty_per_pallet']),
+            item['ttprod_line'],
             item['ttloc'],
             item['ttstatus'],
             item['ttexpire'],
@@ -186,5 +187,5 @@ def bulk_insert_inventory(data):
             part[0] if part else 0,
         ))
     if inventory_list:
-        frappe.db.bulk_insert("Inventory", fields=["name", "owner", "creation", "modified", "site", "part", "lot_serial", "qty_on_hand", "um", "qty_per_pallet", "warehouse_location", "inventory_status", "expire_date", "um_packaging", "conversion_factor"], values=inventory_list)
+        frappe.db.bulk_insert("Inventory", fields=["name", "owner", "creation", "modified", "site", "part", "lot_serial", "qty_on_hand", "um", "qty_per_pallet", "prod_line", "warehouse_location", "inventory_status", "expire_date", "um_packaging", "conversion_factor"], values=inventory_list)
         frappe.db.commit()
