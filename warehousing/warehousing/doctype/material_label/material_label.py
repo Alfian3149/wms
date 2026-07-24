@@ -142,7 +142,7 @@ def generate_bulk_print_html(docnames, doctype):
     frappe.db.sql(f"update `tab{doctype}` set printed_by = %s, last_printed_on = %s where name in %s", 
                  (frappe.session.user, frappe.utils.now_datetime(), tuple(docnames)))
 
-    return frappe.get_template("warehousing/templates/bulk_label8x1.html").render({
+    return frappe.get_template("warehousing/templates/bulk_label6x1.html").render({
         "docs": docs_data
     })
 
