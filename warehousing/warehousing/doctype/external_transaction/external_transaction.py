@@ -13,8 +13,9 @@ class ExternalTransaction(Document):
 		create_stock_ledger_from_external_trans = frappe.db.get_single_value('Qad Integrations', 'create_stock_ledger_from_external_trans')
 		if create_stock_ledger_from_external_trans == False:
 			return
-
+		
 		payload = json.loads(self.data)
+
 		""" frappe.call("warehousing.warehousing.doctype.external_transaction.external_transaction.update_external_transaction_status", payload=payload, external_trans_name=self.name) """
 		Job = frappe.enqueue(
 			"warehousing.warehousing.doctype.external_transaction.external_transaction.update_external_transaction_status",
@@ -33,9 +34,15 @@ def receive_qad_transaction_history():
 		return {"status": "success", "message": "Receiving transactions from external transaction is disabled."}
 
 	raw_data = frappe.request.data
+
 	if not raw_data:
 		frappe.throw(_("No data received"))
+	
 	payload = json.loads(raw_data)
+
+	if (frappe.db.exists({"doctype": "External Transaction", "ext_trans_id": payload.get("ext_trans_id")})):
+		return {"status": "success", "message": "Transaction number already exist."}
+
 	try : 
 		External_Transaction = frappe.get_doc({
 			"doctype": "External Transaction",
@@ -58,12 +65,19 @@ def receive_qad_transaction_history():
 def update_external_transaction_status(payload, external_trans_name):
 	if payload.get("event_type") == "tr_hist" : 
 		if frappe.db.exists("Part Master", payload.get("tr_part")) is None:
-			return
+			new_part = frappe.new_doc("Part Master")
+			new_part.part = payload.get("tr_part")
+			new_part.um = 'KG'
+			new_part.description = "AUTOCREATE"
+			new_part.qty_per_pallet = flt(0)
+			new_part.insert(ignore_permissions=True)
+			frappe.db.commit()
+	
 		if frappe.db.exists("Transaction Type", payload.get("tr_type")) is None:
 			return
 
-		inv_status = payload.get("last_status")
-		inv_expire = payload.get("last_expire")
+		inv_status = payload.get("last_status") 
+		inv_expire = payload.get("last_expire") if payload.get("last_expire") else None
 		data = {
 			"doctype_source":"External Transaction",
 			"data_link":external_trans_name,

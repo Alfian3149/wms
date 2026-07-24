@@ -15,6 +15,7 @@
   "posting_date",
   "column_break_zhaq",
   "work_order",
+  "work_order_old",
   "id",
   "production_line",
   "input_remarks",
@@ -291,6 +292,14 @@
   {
    "fieldname": "wo_tracking_html",
    "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "work_order_old",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Work Order Old"
   }
  ],
  "grid_page_length": 50,
@@ -298,7 +307,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-16 11:06:06.494647",
+ "modified": "2026-07-24 05:42:34.054450",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split",

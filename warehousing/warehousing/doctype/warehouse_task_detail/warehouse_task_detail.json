@@ -9,6 +9,7 @@
   "item_details_section",
   "material_label_link",
   "warehouse_task_link",
+  "others_link",
   "executor",
   "execution_time",
   "verified",
@@ -110,6 +111,7 @@
   {
    "fieldname": "material_label_link",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Link To Material Label",
    "options": "Material Label"
@@ -316,13 +318,18 @@
    "fieldname": "conversion_factor",
    "fieldtype": "Float",
    "label": "Conversion Factor"
+  },
+  {
+   "fieldname": "others_link",
+   "fieldtype": "Data",
+   "label": "Others Link"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-03-31 07:05:04.082419",
+ "modified": "2026-07-23 09:14:25.768310",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Warehouse Task Detail",

@@ -273,6 +273,7 @@
   {
    "fieldname": "select_ingredient__packaging_from_inventory",
    "fieldtype": "Button",
+   "hidden": 1,
    "label": "Select Ingredient / Packaging From Inventory "
   }
  ],
@@ -281,7 +282,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-14 15:35:14.249833",
+ "modified": "2026-07-24 07:24:15.411542",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Comp Issued",

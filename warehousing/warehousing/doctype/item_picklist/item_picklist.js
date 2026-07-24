@@ -406,9 +406,12 @@ frappe.ui.form.on('Item Picklist Detail', {
         }
     },
     items_remove: function(frm) {
+        
         // Trigger jika ada baris yang dihapus
         calculate_all_summaries(frm);
-    }
+    },
+    
+    
 });
 
  

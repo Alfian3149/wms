@@ -28,7 +28,7 @@ frappe.ui.form.on('Work Order Split', {
         }
 	    frm.fields_dict['work_order'].$input.on('blur', function() {
 
-	        if (frm.is_new() && frm.doc.work_order){
+	        if (frm.is_new() && frm.doc.work_order !== frm.doc.work_order_old){
                 frm.clear_table("work_order_split_detail");
                 frm.refresh_field("work_order_split_detail");
 
@@ -165,7 +165,7 @@ frappe.ui.form.on('Work Order Split', {
 
                             frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty_usage', min_requested); 
                         }
-                        console.log(required + " - " + free_qty_can_used + " - " + min_requested + " - " + base_requested);
+                        
                         let qty_request_by_pack = 0;
                         if (base_requested > 0) {
                             const qty_pack_item = await frappe.call({
@@ -184,6 +184,9 @@ frappe.ui.form.on('Work Order Split', {
                                
                             }
                         }
+
+                        console.log("PART : " + api_row.ttdet_component  + " " +  required + " - " + free_qty_can_used + " - " + min_requested + " - " + base_requested + " - " + qty_request_by_pack);
+
                         frappe.model.set_value(target_row.doctype, target_row.name,  "qty_confirm", qty_request_by_pack);
 
         

@@ -286,7 +286,9 @@ def get_po_from_qad(po_number=None, domain="SMII"):
             "ttPORequest": [
                 {
                     "domain_filter": domain,
-                    "ponbr_filter": po_number
+                    "ponbr_filter": po_number,
+                    "receipt_type": ''
+                    
                 }
             ]
         }

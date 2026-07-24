@@ -8,6 +8,7 @@
  "field_order": [
   "request_number",
   "child_name",
+  "is_selected",
   "column_break_seyy",
   "site",
   "part",
@@ -16,8 +17,11 @@
   "column_break_cjju",
   "quantity_requested",
   "quantity_picked",
-  "is_selected",
-  "target_location"
+  "has_picked",
+  "column_break_ptwu",
+  "target_location",
+  "need_date",
+  "p_line"
  ],
  "fields": [
   {
@@ -37,13 +41,13 @@
    "fieldname": "quantity_requested",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Quantity Requested"
+   "label": "Requested"
   },
   {
    "fieldname": "quantity_picked",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Quantity Picked"
+   "label": "To Pick"
   },
   {
    "fieldname": "item_grouping",
@@ -68,6 +72,7 @@
   {
    "fieldname": "description",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Description"
   },
   {
@@ -82,15 +87,36 @@
   {
    "fieldname": "target_location",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Target Location",
    "options": "Warehouse Location"
+  },
+  {
+   "fieldname": "has_picked",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Reserved"
+  },
+  {
+   "fieldname": "column_break_ptwu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "need_date",
+   "fieldtype": "Date",
+   "label": "Need Date"
+  },
+  {
+   "fieldname": "p_line",
+   "fieldtype": "Data",
+   "label": "P Line"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-15 17:39:32.279421",
+ "modified": "2026-07-23 13:25:21.464349",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist Summary",

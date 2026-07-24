@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { margin: 0; }
+        }
+        .a4-page {
+            width: 210mm;
+            height: 297mm;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            page-break-after: always;
+            box-sizing: border-box;
+        }
+        .label-box {
+            width: 105mm;       /* A4 lebar 210mm bagi 2 */
+            height: 74.25mm;    /* A4 tinggi 297mm bagi 4 */
+            box-sizing: border-box;
+            border: 1px dashed #ccc; /* Border tipis untuk panduan potong */
+            
+            flex-direction: column; /* Mengatur tata letak ATAS - BAWAH */
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        
+        /* Bagian ATAS: QR Code & Kode Item */
+        .qr-section { 
+            width: 100%; 
+            text-align: center; 
+        }
+        /* Ukuran QR disesuaikan agar tidak memakan ruang bagian bawah */
+        .qr-img { 
+            width: 45mm; 
+            height: 45mm; 
+            display: block; 
+            margin: 0 auto; 
+        }
+        .item-code {
+            font-size: 17pt; 
+            font-weight: bold; 
+            font-family: sans-serif;
+            margin-top: 1.5mm;
+            line-height: 1;
+        }
+
+        /* Bagian BAWAH: Informasi & Qty */
+        .info-section { 
+            width: 100%; 
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top:3mm;
+        }
+        .detail-text { 
+            font-size: 11pt; 
+            margin-bottom: 3mm; 
+            line-height: 1.2;
+        }
+        .lot-expiry-container {
+            margin-top: 1mm;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            font-size: 10pt;
+        }
+        .item-name { 
+            font-size: 13pt; 
+            font-weight: bold; 
+            margin: 1mm 0 0 0; 
+            line-height: 1.1; 
+            text-align: center; 
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        {% for doc in docs %}
+            <div class="label-box">
+                <!-- BAGIAN ATAS: QR Code & Nama Item -->
+                <div class="qr-section">
+                    <img class="qr-img" src="{{ doc.qr_base64 }}" alt="QR Code">
+                    <div class="item-code">
+                        {{ doc.item }} |  {{ frappe.utils.fmt_money(doc.qty, 3) if doc.qty % 1 != 0 else frappe.utils.fmt_money(doc.qty, 0) }} {{ doc.item_um }}
+                    </div>
+                </div>
+
+                <!-- BAGIAN BAWAH: Detail Informasi & Qty -->
+                <div class="info-section">
+                    <div class="detail-text">
+                        <strong>Description :</strong> {{ doc.item_description[:45] }}<br> 
+                        <div class="lot-expiry-container">
+                            <span><strong>Lot/Serial:</strong> {{ doc.lotserial }}</span>
+                            {% if doc.ed %}
+                                <span><strong>ED:</strong> {{ doc.ed }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h1 class="item-name">
+                       <!--  {{ frappe.utils.fmt_money(doc.qty, 3) if doc.qty % 1 != 0 else frappe.utils.fmt_money(doc.qty, 0) }} {{ doc.item_um }} -->
+                    </h1>
+                </div>
+            </div>
+            
+            {# Pecah halaman setiap 8 label #}
+            {% if loop.index % 8 == 0 and not loop.last %}
+                </div><div class="a4-page">
+            {% endif %}
+        {% endfor %}
+    </div>
+</body>
+</html>

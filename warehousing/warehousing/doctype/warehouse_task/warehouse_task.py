@@ -8,7 +8,7 @@ import frappe
 from frappe.model.naming import make_autoname
 from warehousing.warehousing.specialLogic import get_multi_bin_suggestion
 import copy
-from frappe.utils import flt,getdate, get_fullname, now_datetime
+from frappe.utils import flt,getdate, get_fullname, now_datetime,  nowdate
 import time
 from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
 from warehousing.warehousing.doctype.inventory.inventory import update_inventory_qty
@@ -601,6 +601,9 @@ def picked_confirm():
         enqueue_after_commit=False,
         warehouse_task_name=latest_doc_parent.name,
         picklist_name=latest_doc_parent.reference_name,
+        item_request_detail_name=doc_child.others_link.replace(" ", ""),
+        qty_confirmation=flt(data["pickedQty"])
+
     )   
 
     if latest_doc_parent.status == "Completed" :
@@ -610,7 +613,7 @@ def picked_confirm():
     return data
 
 @frappe.whitelist()
-def completion_picking_percentage(warehouse_task_name, picklist_name):
+def completion_picking_percentage(warehouse_task_name, picklist_name, item_request_detail_name, qty_confirmation):
     result = frappe.db.sql("""
         SELECT 
             SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as complete_count,
@@ -622,12 +625,46 @@ def completion_picking_percentage(warehouse_task_name, picklist_name):
     total_count = result[0].get('total_count') or 0
     percentage_complete = (complete_count / total_count * 100) if total_count > 0 else 0
     data =  str(int(complete_count)) + "/" + str(int(total_count))
-    frappe.db.set_value("Item Picklist", picklist_name, "complete_percentage", percentage_complete)
-    frappe.db.set_value("Item Picklist", picklist_name, "completion_data", data)
+
+    frappe.db.set_value("Item Picklist By Part", picklist_name, { 
+        "picking_completion": percentage_complete,
+        "picking_completion_data": data
+    })
+
+    total_row = len(item_request_detail_name.split(','))
+    i = 0
+    for name in item_request_detail_name.split(','):
+        i += 1
+        request_detail = frappe.get_doc("Item Request Detail", name)
+        remain_qty = flt(request_detail.quantity_requested) - flt(request_detail.quantity_picked) - flt(request_detail.fullfilled_qty) - flt(request_detail.handovered)
+
+        if i >= total_row: 
+            qty_post = qty_confirmation
+        else : 
+            qty_post = min(remain_qty, qty_confirmation)
+            qty_confirmation = qty_confirmation - qty_post
+        
+        latest_picked = 0
+        if (flt(request_detail.quantity_picked) - flt(qty_post)) > 0 : 
+            latest_picked = flt(request_detail.quantity_picked) - flt(qty_post)
+
+        latest_fullfilled = flt(request_detail.fullfilled_qty) + flt(qty_post)
+
+        if(latest_fullfilled >= request_detail.quantity_requested ):
+            status = "Picked"
+        else  : 
+            status = "Partially"
+
+        frappe.db.set_value("Item Request Detail", name, {
+            'quantity_picked': latest_picked,
+            'fullfilled_qty': latest_fullfilled,
+            'status': status
+        })
+
     frappe.db.commit()
 
 @frappe.whitelist()
-def completion_handover_percentage(warehouse_task_name, picklist_name):
+def completion_handover_percentage(warehouse_task_name, warehouse_task_detail_name, picklist_name,  item_request_detail_name, qty_confirmation):
     result = frappe.db.sql("""
         SELECT 
             SUM(CASE WHEN status = 'Completed' and has_handovered = 1 THEN 1 ELSE 0 END) as complete_count,
@@ -639,8 +676,52 @@ def completion_handover_percentage(warehouse_task_name, picklist_name):
     total_count = result[0].get('total_count') or 0
     percentage_complete = (complete_count / total_count * 100) if total_count > 0 else 0
     data =  str(int(complete_count)) + "/" + str(int(total_count))
-    frappe.db.set_value("Item Picklist", picklist_name, "ho_completion_percentage", percentage_complete)
-    frappe.db.set_value("Item Picklist", picklist_name, "ho_completion_data", data)
+
+    frappe.db.set_value("Item Picklist By Part", picklist_name, { 
+        "handover_completion": percentage_complete,
+        "handover_completion_data": data
+    })
+
+    task_det_doc = frappe.get_doc("Warehouse Task Detail", warehouse_task_detail_name)
+
+    inventory = frappe.db.get_value("Inventory", {
+        'site': '1000',
+        'part': task_det_doc.item,
+        'lot_serial': task_det_doc.lotserial,
+        'warehouse_location': task_det_doc.locationdestination
+    }, ['name','qty_handovered'],  as_dict=1)
+
+    latest_qty_handovered = flt(inventory.qty_handovered) + flt(qty_confirmation)
+    frappe.db.set_value("Inventory", inventory.name, "qty_handovered", latest_qty_handovered)
+
+    total_row = len(item_request_detail_name.split(','))
+    i = 0
+    for name in item_request_detail_name.split(','):
+        i += 1
+        request_detail = frappe.get_doc("Item Request Detail", name)
+        remain_qty = flt(request_detail.quantity_requested) - flt(request_detail.handovered)
+
+        if i >= total_row: 
+            qty_post = qty_confirmation
+        else : 
+            qty_post = min(remain_qty, qty_confirmation)
+
+        
+        latest_fullfilled = flt(request_detail.fullfilled_qty) - flt(qty_post)
+        latest_handovered = flt(request_detail.handovered) + flt(qty_post)
+
+        status = request_detail.status if request_detail.status else 'Partially'
+        if (latest_handovered >= request_detail.quantity_requested ):
+            status = "Completed"
+
+        frappe.db.set_value("Item Request Detail", name, {
+            'fullfilled_qty': latest_fullfilled,
+            'handovered': latest_handovered,
+            'status': status
+        })
+        qty_confirmation = qty_confirmation - qty_post
+
+
     frappe.db.commit()
 
 @frappe.whitelist()
@@ -733,12 +814,12 @@ def get_picklist_outstanding_tasks(user):
                 filters={"parent": data.name},
                 fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_label as quantity","qty_confirmation as receivedQty", "locationsource as sourceLocation","locationdestination as toLocation", "status"],order_by='item asc, lotserial asc')
 
-        picklist = frappe.db.get_value("Item Picklist", data.reference_name, ["priority", "needed_date"], as_dict=True) 
+        picklist = frappe.db.get_value("Item Picklist By Part", data.reference_name, ["priority", "needed_date"], as_dict=True) 
         picklistTask.append({
             "orderId": data.reference_name,
             "productionLine": data.reference_name,
-            "priority": picklist.priority,
-            "neededDate": picklist.needed_date,
+            "priority": picklist.priority if  picklist else 'Low',
+            "neededDate": picklist.needed_date if picklist else nowdate(),
             "destination" : '',
             "status": data.status,
             "items": task_items
@@ -782,10 +863,18 @@ def get_handover_outstanding_tasks(user):
 
 @frappe.whitelist()
 def handover_qty_submit(name, qty, task, picklist):
-    frappe.db.set_value("Warehouse Task Detail", name, "qty_handover", flt(qty))
+    frappe.db.set_value("Warehouse Task Detail", name, { 
+        "qty_handover": flt(qty),
+        "has_handovered": 1,
+        "user_handovered": frappe.session.user,
+        "time_handovered":  frappe.utils.now()
+    })
+
+    """ frappe.db.set_value("Warehouse Task Detail", name, "qty_handover", flt(qty))
     frappe.db.set_value("Warehouse Task Detail", name, "has_handovered", 1)
     frappe.db.set_value("Warehouse Task Detail", name, "user_handovered", frappe.session.user)
-    frappe.db.set_value("Warehouse Task Detail", name, "time_handovered", frappe.utils.now())
+    frappe.db.set_value("Warehouse Task Detail", name, "time_handovered", frappe.utils.now()) """ 
+    
     frappe.db.commit()
     frappe.enqueue(
         "warehousing.warehousing.doctype.warehouse_task.warehouse_task.completion_handover_percentage",
@@ -794,7 +883,10 @@ def handover_qty_submit(name, qty, task, picklist):
         is_async=True,
         enqueue_after_commit=False,
         warehouse_task_name=task,
+        warehouse_task_detail_name=name,
         picklist_name=picklist,
+        item_request_detail_name=frappe.db.get_value("Warehouse Task Detail", name, ['others_link']).replace(" ", ""), 
+        qty_confirmation=flt(qty)
     )  
 
 @frappe.whitelist()

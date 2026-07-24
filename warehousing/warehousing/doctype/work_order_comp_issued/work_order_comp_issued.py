@@ -268,7 +268,7 @@ def get_inventory_clean_for_production(site, item, lotserial, status, qty_needed
     clean_iventory = []
     stocks = frappe.db.sql(f"""
             SELECT 
-                inv.name, inv.site, inv.part, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.qty_reserved, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet
+                inv.name, inv.site, inv.part, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.qty_handovered, inv.qty_reserved, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet
             FROM 
                 `tabInventory` inv
             JOIN 
@@ -288,13 +288,13 @@ def get_inventory_clean_for_production(site, item, lotserial, status, qty_needed
     """, (site, item, lotserial, status, frappe.utils.nowdate()), as_dict=True)
 
     for row in stocks:
-        available = flt(row.qty_on_hand) - flt(row.qty_reserved)
+        available = flt(row.qty_handovered) - flt(row.qty_reserved)
         #not_handover_yet = frappe.db.get_list("Lot Serial Handover Yet", {"site": site, "part": row.part, "lotserial": row.lot_serial}, ["SUM(qty_on_hand) as qty"])
 
-        total_not_handovered_yet = frappe.db.get_list("Warehouse Task Detail", {"part":row.part, "lotserial":row.lot_serial, "locationdestination":row.warehouse_location, "has_handovered": 0}, ["SUM(qty_confirmation) as qty"])
+        """ total_not_handovered_yet = frappe.db.get_list("Warehouse Task Detail", {"part":row.part, "lotserial":row.lot_serial, "locationdestination":row.warehouse_location, "has_handovered": 0}, ["SUM(qty_confirmation) as qty"])
 
         if total_not_handovered_yet:
-            available -=  flt(total_not_handovered_yet[0].qty)
+            available -=  flt(total_not_handovered_yet[0].qty) """
 
         if available > 0 :
             #qty_reserved = flt(row.qty_reserved) + flt(qty_needed)

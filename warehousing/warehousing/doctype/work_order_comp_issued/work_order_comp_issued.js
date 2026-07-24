@@ -112,7 +112,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                         label: 'Daftar Scan'
                     }
                 ],
-                size: 'large',
+                size: 'extra-large',
                 primary_action_label: 'Process To Issued',
                 primary_action(values) {
                     if (scanned_items.length === 0) {
@@ -298,7 +298,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                                     }
                                     else{
                                         const double_scanned_weigh = scanned_items.find(row => row.item_code === item && row.lotserial === lotSerial);
-                                        qtyAvailable = flt(r.message.inventory[0].qty_on_hand) - flt(r.message.inventory[0].qty_reserved) ;
+                                        qtyAvailable = flt(r.message.inventory[0].qty_handovered) - flt(r.message.inventory[0].qty_reserved) ;
                                         locationAvailable = r.message.inventory[0].warehouse_location;
                                         if (double_scanned_weigh) {
                                             d.set_value('scan_temporary', val);
@@ -1110,8 +1110,8 @@ frappe.ui.form.on('Work Order Comp Issued Items', {
         let isNotOk = false;
 
         console.log(row.quantity );
-        await frappe.db.get_value("Inventory", {"part": row.part, "lot_serial": row.lot_serial, "warehouse_location": row.from_location}, ["qty_on_hand", "qty_reserved"]).then(doc => {
-            qtyAvailable = flt(doc.message.qty_on_hand) - flt(doc.message.qty_reserved);
+        await frappe.db.get_value("Inventory", {"part": row.part, "lot_serial": row.lot_serial, "warehouse_location": row.from_location}, ["qty_on_hand", "qty_handovered", "qty_reserved"]).then(doc => {
+            qtyAvailable = flt(doc.message.qty_handovered) - flt(doc.message.qty_reserved);
             if (row.quantity > qtyAvailable) {
                 isNotOk =  true;
             }
@@ -1120,7 +1120,7 @@ frappe.ui.form.on('Work Order Comp Issued Items', {
                 frappe.msgprint({
                     title: __('MESSAGE'),
                     indicator: 'red',
-                    message: __('Qty input over than stock. Maximal Qty available is only ' + String(qtyAvailable) )
+                    message: __('Qty input over than allowed to issued. Maximal Qty allowed to issued is ' + String(qtyAvailable) )
                 });
                 reset_row_qty(frm, row); 
                 frappe.validated = false;

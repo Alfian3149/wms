@@ -20,7 +20,8 @@
   "column_break_plai",
   "conversion_factor",
   "um_conversion",
-  "item_grouping"
+  "item_grouping",
+  "demand_row_names"
  ],
  "fields": [
   {
@@ -108,13 +109,18 @@
    "fieldname": "item_grouping",
    "fieldtype": "Data",
    "label": "Item Grouping"
+  },
+  {
+   "fieldname": "demand_row_names",
+   "fieldtype": "Data",
+   "label": "Demand Row"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-06-10 23:00:15.476507",
+ "modified": "2026-07-23 09:01:22.782130",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist Detail",

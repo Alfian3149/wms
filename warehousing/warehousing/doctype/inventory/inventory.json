@@ -9,22 +9,24 @@
   "section_break_vjkc",
   "site",
   "part",
-  "um",
   "lot_serial",
   "reference",
+  "warehouse_location",
+  "column_break_fuxs",
+  "um",
+  "prod_line",
   "column_break_mnqd",
   "qty_on_hand",
   "qty_reserved",
-  "qty_per_pallet",
-  "barcode_value",
+  "qty_handovered",
   "column_break_avig",
-  "warehouse_location",
   "inventory_status",
   "expire_date",
-  "prod_line",
   "column_break_ycbh",
   "um_packaging",
   "conversion_factor",
+  "qty_per_pallet",
+  "barcode_value",
   "section_break_zqjw",
   "last_printed_on",
   "column_break_gjvz",
@@ -123,6 +125,7 @@
    "label": "Qty Per Pallet"
   },
   {
+   "default": "0",
    "fieldname": "qty_reserved",
    "fieldtype": "Float",
    "label": "Qty Reserved"
@@ -150,13 +153,23 @@
    "fieldtype": "Data",
    "in_standard_filter": 1,
    "label": "Prod Line"
+  },
+  {
+   "fieldname": "column_break_fuxs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "qty_handovered",
+   "fieldtype": "Float",
+   "label": "Handovered"
   }
  ],
  "grid_page_length": 50,
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-16 20:53:48.180441",
+ "modified": "2026-07-23 23:30:06.741992",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",

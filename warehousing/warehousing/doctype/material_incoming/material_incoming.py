@@ -20,6 +20,9 @@ class MaterialIncoming(Document):
 		frappe.db.delete("Material Label", {"material_incoming_link": self.name})
 
 	def validate(self):
+		if not self.packing_slip :
+			self.packing_slip = self.name
+
 		for item in self.material_incoming_item:
 			if item.qty_to_receive <=0 : 
 				continue

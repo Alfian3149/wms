@@ -15,10 +15,18 @@
   "packaging",
   "others",
   "column_break_xncm",
+  "sort_by",
+  "column_break_mzxn",
+  "asc",
+  "desc",
+  "current_sort",
+  "purpose_short",
   "section_break_yvnv",
   "manual_choose",
   "selected_item",
+  "total_selected_item",
   "get_item_detail",
+  "item_picklist_detail",
   "section_break_tffr",
   "amended_from",
   "priority",
@@ -63,21 +71,25 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "picking_completion",
    "fieldtype": "Int",
    "label": "Picking Completion"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "picking_completion_data",
    "fieldtype": "Data",
    "label": "Picking Completion Data"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "handover_completion",
    "fieldtype": "Int",
    "label": "Handover Completion"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "handover_completion_data",
    "fieldtype": "Data",
    "label": "Handover Completion Data"
@@ -99,7 +111,8 @@
   },
   {
    "fieldname": "column_break_ciut",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Group By"
   },
   {
    "default": "0",
@@ -126,7 +139,7 @@
    "fieldname": "purpose",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "options": "\nFor All\nMaterial Transfer\nMaterial Issue\nManufacture\nReturn Supplier\nReturn Rack",
+   "options": "\nManufacture\nReturn Supplier\nReturn Rack",
    "placeholder": "Select Purpose"
   },
   {
@@ -160,13 +173,62 @@
    "fieldname": "get_item_detail",
    "fieldtype": "Button",
    "label": "Get Item Detail"
+  },
+  {
+   "fieldname": "purpose_short",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Purpose Short"
+  },
+  {
+   "fieldname": "item_picklist_detail",
+   "fieldtype": "Table",
+   "label": "Item Picklist Detail",
+   "options": "Item Picklist Detail"
+  },
+  {
+   "fieldname": "total_selected_item",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "sort_by",
+   "fieldtype": "Select",
+   "label": "<b>Sort By</b>",
+   "options": "\nRequest\nItem Number\nItem Group"
+  },
+  {
+   "default": "0",
+   "fieldname": "asc",
+   "fieldtype": "Button",
+   "label": "<svg class=\"icon  icon-md\" style=\"\"> \t\t\t<use class=\"\" href=\"#icon-sort-ascending\"></use> \t\t</svg> Asc"
+  },
+  {
+   "default": "0",
+   "fieldname": "desc",
+   "fieldtype": "Button",
+   "label": "<svg class=\"icon  icon-md\" style=\"\"> \t\t\t<use class=\"\" href=\"#icon-sort-descending\"></use> \t\t</svg> Desc"
+  },
+  {
+   "fieldname": "column_break_mzxn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "asc",
+   "fieldname": "current_sort",
+   "fieldtype": "Data",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2026-07-15 17:47:41.972727",
+ "links": [
+  {
+   "link_doctype": "Warehouse Task",
+   "link_fieldname": "reference_name"
+  }
+ ],
+ "modified": "2026-07-24 06:21:58.517854",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist By Part",
