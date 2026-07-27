@@ -114,9 +114,8 @@
   },
   {
    "fieldname": "doctype_source",
-   "fieldtype": "Link",
-   "label": "Doctype Source",
-   "options": "DocType"
+   "fieldtype": "Data",
+   "label": "Doctype Source"
   },
   {
    "fieldname": "column_break_pjnk",
@@ -124,9 +123,8 @@
   },
   {
    "fieldname": "link",
-   "fieldtype": "Dynamic Link",
-   "label": "MTS Number",
-   "options": "doctype_source"
+   "fieldtype": "Data",
+   "label": "MTS Number"
   },
   {
    "fieldname": "picklist_tracking_tab",
@@ -245,7 +243,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-14 15:37:15.307660",
+ "modified": "2026-07-27 04:40:41.710123",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request",

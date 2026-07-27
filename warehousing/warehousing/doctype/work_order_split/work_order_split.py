@@ -18,15 +18,21 @@ class WorkOrderSplit(Document):
 		for row in self.work_order_split_detail:
 				frappe.db.set_value('Work Order Split Detail', row.name, 'is_closed', 1)
 
+		item_req = frappe.get_doc("Item Request", self.link_to_item_request)
+		""" for item in item_req.items:
+			if item.status != 'Completed' : 
+				frappe.db.set_value(item.doctype, item.name, "status", "Cancelled") """
+		item_req.docstatus = 2
+		item_req.save()
+
 	def validate(self):
 		if self.quantity_to_be_produced_immediately <= 0 : 
 			frappe.throw(_("Quantity to be produced must greater than 0"))
-			
-
+		
 		#FINISH GOOD ITEM
 		if not frappe.db.exists("Part Master", self.finish_good):
 			new_item = frappe.get_doc({
-				"doctype": "Part Master",
+				"doctype": "Part Master", 
 				"part": self.finish_good,
 				"um": self.um,
 				"description": self.fg_description,
@@ -93,6 +99,7 @@ class WorkOrderSplit(Document):
 					new_item.quantity_picked = 0
 					new_item.target_location = self.shopfloor_location
 					new_item.item_group = item.item_group
+					new_item.prd_line = self.production_line
 				new_itmreq.insert()
 				new_itmreq.submit()
 				
@@ -127,23 +134,21 @@ def get_stock_availability_in_production(site, part, warehouse_location, wo_numb
 	#getQtyRequested =  frappe.db.get_value("Work Order Split Detail", {"part": part,  "is_closed": 0, "parent": ['not like', f"%{wo_split_number}%"]}, "SUM(actual_required) as actual_required")
 	#getQtyRequested =  frappe.db.get_value("Work Order Split Detail", {"part": part,  "is_closed": 0}, "SUM(actual_required) as actual_required")
 
-	target_statuses = ["Open", "Partially Picked"]
+	target_statuses = ["", "Partially", "Picked"]
 	result = frappe.db.sql("""
         SELECT 
-            SUM(COALESCE(child.quantity_requested, 0) - COALESCE(child.quantity_picked, 0)) as total_outstanding
+            SUM(COALESCE(child.quantity_requested, 0) - COALESCE(child.quantity_picked, 0) - COALESCE(child.fullfilled_qty, 0) - COALESCE(child.handovered, 0)) as total_outstanding
         FROM 
             `tabItem Request Detail` child
-        INNER JOIN 
-            `tabItem Request` parent ON child.parent = parent.name
         WHERE 
-            child.part = %s 
-            AND child.work_order = %s 
-			AND child.parenttype = 'Item Request'
-            AND parent.request_status IN %s
-            
-    """, (part, wo_number, target_statuses), as_dict=True)
+			child.parenttype = 'Item Request'
+			AND child.part = %s
+			AND child.status != 'Cancelled'
+    """, (part), as_dict=True)
     
 	getOutstanding = result[0].get("total_outstanding") if result and result[0].get("total_outstanding") else 0
+	if getOutstanding < 0 : 
+		getOutstanding = 0
 
 	availability = 0
 	if getStock and getStock[0].qty_on_hand is not None:
@@ -188,7 +193,7 @@ def get_work_order_split_detail(component):
         `tabWork Order Split` parent ON child.parent = parent.name
     WHERE 
         child.part = %s 
-        AND parent.docstatus = 1
+        AND parent.docstatus = 1 
 """, (component,), as_dict=True)
 
 	if summary:

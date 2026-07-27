@@ -11,15 +11,15 @@
   "column_break_ciut",
   "all",
   "ingredient",
-  "column_break_cejw",
   "packaging",
   "others",
-  "column_break_xncm",
+  "column_break_cejw",
   "sort_by",
-  "column_break_mzxn",
+  "column_break_xncm",
   "asc",
   "desc",
   "current_sort",
+  "column_break_mzxn",
   "purpose_short",
   "section_break_yvnv",
   "manual_choose",
@@ -158,6 +158,7 @@
    "default": "0",
    "fieldname": "others",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Others"
   },
   {
@@ -194,7 +195,7 @@
    "fieldname": "sort_by",
    "fieldtype": "Select",
    "label": "<b>Sort By</b>",
-   "options": "\nRequest\nItem Number\nItem Group"
+   "options": "\nRequest\nItem Number\nItem Group\nProduction Line"
   },
   {
    "default": "0",
@@ -228,7 +229,7 @@
    "link_fieldname": "reference_name"
   }
  ],
- "modified": "2026-07-24 06:21:58.517854",
+ "modified": "2026-07-28 02:00:16.804469",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist By Part",

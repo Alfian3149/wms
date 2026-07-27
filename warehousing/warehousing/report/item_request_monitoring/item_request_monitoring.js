@@ -24,10 +24,16 @@ frappe.query_reports["Item Request Monitoring"] = {
             "default": ""
         },
         {
+            "fieldname": "part",
+            "label": __("Item"),
+            "fieldtype": "Data",
+            "default": ""
+        },
+        {
             "fieldname": "status",
             "label": __("Status"),
             "fieldtype": "Select",
-            "options": "\nPending\nPartially\nPicked\nCompleted",
+            "options": "\nBlank\nPending\nPartially\nPicked\nCompleted",
             "default": ""
         }
 	]

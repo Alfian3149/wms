@@ -36,12 +36,7 @@ frappe.ui.form.on('Work Order Split', {
                 frm.set_value("qty_in_tonnase",0);
                 //frm.set_value("shopfloor_location","");
                 frm.trigger('fetch_workorder_from_qad');
-                setTimeout(() => { 
-                    
-                    frm.trigger('load_wo_history');
-                    frm.scroll_to_field('production_line');
-                    //frm.scroll_to_field('quantity_to_be_produced_immediately');
-                }, 500); 
+
             }
             
 	    });  
@@ -304,11 +299,16 @@ frappe.ui.form.on('Work Order Split', {
                         frm.set_value("quantity_ordered", header.woqty_ord);
                         frm.set_value("quantity_completed", header.woqty_comp);
                         frm.set_value("quantity_rejected", header.woqty_rjct);
+                   
+                        setTimeout(() => { 
+                            frm.trigger('load_wo_history');
+                            frm.scroll_to_field('production_line');
+                            frm.refresh_field('work_order_split_detail');
+                        }, 500);
                     }
-    
-                    setTimeout(() => { 
-                        frm.refresh_field('work_order_split_detail');
-                    }, 500);
+                    else {
+                         frappe.msgprint(__("Work Order tidak ditemukan."));
+                    }
                 }
                 else {
                     frappe.msgprint(__("Work Order tidak ditemukan."));

@@ -22,7 +22,6 @@
   "column_break_snzp",
   "finish_good",
   "fg_description",
-  "um",
   "fg_netwt",
   "column_break_vfes",
   "order_date",
@@ -36,6 +35,7 @@
   "qty_in_tonnase",
   "column_break_icbm",
   "quantity_ordered",
+  "um",
   "column_break_spof",
   "quantity_completed",
   "column_break_xzhk",
@@ -297,8 +297,6 @@
    "fieldname": "work_order_old",
    "fieldtype": "Data",
    "hidden": 1,
-   "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Work Order Old"
   }
  ],
@@ -307,7 +305,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-24 05:42:34.054450",
+ "modified": "2026-07-28 00:39:52.256845",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split",

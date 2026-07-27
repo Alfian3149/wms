@@ -22,11 +22,14 @@
   "column_break_avig",
   "inventory_status",
   "expire_date",
-  "column_break_ycbh",
-  "um_packaging",
+  "section_break_cxaz",
+  "id_barcode",
+  "section_break_cdtd",
   "conversion_factor",
+  "column_break_solm",
+  "um_packaging",
+  "column_break_fhvw",
   "qty_per_pallet",
-  "barcode_value",
   "section_break_zqjw",
   "last_printed_on",
   "column_break_gjvz",
@@ -131,21 +134,12 @@
    "label": "Qty Reserved"
   },
   {
-   "fieldname": "column_break_ycbh",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "section_break_zqjw",
    "fieldtype": "Section Break"
   },
   {
    "fieldname": "column_break_gjvz",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "barcode_value",
-   "fieldtype": "Data",
-   "label": "Barcode Value"
   },
   {
    "fetch_from": "part.product_line",
@@ -163,13 +157,34 @@
    "fieldname": "qty_handovered",
    "fieldtype": "Float",
    "label": "Handovered"
+  },
+  {
+   "fieldname": "id_barcode",
+   "fieldtype": "Barcode",
+   "label": "ID Barcode"
+  },
+  {
+   "fieldname": "section_break_cdtd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_solm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_fhvw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_cxaz",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-23 23:30:06.741992",
+ "modified": "2026-07-28 05:44:12.785333",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",

@@ -18,17 +18,18 @@
   "column_break_syup",
   "qty_required",
   "qty_issued",
-  "ori_cur_req",
   "actual_required",
+  "ori_cur_req",
   "cur_req_by_pckg",
-  "free_qty",
-  "free_qty_usage",
-  "qty_confirm",
-  "outstanding",
   "column_break_mrxf",
   "availability",
   "availability_in_percent",
-  "is_closed"
+  "is_closed",
+  "outstanding",
+  "column_break_tivs",
+  "free_qty",
+  "free_qty_usage",
+  "qty_confirm"
  ],
  "fields": [
   {
@@ -157,13 +158,17 @@
    "fieldname": "qty_in_packaging",
    "fieldtype": "Float",
    "label": "Qty In Packaging"
+  },
+  {
+   "fieldname": "column_break_tivs",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-24 05:59:20.186716",
+ "modified": "2026-07-28 01:39:53.519523",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split Detail",

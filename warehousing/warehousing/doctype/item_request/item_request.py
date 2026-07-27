@@ -25,14 +25,12 @@ class ItemRequest(Document):
     def on_update_after_submit(self):
         qty_needed = 0
         for request in self.items:
-            qty_needed = flt(request.quantity_requested) - flt(request.quantity_picked)
+            qty_needed = flt(request.quantity_requested) - flt(request.quantity_picked) -  flt(request.fullfilled_qty) - flt(request.handovered)
         
         if self.items and qty_needed > 0:
             self.request_status = "Partially Picked"
         elif self.items and qty_needed <= 0:
             self.request_status = "Fully Picked"
-            if self.doctype_source == "Work Order Split" and self.link: 
-                frappe.db.set_value("Work Order Split", self.link, "status", "Ready For Weighing") 
         else:
             self.request_status = "Open"
     
@@ -45,7 +43,7 @@ class ItemRequest(Document):
             if not item.target_location:
                 item.target_location = self.target_location
 
-        if self.request_status != "Fully Picked" : 
+        if self.request_status != "Fully Picked" and  self.request_status != "Completed" : 
             self.update_status_based_on_details()
 
     def update_status_based_on_details(self):
@@ -56,13 +54,29 @@ class ItemRequest(Document):
         if self.request_status == "Ready To Issued" or self.request_status == "Completed" :
              return
              
-        all_complete = all(flt(d.quantity_requested) - flt(d.quantity_picked) <= 0 for d in self.items)
+        completed_handover = all(flt(d.quantity_requested) - flt(d.handovered) <= 0 for d in self.items)
+        completed_picked = all(flt(d.quantity_requested) - flt(d.fullfilled_qty) <= 0 for d in self.items)
 
 
-        if all_complete:
-            self.request_status = "Fully Picked"
+        if completed_handover:
+            self.request_status = "Completed"
         else:
-            self.request_status = "Partially Picked"
+            if completed_picked : 
+                self.request_status = "Fully Picked"
+            else :
+                self.request_status = "Partially Picked"
+
+    def on_cancel(self):
+        for item in self.items:
+            if item.status != 'Completed' : 
+                frappe.db.set_value(item.doctype, item.name, "status", "Cancelled")
+                ws_task_name = frappe.db.get_list("Warehouse Task Detail", filters={'others_link': item.name}, fields={'name'})
+
+                for name in ws_task_name:
+                    frappe.db.set_value("Warehouse Task Detail", name, "status", "Cancelled")
+                    """ ws_task_doc = frappe.get_doc("Warehouse Task Detail", name)
+                    ws_task_doc.status = 'Cancelled' 
+                    ws_task_doc.save() """
 
 @frappe.whitelist()
 def comfirming_picklist(item_request_doc, child_table, task_type, date_instruction, time, assigned_to_person=None, assigned_to_role=None, ):  

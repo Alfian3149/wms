@@ -11,6 +11,15 @@ class ItemPicklistByPart(Document):
 		year = frappe.utils.nowdate()[:4]
 		self.name = make_autoname(f"PL-{year}-.#####")
 	
+	""" def validate(self):
+		if not self.item_picklist_detail : 
+			frappe.msgprint(
+				msg="There is no item details found, please run get item detail",
+				alert=False,
+				indicator="red"
+			)
+			return
+			 """
 	def on_cancel(self):
 		try:
 			for selected in self.selected_item:
@@ -218,6 +227,7 @@ class ItemPicklistByPart(Document):
 						"quantity_picked": doc.quantity_picked,
 						"fullfilled": doc.fullfilled,
 						"handovered": doc.handovered,
+						"prd_line": doc.prd_line,
 					})
 
 		return response

@@ -4,7 +4,18 @@
 frappe.ui.form.on("Item Picklist By Part", {
     before_save: function(frm) {
         permanent_grouping(frm);
-
+    },
+    validate(frm){
+        if (frm.doc.item_picklist_detail.length === 0){
+            frappe.msgprint({
+                title: __('ERROR'),
+                indicator: 'red',
+                message: __('There is no item details found, please run get item detail.')
+            });
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }      
     },
     refresh(frm) {
         frm.set_df_property('selected_item', 'cannot_add_rows', true);
@@ -14,7 +25,7 @@ frappe.ui.form.on("Item Picklist By Part", {
        frm.set_df_property('ingredient', 'read_only', 1);
        frm.set_df_property('packaging', 'read_only', 1);
        frm.set_df_property('others', 'read_only', 1);
-       frm.set_df_property('sort_by', 'read_only', 1);
+       //frm.set_df_property('sort_by', 'read_only', 1);
        frm.set_df_property('asc', 'read_only', 1);
        frm.set_df_property('desc', 'read_only', 1);
 
@@ -95,6 +106,7 @@ frappe.ui.form.on("Item Picklist By Part", {
                             child.item_grouping = row.item_group;
                             child.target_location = row.target_location;
                             child.need_date = row.need_date;
+                            child.prd_line = row.prd_line;
                         }); 
                     }
                 }
@@ -374,7 +386,7 @@ function filter_child_table_items(frm, sort_order = null) {
     let ingredient = frm.doc.ingredient;
     let packaging = frm.doc.packaging;
     let others = frm.doc.others;
-    let sort_by = frm.doc.sort_by;
+    let sort_by = frm.doc.sort_by || null;
     
     if (all === 0 && ingredient === 0 && packaging === 0 && others === 0) {
         all = 1;
@@ -402,9 +414,13 @@ function filter_child_table_items(frm, sort_order = null) {
                 valA = (a.request_number || "").toString().toLowerCase();
                 valB = (b.request_number || "").toString().toLowerCase();
             }
+            else if (sort_by === 'Production Line'){
+                valA = (a.prd_line || "").toString().toLowerCase();
+                valB = (b.prd_line || "").toString().toLowerCase();
+            }
             else {
-                valA = (a.idx || "").toString().toLowerCase();
-                valB = (b.idx || "").toString().toLowerCase();
+                valA = (a.idx || 0);
+                valB = (b.idx || 0);
             }
 
             if (valA < valB) return sort_order === 'asc' ? -1 : 1;

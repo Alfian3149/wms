@@ -355,7 +355,9 @@ frappe.ui.form.on("Work Order Comp Issued", {
             $qty_field.on('keydown', function(e) {
                 if (e.which === 13) { // Enter key
                     e.preventDefault();
-                    let qty_val = parseFloat($(this).val()) || 0;
+
+                    let raw_val = $(this).val();
+                    let qty_val = frappe.formatters.parse(raw_val, { fieldtype: 'Float' }) || 0;
                     let val = d.get_value('scan_temporary');
 
                     if(val === undefined || val === null || val === ''){
@@ -370,7 +372,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                     const item = scan[0];      // "ITEM12345"
                     const lotSerial = scan[1]; // "LOT98765"
                     
-                    if (flt(qty_val) > flt(qtyAvailable)){
+                    if (qty_val > flt(qtyAvailable)){
                         frappe.show_alert({
                             message:__("Qty input lebih besar daripada stok yang tersedia"),
                             indicator:'red'
@@ -379,7 +381,11 @@ frappe.ui.form.on("Work Order Comp Issued", {
                     }
                     const existing_item = scanned_items.find(row => row.item_code === item && row.lotserial === lotSerial);
                     if (existing_item) {
-                        existing_item.qty_scanned =  flt(qty_val);
+                        existing_item.qty_scanned = qty_val;
+                        d.set_value('scan_input', '');
+                        d.set_value('scan_temporary', '');
+                        d.set_value('scan_qty', '');
+
                         render_scan_list();
                         setTimeout(() => {
                             $barcode_field.focus();

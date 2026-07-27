@@ -26,6 +26,7 @@
   "date_started",
   "time_started",
   "users_picker",
+  "last_update",
   "column_break_ydio",
   "date_ending",
   "time_ending",
@@ -179,13 +180,18 @@
    "fieldname": "source_id",
    "fieldtype": "Data",
    "label": "Source ID"
+  },
+  {
+   "fieldname": "last_update",
+   "fieldtype": "Datetime",
+   "label": "Last Update"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-11 01:48:28.186466",
+ "modified": "2026-07-28 03:25:44.813823",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Warehouse Task",

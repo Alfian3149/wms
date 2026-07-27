@@ -21,7 +21,7 @@
   "column_break_ptwu",
   "target_location",
   "need_date",
-  "p_line"
+  "prd_line"
  ],
  "fields": [
   {
@@ -78,7 +78,7 @@
   {
    "fieldname": "child_name",
    "fieldtype": "Data",
-   "label": "Child Name"
+   "label": "Item Req Detail link"
   },
   {
    "fieldname": "column_break_cjju",
@@ -107,16 +107,17 @@
    "label": "Need Date"
   },
   {
-   "fieldname": "p_line",
-   "fieldtype": "Data",
-   "label": "P Line"
+   "fieldname": "prd_line",
+   "fieldtype": "Link",
+   "label": "Prd Line",
+   "options": "Production Line Master"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-23 13:25:21.464349",
+ "modified": "2026-07-28 00:32:54.925711",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist Summary",

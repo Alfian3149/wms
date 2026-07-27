@@ -803,7 +803,7 @@ def get_picklist_outstanding_tasks(user):
     tasks = frappe.get_all("Warehouse Task", 
     filters=[
         ["task_type", "in", ["Picking", "Return"]],
-        ["status", "!=", "Completed"],
+        ["status", "not in", ["Completed", "Cancelled"]],
     ],
     fields=["name", "reference_name", "date_instruction", "time_instruction", "assign_to_role"],)
 
@@ -811,19 +811,20 @@ def get_picklist_outstanding_tasks(user):
     items = []
     for data in tasks:
         task_items = frappe.get_all("Warehouse Task Detail",
-                filters={"parent": data.name},
+                filters={"parent": data.name, "status": ["!=", "Cancelled"]},
                 fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_label as quantity","qty_confirmation as receivedQty", "locationsource as sourceLocation","locationdestination as toLocation", "status"],order_by='item asc, lotserial asc')
 
-        picklist = frappe.db.get_value("Item Picklist By Part", data.reference_name, ["priority", "needed_date"], as_dict=True) 
-        picklistTask.append({
-            "orderId": data.reference_name,
-            "productionLine": data.reference_name,
-            "priority": picklist.priority if  picklist else 'Low',
-            "neededDate": picklist.needed_date if picklist else nowdate(),
-            "destination" : '',
-            "status": data.status,
-            "items": task_items
-        })
+        if len(task_items) > 0 : 
+            picklist = frappe.db.get_value("Item Picklist By Part", data.reference_name, ["priority", "needed_date"], as_dict=True) 
+            picklistTask.append({
+                "orderId": data.reference_name,
+                "productionLine": data.reference_name,
+                "priority": picklist.priority if  picklist else 'Low',
+                "neededDate": picklist.needed_date if picklist else nowdate(),
+                "destination" : '',
+                "status": data.status,
+                "items": task_items
+            })
     return picklistTask
 
 @frappe.whitelist() 
