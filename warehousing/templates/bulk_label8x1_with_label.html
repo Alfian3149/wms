@@ -17,23 +17,42 @@
             box-sizing: border-box;
         }
         .label-box {
+            position: relative; /* Diperlukan agar badge absolute bisa diposisikan terhadap box ini */
             width: 105mm;       /* A4 lebar 210mm bagi 2 */
             height: 74.25mm;    /* A4 tinggi 297mm bagi 4 */
             box-sizing: border-box;
             border: 1px dashed #ccc; /* Border tipis untuk panduan potong */
             
+            display: flex; /* Ditambahkan agar flex layout berfungsi sempurna */
             flex-direction: column; /* Mengatur tata letak ATAS - BAWAH */
             align-items: center;
             justify-content: space-between;
             overflow: hidden;
+            padding-top: 2mm; /* Sedikit padding agar QR tidak menempel atas */
         }
         
+        /* KOTAK BADGE KECIL 3 DIGIT (BARU) */
+        .type-badge {
+            position: absolute;
+            top: 2mm;
+            right: 2mm;
+            border: 1.5px solid #000;
+            padding: 1mm 2mm;
+            font-size: 10pt;
+            font-weight: bold;
+            font-family: sans-serif;
+            background-color: #fff;
+            border-radius: 3px;
+            line-height: 1;
+            z-index: 10;
+        }
+
         /* Bagian ATAS: QR Code & Kode Item */
         .qr-section { 
             width: 100%; 
             text-align: center; 
         }
-        /* Ukuran QR disesuaikan agar tidak memakan ruang bagian bawah */
+        /* Ukuran QR tetap 45mm x 45mm */
         .qr-img { 
             width: 45mm; 
             height: 45mm; 
@@ -53,11 +72,11 @@
             width: 100%; 
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top:3mm;
+            margin-top: 1mm;
+            margin-bottom: 2mm;
         }
         .detail-text { 
             font-size: 11pt; 
-            margin-bottom: 3mm; 
             line-height: 1.2;
         }
         .lot-expiry-container {
@@ -81,11 +100,16 @@
     <div class="a4-page">
         {% for doc in docs %}
             <div class="label-box">
+                <!-- KOTAK BADGE 3 DIGIT DI SUDUT KANAN ATAS -->
+                <div class="type-badge">
+                    {{ doc.type_code or 'MTL' }}
+                </div>
+
                 <!-- BAGIAN ATAS: QR Code & Nama Item -->
                 <div class="qr-section">
                     <img class="qr-img" src="{{ doc.qr_base64 }}" alt="QR Code">
                     <div class="item-code">
-                        {{ doc.item }} |  {{ frappe.utils.fmt_money(doc.qty, 3) if doc.qty % 1 != 0 else frappe.utils.fmt_money(doc.qty, 0) }} {{ doc.item_um }}
+                        {{ doc.item }} | {{ frappe.utils.fmt_money(doc.qty, 3) if doc.qty % 1 != 0 else frappe.utils.fmt_money(doc.qty, 0) }} {{ doc.item_um }}
                     </div>
                 </div>
 
