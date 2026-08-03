@@ -100,6 +100,9 @@ class WorkOrderSplit(Document):
 					new_item.target_location = self.shopfloor_location
 					new_item.item_group = item.item_group
 					new_item.prd_line = self.production_line
+					new_item.mts_detail = item.name
+					new_item.free_qty = item.free_qty
+					new_item.free_qty_usage = item.free_qty_usage
 				new_itmreq.insert()
 				new_itmreq.submit()
 				
@@ -112,23 +115,21 @@ class WorkOrderSplit(Document):
 def get_stock_availability_in_production(site, part, warehouse_location, wo_number=None):
 	#getStock = frappe.db.get_value("Inventory", {"site": site, "part": part, "warehouse_location": warehouse_location}, "SUM(qty_on_hand) as qty_on_hand")
 	getStock = frappe.db.sql("""
-            SELECT 
-                SUM(inv.qty_on_hand) as qty_on_hand
-            FROM 
-                `tabInventory` inv
-            JOIN 
-                `tabWarehouse Location` loc ON inv.warehouse_location = loc.name
-            WHERE 
-                inv.site = %(site)s 
-                AND inv.part = %(part)s 
-                AND inv.inventory_status = %(status)s
-                AND loc.is_active = 1 
-                AND loc.can_reserved_for_wo_comp_issued = 1
-        """, {
-            "site": site,
-            "part": part,
-            "status": "P-GOOD"
-        }, as_dict=True)
+	SELECT 
+			SUM(inv.qty_on_hand) as qty_on_hand
+		FROM 
+			`tabInventory` inv
+		WHERE 
+			inv.site = %(site)s 
+			AND inv.part = %(part)s 
+			AND inv.warehouse_location = %(warehouse_location)s 
+			AND inv.inventory_status = %(status)s
+	""", {
+		"site": site,
+		"part": part,
+		"warehouse_location": warehouse_location,
+		"status": "P-GOOD"
+	}, as_dict=True)
 
 	
 	#getQtyRequested =  frappe.db.get_value("Work Order Split Detail", {"part": part,  "is_closed": 0, "parent": ['not like', f"%{wo_split_number}%"]}, "SUM(actual_required) as actual_required")
@@ -147,7 +148,7 @@ def get_stock_availability_in_production(site, part, warehouse_location, wo_numb
     """, (part), as_dict=True)
     
 	getOutstanding = result[0].get("total_outstanding") if result and result[0].get("total_outstanding") else 0
-	if getOutstanding < 0 : 
+	if getOutstanding <= 0 : 
 		getOutstanding = 0
 
 	availability = 0

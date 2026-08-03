@@ -98,7 +98,19 @@ def generate_bulk_print_html(docnames, doctype):
             "lot": "lot_serial",
             "qty": "qty_on_hand",
             "ed": "expire_date"
-        }
+        },
+        "Item Picklist Detail": {
+            "item": "part", 
+            "lot": "lot_serial",
+            "qty": "quantity",
+            "ed": "expire"
+        },
+        "Item Request Detail": {
+            "item": "part", 
+            "lot": "lotserial",
+            "qty": "quantity_requested",
+            "ed": "expire"
+        },
     }
 
     # Ambil config sesuai doctype yang dikirim

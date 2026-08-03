@@ -6,7 +6,6 @@ frappe.ui.form.on('Work Order Split', {
         if (frm.is_new()) {
             frm.clear_table("work_order_split_detail");
             frm.refresh_field("work_order_split_detail");
-            console.log("ONLOAD");
         }
     },
 	refresh(frm) {
@@ -175,16 +174,11 @@ frappe.ui.form.on('Work Order Split', {
                                 frappe.model.set_value(target_row.doctype, target_row.name, 'qty_in_packaging', qty_pack_item.message );
                                 frappe.model.set_value(target_row.doctype, target_row.name, 'cur_req_by_pckg', qty_request_by_pack);
                                 frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty', free_qty_to_given);
-                                
-                               
                             }
                         }
-
                         console.log("PART : " + api_row.ttdet_component  + " " +  required + " - " + free_qty_can_used + " - " + min_requested + " - " + base_requested + " - " + qty_request_by_pack);
 
                         frappe.model.set_value(target_row.doctype, target_row.name,  "qty_confirm", qty_request_by_pack);
-
-        
                         /* if (target_row.availability > 0 && required > 0) {
                             let percent = cint(flt(target_row.availability / required * 100, 0));
                             frappe.model.set_value(target_row.doctype, target_row.name, 'availability_in_percent', percent);
@@ -218,7 +212,11 @@ frappe.ui.form.on('Work Order Split', {
             if (row.part) {
                 frappe.call({
                     method: "warehousing.warehousing.doctype.work_order_split.work_order_split.get_stock_availability_in_production", 
-                    args:{site: frm.doc.site, part:row.part, warehouse_location: frm.doc.shopfloor_location, wo_number: frm.doc.work_order}, 
+                    args:{
+                        site: frm.doc.site, 
+                        part:row.part, 
+                        warehouse_location: frm.doc.shopfloor_location, 
+                        wo_number: frm.doc.work_order}, 
                     freeze: true, 
                     freeze_message: __("Sedang memproses Work Order..."),
                     callback: function(r) {
@@ -389,8 +387,112 @@ frappe.ui.form.on('Work Order Split', {
 
 frappe.ui.form.on('Work Order Split Detail', {
     part: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        frm.set_df_property('work_order_split_detail', 'reqd', 1, frm.doc.name, 'actual_required', row.name);
+        frappe.model.set_value(row.doctype, row.name, "qty_required", 0);
+        frappe.model.set_value(row.doctype, row.name, "qty_issued", 0);
+        let $row_element = $(`[data-fieldname="work_order_split_detail"] [data-idx="${row.idx}"]`);
+        if ($row_element.length) {
+            $row_element[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            $row_element.find('[data-fieldname="actual_required"] input').focus();
+        }
+    },
+    actual_required:async function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        let $row_element = $(`[data-fieldname="work_order_split_detail"] [data-idx="${row.idx}"]`);
 
+        let actual_required = flt(row.actual_required);
+        if (!actual_required) return;
+
+        try {
+            let r = await frappe.call({
+                method: "warehousing.warehousing.doctype.work_order_split.work_order_split.get_stock_availability_in_production", 
+                args: {
+                    site: frm.doc.site, 
+                    part: row.part, 
+                    warehouse_location: frm.doc.shopfloor_location, 
+                    wo_number: frm.doc.work_order
+                }, 
+                freeze: true, 
+                freeze_message: __("Sedang memproses Work Order...")
+            });
+
+            if (r && r.message) {
+                let availability = flt(r.message.availability);
+                let outstanding = flt(r.message.outstanding);
+
+                // Hitung persentase
+                let percent = (actual_required > 0) ? (availability / actual_required) * 100 : 0;
+
+                // Hitung qty_request (jika availability > actual_required maka 0)
+                let qty_request = availability > actual_required ? 0 : actual_required - availability;
+
+                // 2. Set value ke model secara sekuensial
+                await frappe.model.set_value(row.doctype, row.name, 'ori_cur_req', actual_required);
+                await frappe.model.set_value(row.doctype, row.name, "outstanding", outstanding);
+                await frappe.model.set_value(row.doctype, row.name, "qty_confirm", qty_request);
+                await frappe.model.set_value(row.doctype, row.name, "availability", availability);
+                await frappe.model.set_value(row.doctype, row.name, "availability_in_percent", percent);
+
+                const qty_pack_item = await frappe.call({
+                    method: "warehousing.warehousing.doctype.part_master.part_master.get_item_pack",
+                    args: { part_number: row.part }
+                });
+
+                const free_qty_can_used_api = await frappe.call({
+                    method: "warehousing.warehousing.doctype.work_order_split.work_order_split.get_work_order_split_detail",
+                    args: { component: row.part }
+                });
+
+                let free_qty_can_used = 0;
+                let min_requested = 0;
+                let base_requested = 0;
+                if (free_qty_can_used_api && free_qty_can_used_api.message !== undefined) {
+                    free_qty_can_used = flt(free_qty_can_used_api.message);
+                    min_requested = Math.min(actual_required, free_qty_can_used);
+                    actual_required = actual_required - min_requested;
+                }
+                await frappe.model.set_value(row.doctype, row.name, 'free_qty_usage', min_requested);                            
+
+                if (qty_pack_item && qty_pack_item.message !== undefined) {
+                    qty_request_by_pack = calculateQtyRequiredByPackaging(actual_required, qty_pack_item.message );
+                    const free_qty_to_given = qty_request_by_pack -  Math.ceil(actual_required);
+                    await frappe.model.set_value(row.doctype, row.name, 'qty_in_packaging', qty_pack_item.message );
+                    await frappe.model.set_value(row.doctype, row.name, 'cur_req_by_pckg', qty_request_by_pack);
+                    await frappe.model.set_value(row.doctype, row.name, 'free_qty', free_qty_to_given);
+                    await frappe.model.set_value(row.doctype, row.name,  "qty_confirm", qty_request_by_pack);
+                }
+
+                // 3. Re-render UI & jalankan Scroll/Focus setelah DOM ter-update
+                frappe.after_ajax(() => {
+                    let $row_element = $(`[data-fieldname="work_order_split_detail"] [data-idx="${row.idx}"]`);
+                    if ($row_element.length) {
+                        $row_element[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Berikan sedikit jeda/delay agar input ter-render sempurna sebelum di-focus
+                        setTimeout(() => {
+                            $row_element.find('[data-fieldname="qty_confirm"] input').focus();
+                        }, 100);
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("Gagal mengambil data ketersediaan stok:", err);
+        }
+    }, 
+
+    qty_confirm:async function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        
+        let qty_confirm = flt(row.qty_confirm);
+        if (!qty_confirm) return;
+
+        let qty_free = qty_confirm - flt(row.actual_required) ;
+        await frappe.model.set_value(row.doctype, row.name, 'free_qty', qty_free);
+
+        console.log("test");
     }
+
 })
 
 function calculateQtyRequiredByPackaging(qtyRequired, qtyPackaging) {

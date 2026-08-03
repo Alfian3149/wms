@@ -25,35 +25,43 @@
   "availability",
   "availability_in_percent",
   "is_closed",
-  "outstanding",
   "column_break_tivs",
+  "outstanding",
   "free_qty",
   "free_qty_usage",
   "qty_confirm"
  ],
  "fields": [
   {
+   "columns": 1,
    "fieldname": "part",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Part",
    "options": "Part Master",
    "search_index": 1
   },
   {
+   "columns": 2,
    "fetch_from": "part.description",
    "fieldname": "description",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Description"
   },
   {
+   "columns": 1,
    "fieldname": "qty_required",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Full Requ"
   },
   {
+   "columns": 1,
    "fieldname": "qty_issued",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Has Issued"
   },
   {
@@ -104,11 +112,14 @@
    "precision": "0"
   },
   {
+   "columns": 1,
    "fieldname": "actual_required",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Act. Requ"
   },
   {
+   "columns": 1,
    "fieldname": "qty_confirm",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -116,9 +127,11 @@
    "reqd": 1
   },
   {
+   "columns": 1,
    "fetch_from": "part.item_group",
    "fieldname": "item_group",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Item Group"
   },
   {
@@ -130,8 +143,10 @@
    "search_index": 1
   },
   {
+   "columns": 1,
    "fieldname": "outstanding",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Outstanding"
   },
   {
@@ -155,8 +170,10 @@
    "label": "Free Qty Usage"
   },
   {
+   "columns": 1,
    "fieldname": "qty_in_packaging",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Qty In Packaging"
   },
   {
@@ -168,7 +185,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-28 01:39:53.519523",
+ "modified": "2026-07-30 11:44:26.005271",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split Detail",

@@ -22,15 +22,23 @@
   "lotserial",
   "target_location",
   "prd_line",
+  "status",
   "column_break_bnec",
   "quantity_requested",
   "quantity_picked",
   "fullfilled_qty",
   "handovered",
-  "status"
+  "expire",
+  "column_break_jmeh",
+  "free_qty",
+  "free_qty_usage",
+  "mts_detail",
+  "printed_by",
+  "last_printed_on"
  ],
  "fields": [
   {
+   "columns": 1,
    "fieldname": "part",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -39,9 +47,11 @@
    "reqd": 1
   },
   {
+   "columns": 1,
    "fetch_from": "part.um",
    "fieldname": "um",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "UM",
    "read_only": 1
   },
@@ -54,9 +64,11 @@
    "options": "Warehouse Location"
   },
   {
+   "columns": 2,
    "fetch_from": "part.description",
    "fieldname": "description",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Description",
    "read_only": 1
   },
@@ -70,6 +82,7 @@
    "reqd": 1
   },
   {
+   "columns": 1,
    "fieldname": "quantity_requested",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -80,8 +93,10 @@
   },
   {
    "allow_on_submit": 1,
+   "columns": 1,
    "fieldname": "quantity_picked",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Reserved"
   },
   {
@@ -141,6 +156,7 @@
   },
   {
    "allow_on_submit": 1,
+   "columns": 1,
    "fieldname": "handovered",
    "fieldtype": "Float",
    "label": "Handovered Qty"
@@ -153,6 +169,7 @@
   },
   {
    "allow_on_submit": 1,
+   "columns": 1,
    "fieldname": "fullfilled_qty",
    "fieldtype": "Float",
    "label": "Fullfilled"
@@ -162,13 +179,49 @@
    "fieldtype": "Link",
    "label": "Prd Line",
    "options": "Production Line Master"
+  },
+  {
+   "fieldname": "mts_detail",
+   "fieldtype": "Link",
+   "label": "MTS Detail",
+   "options": "Work Order Split Detail"
+  },
+  {
+   "fieldname": "free_qty",
+   "fieldtype": "Float",
+   "label": "Free Qty"
+  },
+  {
+   "fieldname": "free_qty_usage",
+   "fieldtype": "Float",
+   "label": "Usage Qty"
+  },
+  {
+   "fieldname": "column_break_jmeh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expire",
+   "fieldtype": "Date",
+   "label": "Expire"
+  },
+  {
+   "fieldname": "printed_by",
+   "fieldtype": "Link",
+   "label": "Last Printed By",
+   "options": "User"
+  },
+  {
+   "fieldname": "last_printed_on",
+   "fieldtype": "Datetime",
+   "label": "Last Printed On"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-28 00:30:45.704690",
+ "modified": "2026-07-30 13:29:03.639166",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request Detail",

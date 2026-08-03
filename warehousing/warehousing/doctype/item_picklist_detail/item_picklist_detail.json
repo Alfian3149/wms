@@ -10,18 +10,23 @@
   "part",
   "description",
   "um",
-  "qty_per_pallet",
+  "column_break_smyl",
+  "from_location",
+  "to_location",
+  "expire",
   "column_break_mmyp",
   "lot_serial",
   "quantity",
+  "qty_per_pallet",
   "amt_pallet",
-  "from_location",
-  "to_location",
   "column_break_plai",
   "conversion_factor",
   "um_conversion",
+  "column_break_kuev",
   "item_grouping",
-  "demand_row_names"
+  "demand_row_names",
+  "last_printed_on",
+  "printed_by"
  ],
  "fields": [
   {
@@ -114,13 +119,37 @@
    "fieldname": "demand_row_names",
    "fieldtype": "Data",
    "label": "Demand Row"
+  },
+  {
+   "fieldname": "column_break_smyl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expire",
+   "fieldtype": "Date",
+   "label": "Expire"
+  },
+  {
+   "fieldname": "column_break_kuev",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_printed_on",
+   "fieldtype": "Datetime",
+   "label": "Last Printed On"
+  },
+  {
+   "fieldname": "printed_by",
+   "fieldtype": "Link",
+   "label": "Last Printed By",
+   "options": "User"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-23 09:01:22.782130",
+ "modified": "2026-07-30 13:30:04.305303",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist Detail",

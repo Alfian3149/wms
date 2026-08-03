@@ -613,6 +613,7 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
                         "lot_serial": stock_oh.lot_serial,
                         "conversion_factor": flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1,
                         "um_conversion":stock_oh.um_packaging if stock_oh.um_packaging else None,
+                        "expire": stock_oh.expire_date if stock_oh.expire_date else None,
                         "qty": take_qty
                     })
                     allocated_qty += take_qty

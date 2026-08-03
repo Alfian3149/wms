@@ -47,7 +47,8 @@
    "fieldname": "lot_serial",
    "fieldtype": "Data",
    "in_standard_filter": 1,
-   "label": "Lot Serial"
+   "label": "Lot Serial",
+   "length": 18
   },
   {
    "fieldname": "reference",
@@ -184,7 +185,7 @@
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-28 05:44:12.785333",
+ "modified": "2026-07-31 21:32:45.602817",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",

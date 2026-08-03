@@ -53,6 +53,12 @@ def get_columns():
 			"width": 80
 		},
 		{
+			"label": "Status",
+			"fieldname": "status",
+			"fieldtype": "Data",
+			"width": 100
+		},
+		{
 			"label": "Requested",
 			"fieldname": "quantity_requested",
 			"fieldtype": "Float",
@@ -77,11 +83,18 @@ def get_columns():
 			"width": 120
 		},
 		{
-			"label": "Status",
-			"fieldname": "status",
-			"fieldtype": "Data",
+			"label": "Free Qty",
+			"fieldname": "free_qty",
+			"fieldtype": "Float",
 			"width": 100
-		}
+		},
+		{
+			"label": "Usage",
+			"fieldname": "free_qty_usage",
+			"fieldtype": "Float",
+			"width": 100
+		},
+
 	]
 
 def get_data(filters):
@@ -124,6 +137,7 @@ def get_data(filters):
             parent.docstatus,
             parent.owner,
             parent.creation,
+            parent.link,
             detail.part,
             detail.item_group,
             detail.prd_line,
@@ -131,6 +145,8 @@ def get_data(filters):
             detail.quantity_picked,
             detail.fullfilled_qty,
             detail.handovered,
+            detail.free_qty,
+            detail.free_qty_usage,
             detail.status
         FROM 
             `tabItem Request Detail` detail
@@ -140,7 +156,7 @@ def get_data(filters):
             parent.docstatus IN (1, 2)
             {where_clause}
         ORDER BY 
-            detail.modified DESC
+            parent.name desc, detail.idx asc
     """
 
     # 6. Eksekusi Query menggunakan 'values'

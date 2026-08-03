@@ -21,14 +21,44 @@ frappe.ui.form.on("Item Picklist By Part", {
         frm.set_df_property('selected_item', 'cannot_add_rows', true);
         frm.set_df_property('item_picklist_detail', 'cannot_add_rows', true);
         //frm.fields_dict['selected_item'].grid.cannot_add_rows = true; 
-       frm.set_df_property('all', 'read_only', 1);
-       frm.set_df_property('ingredient', 'read_only', 1);
-       frm.set_df_property('packaging', 'read_only', 1);
-       frm.set_df_property('others', 'read_only', 1);
-       //frm.set_df_property('sort_by', 'read_only', 1);
-       frm.set_df_property('asc', 'read_only', 1);
-       frm.set_df_property('desc', 'read_only', 1);
+        frm.set_df_property('all', 'read_only', 1);
+        frm.set_df_property('ingredient', 'read_only', 1);
+        frm.set_df_property('packaging', 'read_only', 1);
+        frm.set_df_property('others', 'read_only', 1);
+        //frm.set_df_property('sort_by', 'read_only', 1);
+        frm.set_df_property('asc', 'read_only', 1);
+        frm.set_df_property('desc', 'read_only', 1);
 
+        frm.add_custom_button(__('Print Label'), function() {
+            if (frm.is_new()){
+                frappe.msgprint({
+                    title: __('ERROR'),
+                    indicator: 'red',
+                    message: __('Document is not saved yet. Please save it first.')
+                });
+                e.preventDefault();
+                e.stopPropagation();
+            } 
+
+            let grid = frm.get_field('item_picklist_detail').grid;
+            let selected_items = grid.get_selected();
+
+            if (!selected_items || selected_items.length === 0) {
+                frappe.msgprint({
+                    title: __('ERROR'),
+                    indicator: 'red',
+                    message: __('There is not row checked. Please check first the row to printed.')
+                });
+                return;
+            }
+
+            let name_list = [];
+            for (let row of selected_items) {
+                name_list.push(row);
+            }
+            print_selected_labels(name_list);
+
+        })
 
         setTimeout(() => {
             // Targetkan langsung container form control milik select_purpose
@@ -215,6 +245,7 @@ frappe.ui.form.on("Item Picklist By Part", {
                         child.from_location = row.from_location;
                         child.to_location= row.to_location;
                         child.item_grouping= row.item_group;
+                        child.expire= row.expire;
                     });
                     
 
@@ -504,4 +535,32 @@ function permanent_grouping(frm){
         }
         filter_child_table_items(frm, frm.doc.current_sort);
         //frm.refresh_field('selected_item');
+}
+
+function print_selected_labels(label_ids) {
+    if (!label_ids || label_ids.length === 0) {
+        frappe.msgprint("Pilih label terlebih dahulu.");
+        return;
+    }
+
+    frappe.call({
+        method: "warehousing.warehousing.doctype.material_label.material_label.generate_bulk_print_html",
+        args: {
+            docnames: label_ids,
+            doctype: "Item Picklist Detail"
+        },
+        freeze: true,
+        freeze_message: __("Preparing Labels..."),
+        callback: function(r) {
+            if (r.message) {
+                var win = window.open('', '_blank');
+                win.document.write(r.message); 
+                win.document.close();
+                
+                setTimeout(function() {
+                    win.print();
+                }, 2000);
+            }
+        }
+    });
 }

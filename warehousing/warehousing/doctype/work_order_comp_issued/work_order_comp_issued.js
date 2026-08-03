@@ -377,7 +377,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                             message:__("Qty input lebih besar daripada stok yang tersedia"),
                             indicator:'red'
                         })
-                         return false;   
+                        return false;   
                     }
                     const existing_item = scanned_items.find(row => row.item_code === item && row.lotserial === lotSerial);
                     if (existing_item) {

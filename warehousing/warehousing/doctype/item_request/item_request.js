@@ -10,6 +10,40 @@ frappe.ui.form.on('Item Request', {
             frm.set_value('requestor_by', frappe.session.user); 
         }
 
+        
+        frm.add_custom_button(__('Print Label'), function() {
+            if (frm.is_new()){
+                frappe.msgprint({
+                    title: __('ERROR'),
+                    indicator: 'red',
+                    message: __('Document is not saved yet. Please save it first.')
+                });
+                e.preventDefault();
+                e.stopPropagation();
+            } 
+           
+
+            let grid = frm.get_field('items').grid;
+            let selected_items = grid.get_selected();
+
+            if (!selected_items || selected_items.length === 0) {
+                frappe.msgprint({
+                    title: __('ERROR'),
+                    indicator: 'red',
+                    message: __('There is not row checked. Please check first the row to printed.')
+                });
+                return;
+            }
+
+            let name_list = [];
+            for (let row of selected_items) {
+                name_list.push(row);
+            }
+            print_selected_labels(name_list);
+
+        })
+
+
         frm.trigger('reserved_material_detail');
 
         if (frm.doc.purpose === 'Return Supplier'){
@@ -142,12 +176,13 @@ frappe.ui.form.on('Item Request', {
         let d = new frappe.ui.form.MultiSelectDialog({
             doctype: "Inventory",
             target: this.cur_frm,
-            columns: ["name", "part", "lot_serial", "warehouse_location", "qty_on_hand", "inventory_status"],
+            columns: ["name", "part", "lot_serial", "warehouse_location", "qty_on_hand", "qty_handovered", "inventory_status"],
             setters: {
                 part: frm.doc.part ? frm.doc.part : null , 
                 lot_serial: null, 
                 warehouse_location: frappe.user.has_role('Production Manager') || frappe.user.has_role('System Manager') ?  "WH04" : null, 
                 qty_on_hand:null,
+                qty_handovered:null,
                 inventory_status:null,
             }, 
             size: 'extra-large',
@@ -172,6 +207,7 @@ frappe.ui.form.on('Item Request', {
                             child.um = doc.um;
                             child.lotserial = doc.lot_serial;
                             child.quantity_requested = doc.qty_on_hand;
+                            child.expire = doc.expire_date;
                             child.from_location = doc.warehouse_location;
                             child.target_location = frm.doc.target_location;
 
@@ -203,3 +239,31 @@ frappe.ui.form.on('Item Request', {
     }
 
 })
+
+function print_selected_labels(label_ids) {
+    if (!label_ids || label_ids.length === 0) {
+        frappe.msgprint("Pilih label terlebih dahulu.");
+        return;
+    }
+
+    frappe.call({
+        method: "warehousing.warehousing.doctype.material_label.material_label.generate_bulk_print_html",
+        args: {
+            docnames: label_ids,
+            doctype: "Item Request Detail"
+        },
+        freeze: true,
+        freeze_message: __("Preparing Labels..."),
+        callback: function(r) {
+            if (r.message) {
+                var win = window.open('', '_blank');
+                win.document.write(r.message); 
+                win.document.close();
+                
+                setTimeout(function() {
+                    win.print();
+                }, 2000);
+            }
+        }
+    });
+}

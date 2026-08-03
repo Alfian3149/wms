@@ -15,13 +15,11 @@ class ExternalTransaction(Document):
 			return
 		
 		payload = json.loads(self.data)
-
-		""" frappe.call("warehousing.warehousing.doctype.external_transaction.external_transaction.update_external_transaction_status", payload=payload, external_trans_name=self.name) """
 		Job = frappe.enqueue(
 			"warehousing.warehousing.doctype.external_transaction.external_transaction.update_external_transaction_status",
 			payload=payload,
 			external_trans_name=self.name,
-			queue="default", 
+			queue="short", 
 			timeout=300,
 			is_async=True,
 			enqueue_after_commit=True) 
@@ -40,10 +38,23 @@ def receive_qad_transaction_history():
 	
 	payload = json.loads(raw_data)
 
-	if (frappe.db.exists({"doctype": "External Transaction", "ext_trans_id": payload.get("ext_trans_id")})):
-		return {"status": "success", "message": "Transaction number already exist."}
+	ext_trans_id = payload.get("ext_trans_id")
+
+	# Gunakan Redis Lock berdasarkan ext_trans_id
+	lock_key = f"lock_qad_trans:{ext_trans_id}"
+
+	# Kunci proses selama 5 detik untuk ID ini
+	if not frappe.cache().setnx(lock_key, "1"):
+		# Jika lock gagal dibuat (berarti request lain dengan ID yang sama sedang berjalan)
+		return {"status": "success", "message": "Transaction number is currently being processed."}
+
+	# Atur expire time agar lock tidak menggantung selamanya
+	frappe.cache().expire(lock_key, 5)
 
 	try : 
+		""" if (frappe.db.exists({"doctype": "External Transaction", "ext_trans_id": payload.get("ext_trans_id")})):
+			return {"status": "success", "message": "Transaction number already exist."} """
+
 		External_Transaction = frappe.get_doc({
 			"doctype": "External Transaction",
 			"ext_trans_id": payload.get("ext_trans_id"),
@@ -57,12 +68,13 @@ def receive_qad_transaction_history():
 
 		frappe.db.commit()
 		return {"status": "success", "message": f"name : {External_Transaction.name}"}
-	except Exception as e:
-		frappe.log_error(frappe.get_traceback(), _("QAD Integration Error"))
-		return {"status": "failed", "error": str(e)}
+	finally:
+		# Selalu hapus lock setelah proses selesai
+		frappe.cache().delete_value(lock_key)
 
 @frappe.whitelist()
 def update_external_transaction_status(payload, external_trans_name):
+	
 	if payload.get("event_type") == "tr_hist" : 
 		if frappe.db.exists("Part Master", payload.get("tr_part")) is None:
 			new_part = frappe.new_doc("Part Master")
@@ -76,8 +88,9 @@ def update_external_transaction_status(payload, external_trans_name):
 		if frappe.db.exists("Transaction Type", payload.get("tr_type")) is None:
 			return
 
-		inv_status = payload.get("last_status") 
-		inv_expire = payload.get("last_expire") if payload.get("last_expire") else None
+		inv_status = payload.get("last_status") if "rct" in payload.get("tr_type").lower() else None
+		inv_expire = payload.get("last_expire") if payload.get("last_expire") and "rct" in payload.get("tr_type").lower() else None
+		qty_chg = flt(payload.get("tr_qty_chg")) or flt(payload.get("tr_qty_loc")) or 0
 		data = {
 			"doctype_source":"External Transaction",
 			"data_link":external_trans_name,
@@ -87,7 +100,7 @@ def update_external_transaction_status(payload, external_trans_name):
 			"lotSerial":payload.get("tr_serial"),
 			"location":payload.get("tr_loc"),
 			"invStatus": inv_status if inv_status else None,
-			"qtyChg":flt(payload.get("tr_qty_chg")) if payload.get("tr_qty_chg") != "0" else flt(payload.get("tr_qty_loc")) if payload.get("tr_qty_loc") != "0" else 0,
+			"qtyChg":qty_chg,
 			"postingDate":getdate(payload.get("tr_effdate")),
 			"invExpire": getdate(inv_expire) if inv_expire else None,
 			"poNumber":payload.get("tr_nbr"),
