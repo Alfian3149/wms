@@ -8,6 +8,7 @@
   "purpose",
   "doctype_source",
   "task",
+  "reference_doc",
   "column_break_daxl",
   "site",
   "part",
@@ -83,12 +84,17 @@
   {
    "fieldname": "column_break_urov",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_doc",
+   "fieldtype": "Data",
+   "label": "Reference Doc"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-18 08:48:04.313889",
+ "modified": "2026-08-04 15:04:00.539853",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Reserved Task Entry",

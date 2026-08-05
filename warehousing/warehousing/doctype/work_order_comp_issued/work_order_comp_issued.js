@@ -199,7 +199,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                         group.details.forEach((item) => {
                             html += `
                                 <tr>
-                                    <td style="padding-left: 30px;">• Lot/Serial: ${item.lotserial} Qty Available: ${format_number(item.qty_lot_available)}  </td>
+                                    <td style="padding-left: 30px;">• Lot/Serial: ${item.lotserial} Qty Available to issued: ${format_number(item.qty_lot_available)}  </td>
                                     <td style="text-align: right;">
                                      <input type="number" id="qty-scanned-input" class="form-control text-right" value="${flt(item.qty_scanned)}" readonly style="font-weight: bold;">
                                     </td>
@@ -357,7 +357,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                     e.preventDefault();
 
                     let raw_val = $(this).val();
-                    let qty_val = frappe.formatters.parse(raw_val, { fieldtype: 'Float' }) || 0;
+                    let qty_val = raw_val ? flt(raw_val) : 0;
                     let val = d.get_value('scan_temporary');
 
                     if(val === undefined || val === null || val === ''){

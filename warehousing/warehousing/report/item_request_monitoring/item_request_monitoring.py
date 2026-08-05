@@ -82,18 +82,6 @@ def get_columns():
 			"fieldtype": "Float",
 			"width": 120
 		},
-		{
-			"label": "Free Qty",
-			"fieldname": "free_qty",
-			"fieldtype": "Float",
-			"width": 100
-		},
-		{
-			"label": "Usage",
-			"fieldname": "free_qty_usage",
-			"fieldtype": "Float",
-			"width": 100
-		},
 
 	]
 

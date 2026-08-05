@@ -26,6 +26,7 @@ class PickingItem:
     quantity_to_pick: int
     target_location: str
     item_group : str
+    prd_line : str = None
 
 @frappe.whitelist()
 def update_inventory_qty(doctype, doctype_link, transType, postingDate, site, part, lot_serial, reference, whs_location, qty_change, invStatus=None, expireDate=None, poNumber=None, poLine=None):
@@ -212,7 +213,7 @@ def get_fifo_picklist_with_reserved(itemPicklistName, item_status, request, requ
                         quantity_picked=item.quantity_picked,
                         quantity_to_pick= flt(item.quantity_requested) - flt(item.quantity_picked),
                         target_location=item.target_location,
-                        item_group=item.item_group,
+                        item_group=item.item_group
                     )
                 else:
                     unique_items[item.part].quantity_requested += item.quantity_requested
@@ -235,7 +236,7 @@ def get_fifo_picklist_with_reserved(itemPicklistName, item_status, request, requ
                         quantity_picked=item.quantity_picked,
                         quantity_to_pick=0,
                         target_location=item.target_location,
-                        item_group= item.item_group,
+                        item_group= item.item_group
                     )
                 else:
                     # Jika SUDAH ADA, kita jumlahkan quantity_requested-nya (Merge)
@@ -387,7 +388,8 @@ def get_fifo_picklist_with_reserved(itemPicklistName, item_status, request, requ
                         "lot_serial": stock_oh.lot_serial,
                         "conversion_factor": flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1,
                         "um_conversion":stock_oh.um_packaging if stock_oh.um_packaging else None,
-                        "qty": take_qty
+                        "qty": take_qty,
+                        "prd_line": item.prd_line if item.prd_line else None,
                     })
                     allocated_qty += take_qty
 
@@ -407,7 +409,6 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
     unique_items = {}
     results  = []
     request_list = json.loads(request)
-    print(request_list)
     final_list = {}
     if request_type == "RSP" or request_type == "RRK" :
         for req in request_list : 
@@ -436,6 +437,8 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
                         quantity_to_pick= flt(item.quantity_requested) - flt(item.quantity_picked),
                         target_location=item.target_location,
                         item_group=item.item_group,
+                        prd_line=item.prd_line
+                        
                     )
                 else:
                     unique_items[item.part].quantity_requested += item.quantity_requested
@@ -460,6 +463,7 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
                     quantity_to_pick=0,
                     target_location=item.target_location,
                     item_group= item.item_group,
+                    prd_line=item.prd_line
                 )
             else:
                 # Jika SUDAH ADA, kita jumlahkan quantity_requested-nya (Merge)
@@ -614,7 +618,8 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
                         "conversion_factor": flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1,
                         "um_conversion":stock_oh.um_packaging if stock_oh.um_packaging else None,
                         "expire": stock_oh.expire_date if stock_oh.expire_date else None,
-                        "qty": take_qty
+                        "qty": take_qty,
+                        "prd_line": item.prd_line if item.prd_line else None,
                     })
                     allocated_qty += take_qty
 

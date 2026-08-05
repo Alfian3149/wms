@@ -10,10 +10,12 @@
   "get_inventory",
   "section_break_vnkc",
   "part",
+  "column_break_bycv",
   "um",
   "column_break_fvij",
   "description",
   "from_to",
+  "item_source_column",
   "site_from",
   "current_quantity",
   "location_from",
@@ -24,10 +26,19 @@
   "column_break_nmng",
   "quantity",
   "location_to",
+  "target_loc_status",
   "reason",
+  "additional_info_column",
   "sent_the_transfer_action_to_qc_tim",
   "remarks",
-  "remarks_optional"
+  "remarks_optional",
+  "section_break_sulw",
+  "use_status",
+  "part_status",
+  "column_break_xolt",
+  "expire_in_destination_location",
+  "column_break_mavh",
+  "inventory_status_in_destination_location"
  ],
  "fields": [
   {
@@ -64,8 +75,7 @@
   },
   {
    "fieldname": "from_to",
-   "fieldtype": "Section Break",
-   "label": "Transfer location from:"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "location_from",
@@ -93,7 +103,8 @@
   },
   {
    "fieldname": "column_break_nmng",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "label": "Destination : "
   },
   {
    "fieldname": "current_quantity",
@@ -103,23 +114,23 @@
   {
    "fieldname": "status",
    "fieldtype": "Data",
-   "label": "Status"
+   "label": "Inventory Status"
   },
   {
    "fieldname": "inventory_name",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Inventory Status"
+   "label": "Inventory Name"
   },
   {
    "fieldname": "section_break_vnkc",
-   "fieldtype": "Section Break",
-   "label": "Item Information:"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "part",
-   "fieldtype": "Data",
-   "label": "Part"
+   "fieldtype": "Link",
+   "label": "Part",
+   "options": "Part Master"
   },
   {
    "fieldname": "um",
@@ -158,6 +169,64 @@
    "fieldname": "remarks_optional",
    "fieldtype": "Data",
    "label": "Remarks (Optional)"
+  },
+  {
+   "fetch_from": "location_to.inventory_status",
+   "fieldname": "target_loc_status",
+   "fieldtype": "Data",
+   "label": "Target Loc status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_source_column",
+   "fieldtype": "Column Break",
+   "label": "Item Source :"
+  },
+  {
+   "fieldname": "additional_info_column",
+   "fieldtype": "Column Break",
+   "label": "Additional Info : "
+  },
+  {
+   "fieldname": "column_break_bycv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_sulw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "use_status",
+   "fieldtype": "Data",
+   "label": "Use Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expire_in_destination_location",
+   "fieldtype": "Date",
+   "label": "Expire in destination location",
+   "read_only": 1
+  },
+  {
+   "fieldname": "inventory_status_in_destination_location",
+   "fieldtype": "Link",
+   "label": "Inventory status dest loc",
+   "options": "Inventory Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_xolt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_mavh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "part.item_status",
+   "fieldname": "part_status",
+   "fieldtype": "Data",
+   "label": "Part Status"
   }
  ],
  "grid_page_length": 50,
@@ -165,7 +234,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-22 06:45:08.833163",
+ "modified": "2026-08-04 11:51:10.436616",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Transfer Single Item",

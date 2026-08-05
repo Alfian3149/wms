@@ -182,6 +182,7 @@
    "label": "Purpose Short"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "item_picklist_detail",
    "fieldtype": "Table",
    "label": "Item Picklist Detail",
@@ -229,7 +230,7 @@
    "link_fieldname": "reference_name"
   }
  ],
- "modified": "2026-07-28 02:00:16.804469",
+ "modified": "2026-08-05 11:03:01.905873",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist By Part",

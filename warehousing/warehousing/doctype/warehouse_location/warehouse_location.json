@@ -26,6 +26,8 @@
   "max_mixed_items",
   "section_break_izbu",
   "status",
+  "column_break_rden",
+  "inventory_status",
   "section_break_hg9h",
   "lft",
   "rgt",
@@ -124,7 +126,7 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "label": "Status",
+   "label": "Reservation Status",
    "options": "Available\nReserved\nOccupied"
   },
   {
@@ -171,33 +173,30 @@
    "fieldname": "max_mixed_items",
    "fieldtype": "Int",
    "label": "Maximum mixed items"
+  },
+  {
+   "fieldname": "inventory_status",
+   "fieldtype": "Link",
+   "label": "Inventory Status",
+   "options": "Inventory Status"
+  },
+  {
+   "fieldname": "column_break_rden",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_tree": 1,
  "links": [],
- "modified": "2026-05-07 00:20:53.168435",
+ "modified": "2026-08-04 06:57:14.295753",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Warehouse Location",
  "naming_rule": "By fieldname",
  "nsm_parent_field": "parent_warehouse_location",
  "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
+ "permissions": [],
  "quick_entry": 1,
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,

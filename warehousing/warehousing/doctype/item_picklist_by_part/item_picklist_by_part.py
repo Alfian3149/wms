@@ -33,8 +33,13 @@ class ItemPicklistByPart(Document):
 
 			task = frappe.db.get_value("Warehouse Task", {'reference_name':self.name}, ['name'], as_dict=1)
 			if task :
-				frappe.db.delete("Warehouse Task", task.name)
+				#frappe.db.delete("Warehouse Task", task.name)
+				doc = frappe.get_doc("Warehouse Task", task.name)
+				if doc.docstatus == 1:
+					doc.cancel()
+
 				frappe.db.delete("Reserved Task Entry", filters={'task': task.name})
+				frappe.db.commit()
 
 		except Exception as e:
 			frappe.log_error(frappe.get_traceback(), "Error when picklist cancelation ")
@@ -71,7 +76,32 @@ class ItemPicklistByPart(Document):
 			new_task.time_instruction = frappe.utils.nowtime()
 
 			for item in self.item_picklist_detail:
+				remark  = []
 				child_name_list = [data.child_name for data in self.selected_item if data.part == item.part]
+
+				raw_demand = item.demand_row_names or ""
+				demand_list = [name.strip() for name in raw_demand.split(",") if name.strip()]
+
+				# Pengecekan: Jalankan jika minimal ada 1 ID (len >= 1)
+				if demand_list and len(demand_list) > 1:
+					# OPTIMASI: Ambil sekaligus dari database (1x Query alih-alih N x frappe.get_doc)
+					summary_docs = frappe.get_all(
+						"Item Request Detail",
+						filters={"name": ["in", demand_list]},
+						fields=["quantity_requested", "prd_line", "um"]
+					)
+
+					for summary_doc in summary_docs:
+						qty = summary_doc.get("quantity_requested") or 0
+						prd_line = summary_doc.get("prd_line") or ""
+						um = summary_doc.get("um") or ""
+						
+						remark.append(f"{flt(qty)} {um} to {prd_line}")
+				else :
+					remark.append(f"All qty To {item.production_line}")
+
+
+				remark_str = "\n".join(remark) if remark else None
 				new_task.append("warehouse_task_detail", {
 					"item": item.part,
 					"um": item.um,
@@ -83,7 +113,9 @@ class ItemPicklistByPart(Document):
 					"locationsource": item.from_location,
 					"locationdestination": item.to_location,
 					"others_link": item.demand_row_names,
+					"remark":remark_str
 				})
+
 
 			new_task.insert()
 				
@@ -93,6 +125,7 @@ class ItemPicklistByPart(Document):
 					"purpose" : "Picking",
 					"doctype_source" : "Warehouse Task",
 					"task": new_task.name,
+					"reference_doc" : self.name,
 					"site": item.site,
 					"part": item.part,
 					"lot_serial": item.lot_serial,

@@ -46,6 +46,10 @@ class WarehouseTaskDetail(Document):
 			ref = ""
 			posting_date = getdate(self.execution_time)
 
+			get_reserved = frappe.db.get_value("Reserved Task Entry", {"purpose": "Picking", "doctype_source": "Warehouse Task", "task":self.parent, "part":self.item, "lot_serial":self.lotserial}, ["name"], as_dict=True)
+			if get_reserved:
+				frappe.db.delete("Reserved Task Entry", filters={'name': get_reserved.name})
+
 			getAtrribute = frappe.db.get_value("Inventory", {"site": default_site, "part": self.item, "lot_serial": self.lotserial, "reference": None, "warehouse_location": self.locationsource}, ["name", "qty_on_hand", "inventory_status", "expire_date"], as_dict=True)
 
 			if not getAtrribute: 
@@ -55,8 +59,6 @@ class WarehouseTaskDetail(Document):
 					exc=frappe.ValidationError
 				)
 
-			create_stock_ledger_from_external_trans = frappe.db.get_single_value('Qad Integrations', 'create_stock_ledger_from_external_trans')
-			if create_stock_ledger_from_external_trans == False:
 				data = {
 					"doctype_source":"Warehouse Task Detail",
 					"data_link":self.name,

@@ -20,7 +20,8 @@ class StockLedger(Document):
 		if self.inventory_doc_link:
 			update_data = {
             'qty_on_hand': self.qty_after_transaction,
-            'qty_reserved': self.reservation_after_transaction
+            'qty_reserved': self.reservation_after_transaction, 
+			'qty_handovered': self.handover_after_transaction
 			}
 			if self.status:
 				update_data['inventory_status'] = self.status
@@ -74,14 +75,15 @@ class make_sl_entry:
 		self.reference = None
 		self.newBalance = flt(kwargs.get("newBalance")) if kwargs.get("newBalance") else 0
 		self.reservationBalance = 0
-		self.inOut = None 
+		self.handoverBalance = 0
+		self.inOut = None
 
 	def existingConsideration(self):
 		""" invExisting = frappe.db.get_value("Inventory", 
         {"site": self.site, "part": self.part, "lot_serial": self.lotSerial, "warehouse_location": self.location}, ["name", "qty_on_hand", "inventory_status", "expire_date", "qty_reserved"], as_dict=True) """
 
 		query = """
-            SELECT name, qty_on_hand, inventory_status, expire_date, qty_reserved
+            SELECT name, qty_on_hand, inventory_status, expire_date, qty_reserved, qty_handovered
             FROM `tabInventory`
             WHERE site = %s 
               AND part = %s 
@@ -94,16 +96,19 @@ class make_sl_entry:
 		invExisting = res[0] if res else None
 		current_qty = 0
 		current_reservation = 0
+		current_handover = 0
 		if invExisting : 
 			current_qty = invExisting.qty_on_hand if invExisting.qty_on_hand else 0
 			current_reservation = invExisting.qty_reserved if invExisting.qty_reserved else 0
+			current_handover = invExisting.qty_handovered if invExisting.qty_handovered else 0
 			self.inventory_doc_link = invExisting.name
 			self.invExpire = self.invExpire if self.invExpire else invExisting.expire_date
 			self.invStatus = self.invStatus if self.invStatus else invExisting.inventory_status 
 
 		if self.newBalance == 0 :
 			self.newBalance =  flt(current_qty) + flt(self.qtyChg) 
-		self.reservationBalance =  flt(current_reservation) + flt(self.qtyReserved) if self.inOut == "IN" else flt(current_reservation) - flt(self.qtyReserved)
+		self.reservationBalance =  flt(current_reservation) + flt(self.qtyReserved) 
+		self.handoverBalance = min(flt(current_handover) + flt(self.qtyReserved), flt(current_handover))
 
 	def validator(self): 
 		in_out= frappe.db.get_value("Transaction Type", self.transType, "in_out") 
@@ -130,9 +135,10 @@ class make_sl_entry:
 			"warehouse_location": self.location,
 			"status": self.invStatus if self.invStatus else None,
 			"actual_qty": flt(self.qtyChg),
-			"qty_reserved" : flt(self.qtyReserved) if self.inOut == "IN" else -flt(self.qtyReserved),
+			"qty_reserved" : flt(self.qtyReserved),
 			"qty_after_transaction": flt(self.newBalance),
 			"reservation_after_transaction": flt(self.reservationBalance),
+			"handover_after_transaction": flt(self.handoverBalance),
 			"posting_date": self.postingDate,
 			"expire_date": self.invExpire if self.invExpire else None,
 			"po_number": self.poNumber,

@@ -614,74 +614,89 @@ def picked_confirm():
 
 @frappe.whitelist()
 def completion_picking_percentage(warehouse_task_name, picklist_name, item_request_detail_name, qty_confirmation):
+    # 1. Hitung Presentase & Progress
     result = frappe.db.sql("""
         SELECT 
             SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as complete_count,
             COUNT(*) as total_count
         FROM `tabWarehouse Task Detail`
         WHERE parent = %s
-    """, (warehouse_task_name), as_dict=True)
+    """, (warehouse_task_name,), as_dict=True)
+    
     complete_count = result[0].get('complete_count') or 0
     total_count = result[0].get('total_count') or 0
     percentage_complete = (complete_count / total_count * 100) if total_count > 0 else 0
-    data =  str(int(complete_count)) + "/" + str(int(total_count))
+    data = f"{int(complete_count)}/{int(total_count)}"
 
     frappe.db.set_value("Item Picklist By Part", picklist_name, { 
         "picking_completion": percentage_complete,
         "picking_completion_data": data
     })
 
-    total_row = len(item_request_detail_name.split(','))
-    i = 0
-    for name in item_request_detail_name.split(','):
-        i += 1
+    # 2. Proses Alokasi Qty ke Item Request Detail
+    detail_names = [name.strip() for name in item_request_detail_name.split(',') if name.strip()]
+    total_row = len(detail_names)
+    qty_transfer = flt(qty_confirmation)
+
+    for i, name in enumerate(detail_names, start=1):
+        if qty_transfer <= 0:
+            break  # Berhenti jika qty yang akan dialokasikan sudah habis
+
         request_detail = frappe.get_doc("Item Request Detail", name)
-        remain_qty = flt(request_detail.quantity_requested) - flt(request_detail.quantity_picked) - flt(request_detail.fullfilled_qty) - flt(request_detail.handovered)
-
-        if i >= total_row: 
-            qty_post = qty_confirmation
-        else : 
-            qty_post = min(remain_qty, qty_confirmation)
-            qty_confirmation = qty_confirmation - qty_post
         
-        latest_picked = 0
-        if (flt(request_detail.quantity_picked) - flt(qty_post)) > 0 : 
-            latest_picked = flt(request_detail.quantity_picked) - flt(qty_post)
+        # Sisa kuota yang belum dipenuhi pada baris ini
+        remain_qty = max(0.0, flt(request_detail.quantity_requested) - flt(request_detail.fullfilled_qty) - flt(request_detail.handovered))
 
-        latest_fullfilled = flt(request_detail.fullfilled_qty) + flt(qty_post)
+        # Tentukan qty_post
+        if i == total_row: 
+            qty_post = qty_transfer  # Baris terakhir mengambil sisa transfer
+        else: 
+            qty_post = min(remain_qty, qty_transfer) 
+        
+        current_picked = flt(request_detail.quantity_picked)
+        current_fulfilled = flt(request_detail.fullfilled_qty)
 
-        if(latest_fullfilled >= request_detail.quantity_requested ):
+        # Mencegah quantity_picked menjadi minus
+        latest_picked = max(0.0, current_picked - qty_post)
+        latest_fulfilled = current_fulfilled + qty_post
+
+        # Penentuan status
+        if latest_fulfilled >= flt(request_detail.quantity_requested):
             status = "Picked"
-        else  : 
+        else: 
             status = "Partially"
 
         frappe.db.set_value("Item Request Detail", name, {
             'quantity_picked': latest_picked,
-            'fullfilled_qty': latest_fullfilled,
+            'fullfilled_qty': latest_fulfilled,
             'status': status
         })
 
-    frappe.db.commit()
+        # Sisa qty transfer untuk iterasi berikutnya
+        qty_transfer -= qty_post
 
 @frappe.whitelist()
-def completion_handover_percentage(warehouse_task_name, warehouse_task_detail_name, picklist_name,  item_request_detail_name, qty_confirmation):
+def completion_handover_percentage(warehouse_task_name, warehouse_task_detail_name, picklist_name, item_request_detail_name, qty_confirmation):
+    # 1. Hitung Persentase Handover
     result = frappe.db.sql("""
         SELECT 
-            SUM(CASE WHEN status = 'Completed' and has_handovered = 1 THEN 1 ELSE 0 END) as complete_count,
+            SUM(CASE WHEN status = 'Completed' AND has_handovered = 1 THEN 1 ELSE 0 END) as complete_count,
             COUNT(*) as total_count
         FROM `tabWarehouse Task Detail`
         WHERE parent = %s
-    """, (warehouse_task_name), as_dict=True)
+    """, (warehouse_task_name,), as_dict=True)
+    
     complete_count = result[0].get('complete_count') or 0
     total_count = result[0].get('total_count') or 0
     percentage_complete = (complete_count / total_count * 100) if total_count > 0 else 0
-    data =  str(int(complete_count)) + "/" + str(int(total_count))
+    data = f"{int(complete_count)}/{int(total_count)}"
 
     frappe.db.set_value("Item Picklist By Part", picklist_name, { 
         "handover_completion": percentage_complete,
         "handover_completion_data": data
     })
 
+    # 2. Update Inventory (dengan validasi jika data inventory ditemukan)
     task_det_doc = frappe.get_doc("Warehouse Task Detail", warehouse_task_detail_name)
 
     inventory = frappe.db.get_value("Inventory", {
@@ -689,29 +704,42 @@ def completion_handover_percentage(warehouse_task_name, warehouse_task_detail_na
         'part': task_det_doc.item,
         'lot_serial': task_det_doc.lotserial,
         'warehouse_location': task_det_doc.locationdestination
-    }, ['name','qty_handovered'],  as_dict=1)
+    }, ['name', 'qty_handovered'], as_dict=True)
 
-    latest_qty_handovered = flt(inventory.qty_handovered) + flt(qty_confirmation)
-    frappe.db.set_value("Inventory", inventory.name, "qty_handovered", latest_qty_handovered)
+    if inventory:
+        latest_qty_handovered = flt(inventory.qty_handovered) + flt(qty_confirmation)
+        frappe.db.set_value("Inventory", inventory.name, "qty_handovered", latest_qty_handovered)
 
-    total_row = len(item_request_detail_name.split(','))
-    i = 0
-    for name in item_request_detail_name.split(','):
-        i += 1
+    # 3. Alokasi Handover ke Item Request Detail
+    detail_names = [name.strip() for name in item_request_detail_name.split(',') if name.strip()]
+    total_row = len(detail_names)
+    qty_transfer = flt(qty_confirmation)
+
+    for i, name in enumerate(detail_names, start=1):
+        if qty_transfer <= 0:
+            break
+
         request_detail = frappe.get_doc("Item Request Detail", name)
-        remain_qty = flt(request_detail.quantity_requested) - flt(request_detail.handovered)
-
-        if i >= total_row: 
-            qty_post = qty_confirmation
-        else : 
-            qty_post = min(remain_qty, qty_confirmation)
-
         
-        latest_fullfilled = flt(request_detail.fullfilled_qty) - flt(qty_post)
-        latest_handovered = flt(request_detail.handovered) + flt(qty_post)
+        # Hitung sisa kebutuhan handover
+        remain_qty = max(0.0, flt(request_detail.quantity_requested) - flt(request_detail.handovered))
 
+        # Tentukan nilai qty_post
+        if i == total_row: 
+            qty_post = qty_transfer
+        else: 
+            qty_post = min(remain_qty, qty_transfer)
+
+        current_fulfilled = flt(request_detail.fullfilled_qty)
+        current_handovered = flt(request_detail.handovered)
+
+        # Mencegah fullfilled_qty menjadi minus
+        latest_fullfilled = max(0.0, current_fulfilled - qty_post)
+        latest_handovered = current_handovered + qty_post
+
+        # Penentuan status
         status = request_detail.status if request_detail.status else 'Partially'
-        if (latest_handovered >= request_detail.quantity_requested ):
+        if latest_handovered >= flt(request_detail.quantity_requested):
             status = "Completed"
 
         frappe.db.set_value("Item Request Detail", name, {
@@ -719,9 +747,8 @@ def completion_handover_percentage(warehouse_task_name, warehouse_task_detail_na
             'handovered': latest_handovered,
             'status': status
         })
-        qty_confirmation = qty_confirmation - qty_post
 
-
+        qty_transfer -= qty_post
     frappe.db.commit()
 
 @frappe.whitelist()
@@ -812,7 +839,7 @@ def get_picklist_outstanding_tasks(user):
     for data in tasks:
         task_items = frappe.get_all("Warehouse Task Detail",
                 filters={"parent": data.name, "status": ["!=", "Cancelled"]},
-                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_label as quantity","qty_confirmation as receivedQty", "locationsource as sourceLocation","locationdestination as toLocation", "status"],order_by='item asc, lotserial asc')
+                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_label as quantity","qty_confirmation as receivedQty", "locationsource as sourceLocation","locationdestination as toLocation", "status", "remark"],order_by='item asc, lotserial asc')
 
         if len(task_items) > 0 : 
             picklist = frappe.db.get_value("Item Picklist By Part", data.reference_name, ["priority", "needed_date"], as_dict=True) 
@@ -833,7 +860,7 @@ def get_handover_outstanding_tasks(user):
     tasks = frappe.get_all("Warehouse Task", 
     filters=[
         ["task_type", "=", "Picking"],
-        #["status", "=", "Completed"],
+        ["docstatus", "!=", 2],
         ["is_needed_handover", "=", 1]
         #["or", 
         #    ["assign_to_user", "=", user],

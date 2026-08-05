@@ -29,7 +29,8 @@
   "qty_reserved",
   "column_break_qjvt",
   "qty_after_transaction",
-  "reservation_after_transaction"
+  "reservation_after_transaction",
+  "handover_after_transaction"
  ],
  "fields": [
   {
@@ -174,13 +175,18 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Reservation After Transaction"
+  },
+  {
+   "fieldname": "handover_after_transaction",
+   "fieldtype": "Float",
+   "label": "Handover after transaction"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-09 13:34:14.991195",
+ "modified": "2026-08-05 11:34:14.162264",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Stock Ledger",

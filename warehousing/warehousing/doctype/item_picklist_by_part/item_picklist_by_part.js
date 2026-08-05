@@ -246,6 +246,7 @@ frappe.ui.form.on("Item Picklist By Part", {
                         child.to_location= row.to_location;
                         child.item_grouping= row.item_group;
                         child.expire= row.expire;
+                        child.production_line = row.prd_line;
                     });
                     
 
