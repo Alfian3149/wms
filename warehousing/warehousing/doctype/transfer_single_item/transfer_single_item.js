@@ -189,7 +189,7 @@ frappe.ui.form.on("Transfer Single Item", {
             setters: {
                 part: frm.doc.part ? frm.doc.part : null , 
                 lot_serial: null, 
-                warehouse_location: frappe.user.has_role('Production Operator') || frappe.user.has_role('System Manager') ?  "WH04" : null, 
+                warehouse_location: frappe.user.has_role('Production Manager') || frappe.user.has_role('Production Operator') || frappe.user.has_role('System Manager') ?  "WH04" : null, 
                 qty_on_hand:null,
                 inventory_status:null,
             }, 
