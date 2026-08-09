@@ -40,13 +40,13 @@ frappe.ui.form.on("Transfer Single Item", {
             console.log("Status asal dan target_loc_status berbeda, menampilkan opsi pilihan.");
             needs_dialog = true;
             options_list = [
-                { label: 'Tetap menggunakan status asal stok', value: 'usefrom' },
-                { label: 'Gunakan status bawaan dari lokasi tujuan', value: 'useto' }
+                { label: 'Pertahankan status stok asal', value: 'usefrom' },
+                { label: 'Gunakan status standar lokasi tujuan', value: 'useto' }
             ];
             info_text = `<div class="alert alert-info small">
                 <b>Informasi:</b><br><br>
-                Jika Anda memilih <b>"Tetap menggunakan status asal stok"</b>, maka status stok akan tetap sama dengan lokasi asal yaitu : <b>${frm.doc.status}</b>.<br><br>
-                Jika Anda memilih <b>"Gunakan status bawaan dari lokasi tujuan"</b>, maka status stok akan berubah sesuai dengan status bawaan lokasi tujuan yaitu : <b>${frm.doc.target_loc_status}</b>.
+                Jika Anda memilih <b>"Pertahankan status stok asal"</b>, maka status stok akan tetap sama dengan lokasi asal yaitu : <b>${frm.doc.status}</b>.<br><br>
+                Jika Anda memilih <b>"Gunakan status standar lokasi tujuan"</b>, maka status stok akan berubah sesuai dengan status bawaan lokasi tujuan yaitu : <b>${frm.doc.target_loc_status}</b>.
             </div>`;
         }
 
