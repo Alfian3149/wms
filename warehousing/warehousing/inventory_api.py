@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 from frappe.utils import getdate, nowdate, formatdate
 from frappe.utils import flt
 from warehousing.warehousing.utils.connection import get_url
+import datetime
 
 @frappe.whitelist()
 def get_current_qad_inventory(part, bulk_insert=False):
@@ -168,6 +169,7 @@ def bulk_insert_inventory(data):
             "um_packaging": part[1] if part else None,
             "conversion_factor": part[0] if part else None,
         }) """
+        expire_date = parse_custom_date(item['ttexpire']) if item['ttexpire'] else None
         inventory_list.append((
             frappe.generate_hash(length=10),
             frappe.session.user,
@@ -182,10 +184,23 @@ def bulk_insert_inventory(data):
             item['ttprod_line'],
             item['ttloc'],
             item['ttstatus'],
-            item['ttexpire'],
+            getdate(expire_date) if expire_date else None,
             part[1] if part else None,
             part[0] if part else 0,
         ))
     if inventory_list:
         frappe.db.bulk_insert("Inventory", fields=["name", "owner", "creation", "modified", "site", "part", "lot_serial", "qty_on_hand", "um", "qty_per_pallet", "prod_line", "warehouse_location", "inventory_status", "expire_date", "um_packaging", "conversion_factor"], values=inventory_list)
         frappe.db.commit()
+
+def parse_custom_date(date_str):
+    if not date_str:
+        return None
+    
+    # datetime.datetime dan datetime.date sekarang valid karena datetime adalah module
+    if isinstance(date_str, (datetime.datetime, datetime.date)):
+        return date_str
+
+    try:
+        return datetime.datetime.strptime(str(date_str).strip(), "%d/%m/%y").date()
+    except ValueError:
+        return getdate(date_str)
