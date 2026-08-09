@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 import math
 import time
 from dataclasses import dataclass
@@ -110,13 +110,13 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
             new_inv.conversion_factor = conversion[0] 
             new_inv.um_packaging = conversion[1]
 
-        part = frappe.db.get_value("Part Master", part, ["qty_per_pallet", "um"], as_dict=1)
-        if part:
-            new_inv.qty_per_pallet = part.qty_per_pallet if part.qty_per_pallet else 0
-            new_inv.um = part.um if part.um else None
+        getPart = frappe.db.get_value("Part Master", part, ["qty_per_pallet", "um"], as_dict=1)
+        if getPart:
+            new_inv.qty_per_pallet = getPart.qty_per_pallet if getPart.qty_per_pallet else 0
+            new_inv.um = getPart.um if getPart.um else None
 
     if expireDate: 
-        new_inv.expire_date = expireDate 
+        new_inv.expire_date = getdate(expireDate)
     new_inv.inventory_status = invStatus
     new_inv.insert(ignore_permissions=True)
     return new_inv.name

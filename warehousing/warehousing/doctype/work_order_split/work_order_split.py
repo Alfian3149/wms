@@ -78,6 +78,7 @@ class WorkOrderSplit(Document):
 				new_itmreq.target_location = self.shopfloor_location
 				new_itmreq.doctype_source = "Work Order Split"
 				new_itmreq.link = self.name
+				new_itmreq.notes = self.input_remarks
 
 				for item in self.work_order_split_detail:
 					if item.qty_confirm <= 0 : 

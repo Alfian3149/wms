@@ -7,7 +7,6 @@ import json
 from warehousing.warehousing.doctype.stock_ledger.stock_ledger import make_sl_entry
 from frappe.utils import flt
 from frappe.utils import getdate
-import datetime
 
 class ExternalTransaction(Document):
 	def after_insert(self):
@@ -39,18 +38,6 @@ def receive_qad_transaction_history():
 	
 	payload = json.loads(raw_data)
 
-	ext_trans_id = payload.get("ext_trans_id")
-
-	# Gunakan Redis Lock berdasarkan ext_trans_id
-	lock_key = f"lock_qad_trans:{ext_trans_id}"
-
-	# Kunci proses selama 5 detik untuk ID ini
-	if not frappe.cache().setnx(lock_key, "1"):
-		# Jika lock gagal dibuat (berarti request lain dengan ID yang sama sedang berjalan)
-		return {"status": "success", "message": "Transaction number is currently being processed."}
-
-	# Atur expire time agar lock tidak menggantung selamanya
-	frappe.cache().expire(lock_key, 5)
 
 	try : 
 		""" if (frappe.db.exists({"doctype": "External Transaction", "ext_trans_id": payload.get("ext_trans_id")})):
@@ -58,10 +45,10 @@ def receive_qad_transaction_history():
 
 		External_Transaction = frappe.get_doc({
 			"doctype": "External Transaction",
-			"ext_trans_id": payload.get("ext_trans_id"),
-			"description": payload.get("description"),
-			"event_type": payload.get("event_type"),
-			"url": payload.get("url"),
+			"ext_trans_id": "X001",
+			"description": "TEST",
+			"event_type": "QXTEND",
+			"url": "QAD",
 			"data": raw_data,
 			"status": "Completed"
 			})
@@ -70,8 +57,8 @@ def receive_qad_transaction_history():
 		frappe.db.commit()
 		return {"status": "success", "message": f"name : {External_Transaction.name}"}
 	finally:
-		# Selalu hapus lock setelah proses selesai
-		frappe.cache().delete_value(lock_key)
+		print("Finally block executed. Releasing lock.")
+
 
 @frappe.whitelist()
 def update_external_transaction_status(payload, external_trans_name):
@@ -123,14 +110,22 @@ def update_external_transaction_status(payload, external_trans_name):
 			getPart.save(ignore_permissions=True)
 
 def parse_custom_date(date_str):
+    """
+    Mengonversi string 'DD/MM/YY' (contoh: '06/08/26') 
+    menjadi objek date yang presisi.
+    """
     if not date_str:
         return None
     
-    # datetime.datetime dan datetime.date sekarang valid karena datetime adalah module
-    if isinstance(date_str, (datetime.datetime, datetime.date)):
+    # Jika data sudah berupa datetime/date object
+    if isinstance(date_str, (datetime, datetime.date)):
         return date_str
 
     try:
-        return datetime.datetime.strptime(str(date_str).strip(), "%d/%m/%y").date()
+        # %d = Hari (06)
+        # %m = Bulan (08)
+        # %y = Tahun 2 digit (26 -> 2026)
+        return datetime.strptime(str(date_str).strip(), "%d/%m/%y").date()
     except ValueError:
+        # Fallback jika format dari sumber data tiba-tiba berubah (misal sudah YYYY-MM-DD)
         return getdate(date_str)

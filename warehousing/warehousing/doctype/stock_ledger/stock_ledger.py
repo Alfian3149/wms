@@ -5,7 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import nowdate
 from frappe.model.naming import getseries
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 from warehousing.warehousing.doctype.inventory.inventory import create_inventory_record
 
 class StockLedger(Document):
@@ -102,7 +102,7 @@ class make_sl_entry:
 			current_reservation = invExisting.qty_reserved if invExisting.qty_reserved else 0
 			current_handover = invExisting.qty_handovered if invExisting.qty_handovered else 0
 			self.inventory_doc_link = invExisting.name
-			self.invExpire = self.invExpire if self.invExpire else invExisting.expire_date
+			self.invExpire = getdate(self.invExpire) if self.invExpire else getdate(invExisting.expire_date)
 			self.invStatus = self.invStatus if self.invStatus else invExisting.inventory_status 
 
 		if self.newBalance == 0 :

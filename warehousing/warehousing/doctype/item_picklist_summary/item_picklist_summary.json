@@ -62,8 +62,9 @@
   },
   {
    "fieldname": "request_number",
-   "fieldtype": "Data",
-   "label": "Request Number"
+   "fieldtype": "Link",
+   "label": "Request Number",
+   "options": "Item Request"
   },
   {
    "fieldname": "column_break_seyy",
@@ -117,7 +118,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-07-28 00:32:54.925711",
+ "modified": "2026-08-10 03:29:55.041775",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist Summary",

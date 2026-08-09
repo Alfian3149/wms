@@ -120,3 +120,4 @@ def update_external_transaction_status(payload, external_trans_name):
 			getPart.qty_per_pallet = payload.get("qty_per_pallet") if payload.get("qty_per_pallet") else getPart.qty_per_pallet
 			getPart.net_weight = payload.get("net_weight") if payload.get("net_weight") else getPart.net_weight
 			getPart.save(ignore_permissions=True)
+			
