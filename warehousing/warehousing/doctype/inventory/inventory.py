@@ -116,7 +116,7 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
             new_inv.um = getPart.um if getPart.um else None
 
     if expireDate: 
-        new_inv.expire_date = getdate(expireDate)
+        new_inv.expire_date = expireDate
     new_inv.inventory_status = invStatus
     new_inv.insert(ignore_permissions=True)
     return new_inv.name
