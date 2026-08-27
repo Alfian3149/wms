@@ -7,16 +7,19 @@
  "field_order": [
   "section_break_9usi",
   "amended_from",
+  "domain",
   "purchase_order",
+  "type",
+  "column_break_iigy",
   "purchase_order_old",
   "site",
-  "column_break_jceo",
   "order_date",
+  "transaction_date",
+  "column_break_jceo",
   "ship_date",
   "due_date",
   "receipt_date",
   "column_break_vnsu",
-  "transaction_date",
   "receiver",
   "packing_slip",
   "column_break_ogdt",
@@ -58,6 +61,7 @@
   {
    "fieldname": "site",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Site"
   },
   {
@@ -96,7 +100,8 @@
   {
    "fieldname": "packing_slip",
    "fieldtype": "Data",
-   "label": "Packing Slip"
+   "label": "Packing Slip",
+   "length": 20
   },
   {
    "fieldname": "remarks",
@@ -159,7 +164,7 @@
   {
    "fieldname": "purchase_order_receipt_item",
    "fieldtype": "Table",
-   "label": "(Note : Item Type 'S' means Sparepart and Item type  'M' means Non-inventory)",
+   "label": "(Note : Line Status 'X' means Cancelled and Line status  'C' means Closed)",
    "options": "Purchase Order Receipt Item"
   },
   {
@@ -172,13 +177,31 @@
    "fieldname": "transaction_date",
    "fieldtype": "Date",
    "label": "Transaction Date"
+  },
+  {
+   "default": "SMII",
+   "fieldname": "domain",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Domain"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Memo\nSparepart"
+  },
+  {
+   "fieldname": "column_break_iigy",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
+ "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-22 14:31:49.326342",
+ "modified": "2026-08-27 05:41:09.086713",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Purchase Order Receipt",

@@ -2,39 +2,25 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.model.document import Document
-from warehousing.warehousing.utils.connection import get_url
-from frappe.utils import flt
-from frappe.model.naming import make_autoname
 import time
 import json
-from frappe import _
 import requests
+from frappe import _
+from warehousing.warehousing.utils.connection import get_url
 from warehousing.warehousing.utils.connection import test_internal_api
+from frappe.model.document import Document
 import xml.etree.ElementTree as ET
+from frappe.model.naming import make_autoname
+from frappe.model.naming import getseries
+from frappe.utils import flt
 
-class PurchaseOrderReceipt(Document):
+class POReceiptMinus(Document):
 	def autoname(self):
 		year = frappe.utils.nowdate()[:4]
-		self.name = make_autoname(f"POR-{year}-.#####")
-	
-	def before_insert(self):
-		for row in self.purchase_order_receipt_item:
-			if not row.location_to_receive:
-				row.location_to_receive = self.location_receipt
+		prefix =  f"POR.MINUS-{year}"
+		self.name = f"{prefix}-{getseries(prefix, 5)}" 
 
-	def validate(self):
-		all_zero = all(d.qty_to_receive == 0 for d in self.purchase_order_receipt_item)
-
-		if all_zero :
-			frappe.msgprint('All rows is zero qty to receive. Please fill qty to receive at least one row.', 'Error', 'red');
-			return;
-	
 	def before_submit(self):
-		valid_items = [item for item in self.purchase_order_receipt_item if flt(item.qty_to_receive) > 0]
-		self.purchase_order_receipt_item = valid_items
-
-	def on_submit(self):
 		if self.receiver : 
 			frappe.msgprint('This transaction has been receipt.', 'Error', 'red');
 			return;
@@ -44,44 +30,50 @@ class PurchaseOrderReceipt(Document):
 
 		year = frappe.utils.nowdate()[2:4]
 		receiver = None
-		if self.type == "Sparepart" :
-			receiver = make_autoname(f"S{year}.#####")
-		elif self.type == "Memo" :
-			receiver = make_autoname(f"M{year}.#####")
+		receiver = make_autoname(f"RM{year}.####")
 
 		grouped_details = {}
-		for item in self.purchase_order_receipt_item : 
-			if item.qty_to_receive == 0 : 
+		for item in self.receipt_minus_item_serials : 
+			if item.qty_to_return == 0 : 
 				continue
 			line_no = item.po_line
 
 			if line_no not in grouped_details:
-				# Inisialisasi record ttPOTransDet jika line baru ditemukan
 				grouped_details[line_no] = {
 					"nbr": self.purchase_order,
 					"line": line_no,
-					"site": self.site,
-					"loc": item.location_to_receive,
-					"lotSer": item.lot_serial,
-					"ref": "",
+					"site": item.site,
+					"loc": item.current_location,
+                    "lotSer": item.lot_serial,
+                    "ref": "",
 					"qty": 0, # Akan dijumlahkan dari semua lot
 					"expire": item.expire,
-					"rctstat": item.itm_rcpt_status,
+					"ttPOInventoryTransDet": []
 				}
 
-			grouped_details[line_no]["qty"] += item.qty_to_receive
+			grouped_details[line_no]["qty"] += flt(item.qty_to_return) * -1
+
+			grouped_details[line_no]["ttPOInventoryTransDet"].append({
+				"nbr": self.purchase_order,
+				"line": line_no,
+				"site": item.site,
+				"loc": item.current_location,
+				"lotSer": item.lot_serial,
+				"ref": "",
+				"qty": flt(item.qty_to_return) * -1,
+				"qadc01": item.part_number # Sesuai mapping zzPoReceiptAPI.p
+			})
 
 		final_payload = {
 			"dsPOTrans": {
 				"ttPOTrans": [{
 					"nbr": self.purchase_order,
 					"receiver" : receiver,
-					"psNbr": self.name,
-					"effDate": self.transaction_date,
+					"effDate": self.eff_date,
 					"moveToNextOp": True,
 					"lcorrection": False,
-					"shipDate": self.ship_date,
-					"rcpDate": self.receipt_date,
+					"shipDate": self.eff_date,
+					"rcpDate": self.eff_date,
 					"ttPOTransDet": list(grouped_details.values()) # Masukkan hasil grouping
 				}]
 			}
@@ -106,7 +98,7 @@ class PurchaseOrderReceipt(Document):
 		
 		int_log = frappe.get_doc({
 		"doctype": "Integration Request",
-		"integration_request_service": "PO Receipt Sparepart & Non-Material",
+		"integration_request_service": "PO Receipt Minus",
 		"url": url,
 		"data": json.dumps(payload, indent=4) if isinstance(payload, (dict, list)) else payload,
 		"status": "Queued",
@@ -153,13 +145,13 @@ class PurchaseOrderReceipt(Document):
 							message=json.dumps(log_data, indent=4)
 						)
 
-						frappe.throw((errorMsg))
+						raise Exception(errorMsg)
 					else: 
 						self.receiver = receiver
 						int_log.status = "Completed"
 						
 						frappe.msgprint(
-							msg="PO Receipt QAD succesfully with Receiver : " + receiver,
+							msg="PO Receipt Minus succesfully with Receiver : " + receiver,
 							title="Success",
 							alert=True,
 							indicator="green"  
@@ -176,63 +168,6 @@ class PurchaseOrderReceipt(Document):
 			int_log.error_log = frappe.get_traceback()
 			int_log.save(ignore_permissions=True)
 			frappe.db.commit()
-			frappe.throw(_("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e)))
-	
-@frappe.whitelist()
-def getPurchaseOrderList(domain, purchase_order, trans_type):
-	if not purchase_order:
-		frappe.throw(_("Nomor Purchase Order harus diisi"))
-		return
-	
-	time.sleep(1)
-	input_data = {
-		"dsPOInput": {
-			"ttPORequest": [
-				{
-					"domain_filter": domain,
-					"ponbr_filter": purchase_order,
-					"item_type_allowed": trans_type
-				}
-			]
-		}
-	}
-	data = json.dumps(input_data)
+			frappe.throw(_("Feedback: {0}").format(str(e)))
 
-	url = get_url()
-	payload = f"""<?xml version="1.0" encoding="utf-8"?>
-	<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	<soap:Body>
-		<zzGetPurchaseOrderNonMaterial xmlns="urn:services-qad-com:smiiwsa:0001:smiiwsa">
-		<ipDatasetRequest>{data}</ipDatasetRequest>
-		</zzGetPurchaseOrderNonMaterial>
-	</soap:Body>
-	</soap:Envelope>"""
-	headers = {
-	'Content-Type': 'text/xml; charset=utf-8',
-	'SOAPAction': '""'
-	}
 
-	try:
-		response = requests.post(url, data=payload, headers=headers)
-
-		if response.status_code == 200:
-			dataResponse = parse_qad_response(response.text)
-			
-			return dataResponse
-		else:
-			frappe.throw(_("Koneksi ke QAD Gagal: {0}").format(response.status_code))
-
-	except Exception as e:
-		frappe.log_error(frappe.get_traceback(), "QAD Get PO API Error")
-		frappe.throw(_("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e)))
-
-def parse_qad_response(xml_response):
-	import xml.etree.ElementTree as ET
-
-	try:
-		root = ET.fromstring(xml_response)
-		for result in root.iter():
-			if 'opDatasetResult' in result.tag:
-				return json.loads(result.text)
-	except Exception:
-		frappe.throw(_("Gagal membaca respon JSON dari QAD"))

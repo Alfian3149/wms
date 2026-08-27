@@ -1,0 +1,140 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-13 10:21:35.185239",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "purchase_order",
+  "domain",
+  "column_break_nxpw",
+  "purchase_order_old",
+  "eff_date",
+  "receiver",
+  "column_break_fpfs",
+  "supplier",
+  "supplier_name",
+  "section_break_ngpg",
+  "purchase_order_line_item",
+  "section_break_rnvc",
+  "amended_from",
+  "get_purchase_order_receipt",
+  "return_item_serials"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_rnvc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Purchase Order Return",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "get_purchase_order_receipt",
+   "fieldtype": "Button",
+   "hidden": 1,
+   "label": "Get Purchase Order Receipt"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Purchase Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_nxpw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Data",
+   "label": "Supplier"
+  },
+  {
+   "fieldname": "column_break_fpfs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name"
+  },
+  {
+   "fieldname": "section_break_ngpg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "SMII",
+   "fieldname": "domain",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Domain"
+  },
+  {
+   "fieldname": "purchase_order_old",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Purchase Order Old"
+  },
+  {
+   "fieldname": "purchase_order_line_item",
+   "fieldtype": "Table",
+   "label": "Purchase Order Line Item",
+   "options": "Purchase Order Line Item"
+  },
+  {
+   "fieldname": "return_item_serials",
+   "fieldtype": "Table",
+   "label": "Return item serials",
+   "options": "Purchase Order Return Item Serial"
+  },
+  {
+   "fieldname": "receiver",
+   "fieldtype": "Data",
+   "label": "RTV Nbr"
+  },
+  {
+   "fieldname": "eff_date",
+   "fieldtype": "Date",
+   "label": "Effective Date"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-08-27 06:15:57.145207",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Purchase Order Return",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -8,6 +8,7 @@ from warehousing.warehousing.doctype.stock_ledger.stock_ledger import make_sl_en
 from frappe.utils import flt
 from frappe.utils import getdate
 import datetime
+from frappe import _
 
 class ExternalTransaction(Document):
 	def after_insert(self):
@@ -30,12 +31,12 @@ def receive_qad_transaction_history():
 	receive_transactions_from_external_trans = frappe.db.get_single_value('Qad Integrations', 'receive_transactions_from_external_trans')
 
 	if receive_transactions_from_external_trans == False:
-		return {"status": "success", "message": "Receiving transactions from external transaction is disabled."}
+		return {"status": "success", "message": _("Receiving transactions from external transaction is disabled.")}
 
 	raw_data = frappe.request.data
 
 	if not raw_data:
-		frappe.throw(_("No data received"))
+		return {"status": "failed", "message": _("No data received.")}
 	
 	payload = json.loads(raw_data)
 
@@ -47,14 +48,14 @@ def receive_qad_transaction_history():
 	# Kunci proses selama 5 detik untuk ID ini
 	if not frappe.cache().setnx(lock_key, "1"):
 		# Jika lock gagal dibuat (berarti request lain dengan ID yang sama sedang berjalan)
-		return {"status": "success", "message": "Transaction number is currently being processed."}
+		return {"status": "success", "message": _("Transaction number is currently being processed.")}
 
 	# Atur expire time agar lock tidak menggantung selamanya
 	frappe.cache().expire(lock_key, 5)
 
 	try : 
 		""" if (frappe.db.exists({"doctype": "External Transaction", "ext_trans_id": payload.get("ext_trans_id")})):
-			return {"status": "success", "message": "Transaction number already exist."} """
+			return {"status": "success", "message": _("Transaction number already exist.")} """
 
 		External_Transaction = frappe.get_doc({
 			"doctype": "External Transaction",
