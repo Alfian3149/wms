@@ -49,11 +49,9 @@ frappe.ui.form.on("Purchase Order Receipt", {
         frm.fields_dict['purchase_order_receipt_item'].grid.wrapper.find('.row-index').hide();
         frm.fields_dict['purchase_order_receipt_item'].grid.wrapper.find('.grid-row-checkbox').hide();
         frm.fields_dict['purchase_order_receipt_item'].grid.wrapper.find('.row-check').hide(); */
-    
-        
     },
 
-    before_Save(frm){
+    before_save(frm){
         let all_zero = frm.doc.purchase_order_receipt_item.every(row => row.qty_to_receive === 0);
         if (all_zero){
             frappe.msgprint({
@@ -79,11 +77,12 @@ frappe.ui.form.on("Purchase Order Receipt", {
                 callback: function(r) {
                     if (r.message) {
                         let data = r.message.dsPOResponse;
+                       
                         if (!data.ttpod_det){
                             frappe.msgprint(__("Tidak terdapat item sparepart dan jasa pada purchase order ini. Silahkan input nomor order lainnya."));
                             return;
                         }
-                        console.log(r.message);
+                   
                         frm.clear_table('purchase_order_receipt_item');
                         let this_today = frappe.datetime.get_today();
                         let type = '';
@@ -95,6 +94,7 @@ frappe.ui.form.on("Purchase Order Receipt", {
                                 child.part_number = row.podpart;
                                 child.description = row.ptdesc1 + " " + row.ptdesc2;
                                 child.um = row.ptum;
+                                
                                 child.qty_open = row.pod_qtyopen;
                                 child.qty_order = row.pod_qtyord;
                                 child.qty_received = row.pod_qtyrcvd;
@@ -103,6 +103,10 @@ frappe.ui.form.on("Purchase Order Receipt", {
                                 child.qty_to_receive = flt(0);
                                 child.item_type = row.pt_grouping;
                                 type = row.pt_grouping;
+
+                                if (row.pt_grouping !== "Memo") {
+                                    child.lot_serial = getLotSerialDate();
+                                }
                             });
                         }
 
@@ -121,11 +125,12 @@ frappe.ui.form.on("Purchase Order Receipt", {
                             frm.set_value("shipto_address", header.line1_ship + "\n" + header.line2_ship + "\n" + header.line3_ship);
                             frm.set_value("type", type);
                         }
-                        toggle_child_column(frm);
+                        frm.refresh_field('purchase_order_receipt_item');
+                       
 
                         setTimeout(() => { 
-                             
-                            //frm.refresh_field('purchase_order_receipt_item');
+                                  
+                            toggle_child_column(frm);
                             
                             frm.set_df_property('purchase_order_receipt_item', 'cannot_add_rows', true);
                             frm.fields_dict['purchase_order_receipt_item'].grid.wrapper.find('.row-index').hide();
@@ -145,30 +150,79 @@ frappe.ui.form.on("Purchase Order Receipt", {
     },
 });
 
+function getLotSerialDate(date = new Date()) {
+    const day = String(date.getDate()).padStart(2, '0');
+    // getMonth() dimulai dari 0 (Januari = 0), jadi perlu ditambah 1
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    // slice(-2) mengambil 2 digit terakhir dari tahun (misal 2026 -> 26)
+    const year = String(date.getFullYear()).slice(-2);
+
+    return `${day}${month}${year}`;
+}
+
+
 function toggle_child_column(frm) {
-    let fields_to_disable = ['lot_serial', 'reference', 'expire', 'itm_rcpt_status'];
+    /* let fields_to_disable = ['lot_serial', 'reference', 'expire', 'itm_rcpt_status'];
     let is_disabled = frm.doc.type === 'Memo' ? 1 : 0;
 
-    // Pastikan 'items' diganti dengan fieldname dari Table Field di Parent DocType Anda
     let child_table_fieldname = 'purchase_order_receipt_item'; 
 
     fields_to_disable.forEach(field => {
-        // Mengubah property read_only pada level grid
         frm.get_field(child_table_fieldname).grid.update_docfield_property(
             field,
             'read_only',
             is_disabled
         );
     });
+     */
 
-    // Refresh grid agar perubahan langsung dirender di UI
-    frm.refresh_field(child_table_fieldname);
+
+    const child_fieldname = 'purchase_order_receipt_item';
+    //frm.refresh_field(child_fieldname);
+    if (frm.doc[child_fieldname]) {
+        frm.doc[child_fieldname].forEach(row => {
+            frappe.model.set_df_property(
+                row.doctype,
+                row.name,
+                'lot_serial',
+                'read_only',
+                row.item_type === 'Memo' ? 1 : 0
+            );
+        });
+         setTimeout(() => { 
+            frm.refresh_field(child_fieldname);
+         }, 300);   
+    }
+    
 }
 
 frappe.ui.form.on("Purchase Order Receipt Item", {
+    item_type: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        
+        // Atur status read_only pada field lotserial untuk baris ini
+        frappe.model.set_df_property(cdt, cdn, 'lot_serial', 'read_only', 
+            row.item_type === 'Memo' ? 1 : 0
+        );
+        frappe.model.set_df_property(cdt, cdn, 'expire', 'read_only', 
+            row.item_type === 'Memo' ? 1 : 0
+        );
+        frm.refresh_field('purchase_order_receipt_item');
+    },
+
+    form_render: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        frappe.model.set_df_property(cdt, cdn, 'lot_serial', 'read_only', 
+            row.item_type === 'Memo' ? 1 : 0
+        );
+        frappe.model.set_df_property(cdt, cdn, 'expire', 'read_only', 
+            row.item_type === 'Memo' ? 1 : 0
+        );
+    },
+
     qty_to_receive: function(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
-
+        console.log(row);
         let qty_receive_allowed = 0;
         let max_qty_to_receive = 0;
         if (row.qty_to_receive !== 0 && (row.ln_status == 'x' || row.ln_status == 'c') ){ 
@@ -182,26 +236,20 @@ frappe.ui.form.on("Purchase Order Receipt Item", {
             e.stopPropagation();
 
         }
-        if (row.qty_to_receive > row.qty_open){
-            frappe.db.get_single_value('Material Incoming Control', 'qty_to_receive_tolerance')
-                .then(value => {
-                    if (value){ 
-                        qty_receive_allowed = row.qty_order + (row.qty_order * (value/100));
-                        max_qty_to_receive = qty_receive_allowed - row.qty_received ;
-                        if(qty_receive_allowed < row.qty_received  + row.qty_to_receive){
-                            reset_row_qty(row); 
-                            frappe.msgprint({
-                                title: __('ERROR'),
-                                indicator: 'red',
-                                message: __('Qty to receive cannot greater than qty that allowed to input. Max input for qty to receive is {0} {1}', [flt(max_qty_to_receive), row.um] )
-                            });
-                            return;
 
-                        }
-                    }
-            })
-          
+        qty_receive_allowed = row.qty_order ;
+        max_qty_to_receive = qty_receive_allowed - row.qty_received ;
+        if(qty_receive_allowed < row.qty_received  + row.qty_to_receive){
+            reset_row_qty(row); 
+            frappe.msgprint({
+                title: __('ERROR'),
+                indicator: 'red',
+                message: __('Qty to receive cannot greater than qty that allowed to input. Max input for qty to receive is {0} {1}', [flt(max_qty_to_receive), row.um] )
+            });
+            return;
+
         }
+
     }
 })
 

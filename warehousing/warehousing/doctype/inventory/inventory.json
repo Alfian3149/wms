@@ -9,13 +9,15 @@
   "section_break_vjkc",
   "site",
   "part",
-  "lot_serial",
-  "reference",
-  "warehouse_location",
+  "description",
   "column_break_fuxs",
   "um",
+  "reference",
+  "lot_serial",
+  "column_break_kizu",
   "prod_line",
   "column_break_mnqd",
+  "warehouse_location",
   "qty_on_hand",
   "qty_reserved",
   "qty_handovered",
@@ -40,7 +42,7 @@
    "fieldname": "part",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Part",
+   "label": "Item",
    "options": "Part Master"
   },
   {
@@ -179,13 +181,23 @@
   {
    "fieldname": "section_break_cxaz",
    "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "part.description",
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_kizu",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-31 21:32:45.602817",
+ "modified": "2026-08-31 15:37:29.391382",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",

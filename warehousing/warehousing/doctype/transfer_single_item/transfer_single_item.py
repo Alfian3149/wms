@@ -6,6 +6,7 @@ from frappe import _
 from warehousing.warehousing.doctype.stock_ledger.stock_ledger import make_sl_entry
 from frappe.utils import getdate, nowdate, formatdate
 from frappe.model.naming import getseries
+from warehousing.warehousing.utils.item_validator import ItemValidator
 class TransferSingleItem(Document):
 	def autoname(self):
 		date_str = nowdate()
@@ -15,6 +16,9 @@ class TransferSingleItem(Document):
 		self.name = f"TFS-ITEM-{year_month}-{label_running_number}"
 
 	def validate(self):
+		validator = ItemValidator(self.part)
+		validator.item_not_active()
+	
 		if self.location_from == self.location_to: 
 			frappe.throw(_("Location from should be different with location from"))
 		

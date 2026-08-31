@@ -34,7 +34,6 @@ class PurchaseOrderReceipt(Document):
 		valid_items = [item for item in self.purchase_order_receipt_item if flt(item.qty_to_receive) > 0]
 		self.purchase_order_receipt_item = valid_items
 
-	def on_submit(self):
 		if self.receiver : 
 			frappe.msgprint('This transaction has been receipt.', 'Error', 'red');
 			return;
@@ -46,6 +45,8 @@ class PurchaseOrderReceipt(Document):
 		receiver = None
 		if self.type == "Sparepart" :
 			receiver = make_autoname(f"S{year}.#####")
+		elif self.type == "Oil" :
+			receiver = make_autoname(f"B{year}.#####")
 		elif self.type == "Memo" :
 			receiver = make_autoname(f"M{year}.#####")
 
@@ -86,7 +87,7 @@ class PurchaseOrderReceipt(Document):
 				}]
 			}
 		}
-
+		self.receiver = receiver
 		data = frappe.as_json(final_payload)
 		payload = f"""<?xml version="1.0" encoding="utf-8"?>
 		<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">

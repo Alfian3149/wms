@@ -175,14 +175,23 @@ class PurchaseOrderReturn(Document):
 def getPoReceiptLineItemSerials(purchase_order, line):
 	STOCK_LEDGER = frappe.db.get_list("Stock Ledger", 
 	filters={'transaction_type':'RCT-PO', 'po_number': purchase_order, 'po_line': line}, 
-	fields=['site','part','lot_serial', 'actual_qty'])
+	fields=['site','part','lot_serial', 'actual_qty','data_link'])
 
 	data = []
 
 	for row in STOCK_LEDGER:
+		trhist = frappe.db.get_value("External Transaction", row.data_link, "data")
+		payload = json.loads(frappe.as_json(trhist)) if isinstance(trhist, dict) else json.loads(trhist)
+		receiver = payload.get("tr_lot") #receiver
 		STOCK = frappe.db.get_list("Inventory", filters={'site': row.site, 'part': row.part, 'lot_serial': row.lot_serial, 'qty_on_hand': ['>', 0]}, fields=['site', 'part', 'lot_serial', 'qty_on_hand', 'inventory_status', 'expire_date', 'warehouse_location'])
 		if STOCK : 
-			data.append(STOCK[0])
+			# 2. Ambil dictionary pertama dari hasil query
+			stock_item = STOCK[0]
+			
+			# 3. Tambahkan key 'receiver' ke dalam dictionary tersebut
+			stock_item['receiver'] = receiver
+
+			data.append(stock_item)
 
 	if not data : 
 		return {'status': 'failed'}

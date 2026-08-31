@@ -129,7 +129,7 @@
   {
    "fieldname": "part",
    "fieldtype": "Link",
-   "label": "Part",
+   "label": "Item Number",
    "options": "Part Master"
   },
   {
@@ -234,7 +234,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-04 11:51:10.436616",
+ "modified": "2026-08-31 22:14:28.897302",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Transfer Single Item",

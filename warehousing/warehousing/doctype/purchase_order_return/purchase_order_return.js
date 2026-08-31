@@ -75,6 +75,7 @@ frappe.ui.form.on("Purchase Order Return", {
                         row.lotserial = item.lot_serial || "";
                         row.location = item.lot_serial || "";
                         row.actual_qty = item.actual_qty || 0;
+                        row.rcv = item.receiver || 0;
                     });
 
                     grid.refresh(); 
@@ -92,13 +93,29 @@ frappe.ui.form.on("Purchase Order Return", {
                     label: __("Filtering Options"),
                     fieldtype: "Section Break" 
                 },
-                { fieldtype: 'Data', fieldname: 'part', label: 'Part'},
+                { fieldtype: 'Data', fieldname: 'filter_part', label: 'Part', 
+                    onchange: () => {
+                        sync_filter_item(d);
+                    }
+                },
                 { fieldtype: 'Column Break' }, 
-                { fieldtype: 'Data', fieldname: 'lot_serial', label: 'Lot Serial'},
+                { fieldtype: 'Data', fieldname: 'filter_lotserial', label: 'Lot Serial', 
+                    onchange: () => {
+                        sync_filter_item(d);
+                    }
+                },
                 { fieldtype: 'Column Break' }, 
-                { fieldtype: 'Data', fieldname: 'location', label: 'Current Location'},
+                { fieldtype: 'Data', fieldname: 'filter_location', label: 'Current Location',
+                    onchange: () => {
+                        sync_filter_item(d);
+                    }
+                },
                 { fieldtype: 'Column Break' }, 
-                { fieldtype: 'Float', fieldname: 'actual_qty', label: 'Qty Change'},
+                { fieldtype: 'Data', fieldname: 'filter_receiver', label: 'Receiver',
+                    onchange: () => {
+                        sync_filter_item(d);
+                    }
+                },
                 
                 { fieldtype: 'Section Break' },
                 {
@@ -113,17 +130,18 @@ frappe.ui.form.on("Purchase Order Return", {
                         {fieldname: "poline", label: "PO Line", fieldtype: "Int", in_list_view: 1,  columns: 1, read_only: 1},
                         {fieldname: "part", label: "Part", fieldtype: "Link", options: 'Part Master', in_list_view: 1,  columns: 2, read_only: 1},
                         {fieldname: "lotserial", label: "Lot Serial", fieldtype: "Data", in_list_view: 1,  columns: 2, read_only: 1},
-                        {fieldname: "location", label: "Location", fieldtype: "Data", in_list_view: 1,  columns: 2, read_only: 1},
+                        {fieldname: "location", label: "Location", fieldtype: "Data", in_list_view: 1,  columns: 1, read_only: 1},
                         {fieldname: "actual_qty", label: "Qty", fieldtype: "Float", in_list_view: 1,  columns: 1, read_only: 1},
                         {fieldname: "status", label: "Status", fieldtype: "Data", in_list_view: 1,  columns: 1, read_only: 1},
-                        {fieldname: "expire", label: "expire", fieldtype: "Date", in_list_view: 1,  columns: 2, read_only: 1},
+                        {fieldname: "expire", label: "expire", fieldtype: "Date", in_list_view: 1,  columns: 1, read_only: 1},
+                        {fieldname: "rcv", label: "Receiver", fieldtype: "Data", in_list_view: 1,  columns: 1, read_only: 1},
                     ]
                 }
             ];
 
             const d = new frappe.ui.Dialog({
                 title: 'Select stem serials that has been receipt',
-                size: 'large',
+                size: 'extra-large',
                 fields: fields,
                 primary_action_label: 'Get Items',
                 primary_action(values) {
@@ -150,6 +168,7 @@ frappe.ui.form.on("Purchase Order Return", {
                             child.qty_to_return = row.actual_qty;
                             child.current_location = row.location;
                             child.due_date = row.expire_date;
+                            child.receiver = row.rcv;
                         }
                     }
                     setTimeout(() => { 
@@ -186,7 +205,8 @@ frappe.ui.form.on("Purchase Order Return", {
                                 expire: item.expire_date || "",
                                 lotserial: item.lot_serial || "",
                                 status: item.inventory_status || "",
-                                actual_qty: item.qty_on_hand || 0
+                                actual_qty: item.qty_on_hand || 0,
+                                rcv: item.receiver || ""
                             }));
 
                             d.fields_dict.purchaser_order_receipt_history.df.data = table_data;
@@ -262,3 +282,33 @@ frappe.ui.form.on('Purchase Order Line Item', {
         frm.get_field('purchase_order_line_item').grid.grid_rows_by_docname[cdn].wrapper.find('.grid-delete-row').hide();
     }
 });
+
+function sync_filter_item(dialog) {
+    let d = dialog || cur_dialog;
+    if (!d) return;
+
+    let f_part = (d.get_value("filter_part") || "").toString().toLowerCase().trim();
+    let f_lotserial = (d.get_value("filter_lotserial") || "").toString().toLowerCase().trim();
+    let f_location = (d.get_value("filter_location") || "").toString().toLowerCase().trim();
+    let f_receiver = (d.get_value("filter_receiver") || "").toString().toLowerCase().trim();
+
+    let grid = d.get_field('purchaser_order_receipt_history').grid;
+
+    grid.grid_rows.forEach(row => {
+        let row_part = (row.doc.part || "").toString().toLowerCase();
+        let row_lotserial = (row.doc.lotserial || "").toString().toLowerCase();
+        let row_location = (row.doc.location || "").toString().toLowerCase();
+        let row_receiver = (row.doc.rcv || "").toString().toLowerCase();
+
+        let match_part = f_part === "" || row_part.includes(f_item);
+        let match_lotserial= f_lotserial === "" || row_lotserial.includes(f_part);
+        let match_location = f_location === "" || row_location.includes(f_location);
+        let match_receiver = f_receiver === "" || row_receiver.includes(f_receiver);
+
+        if (match_part && match_lotserial && match_location && match_receiver) {
+            row.wrapper.show();
+        } else {
+            row.wrapper.hide();
+        }
+    });
+}

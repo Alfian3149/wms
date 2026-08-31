@@ -147,6 +147,7 @@
    "fieldtype": "Small Text"
   },
   {
+   "default": "WH05",
    "fieldname": "location_receipt",
    "fieldtype": "Link",
    "label": "Location Receipt",
@@ -189,7 +190,7 @@
    "fieldname": "type",
    "fieldtype": "Select",
    "label": "Type",
-   "options": "Memo\nSparepart"
+   "options": "Memo\nSparepart\nOil"
   },
   {
    "fieldname": "column_break_iigy",
@@ -201,7 +202,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-27 05:41:09.086713",
+ "modified": "2026-08-31 14:53:36.226290",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Purchase Order Receipt",

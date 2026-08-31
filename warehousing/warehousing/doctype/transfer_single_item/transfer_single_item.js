@@ -9,11 +9,11 @@ frappe.ui.form.on("Transfer Single Item", {
         let allow_submit = true;
         let needs_dialog = false;
         
-        if (frm.doc.part_status !== '0001'){
+        /* if (frm.doc.part_status !== '0001'){
             frappe.msgprint(__('Item status non active, hanya part status 0001 yang diperbolehkan.'));
             frappe.validated = false;
             return;
-        }
+        } */
         // KONDISI 1 (PRIORITAS UTAMA): ERROR BLOCKER (Expire Berbeda)
         if (frm.doc.expire !== frm.doc.expire_in_destination_location && frm.doc.inventory_status_in_destination_location !== undefined && frm.doc.inventory_status_in_destination_location !== null) {
             console.log("Tanggal kadaluarsa di lokasi asal dan tujuan berbeda, memblokir submit.");

@@ -570,6 +570,17 @@ frappe.ui.form.on("Material Incoming", {
                 callback: function(r) {
                     if (r.message) {
                         let data = r.message.dsPOResponse;
+                         console.log(r.message);
+
+                        if (data.ttError && data.ttError.length > 0) {
+                            data.ttError.forEach(row => {
+                                 frappe.msgprint(__("{0}", [row.tt_msgdesc]));
+                            })
+                            
+                            return;
+
+                        }
+                    
                         frm.clear_table('material_incoming_item');
                         let this_today = frappe.datetime.get_today();
                         
@@ -593,6 +604,7 @@ frappe.ui.form.on("Material Incoming", {
                                 child.qty_received = row.pod_qtyrcvd;
                                 child.requisition = row.pod_reqnbr;
                                 child.qty_per_pallet = row.pt_qtypallet;
+                                child.qty_to_receive = flt(0);
                                 frappe.db.get_value("Part Master", row.podpart, ["qty_per_pallet","expire_date_required"]).then(value => {
                                     if (value.message && value.message.qty_per_pallet){ 
                                         if (row.pt_qtypallet == 0) {

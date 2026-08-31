@@ -18,7 +18,8 @@
   "qty_to_return",
   "current_location",
   "column_break_mxua",
-  "expire"
+  "expire",
+  "receiver"
  ],
  "fields": [
   {
@@ -92,13 +93,20 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Expire"
+  },
+  {
+   "columns": 1,
+   "fieldname": "receiver",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Receiver"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-25 23:23:57.106075",
+ "modified": "2026-08-31 21:15:20.788542",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "PO Receipt Minus Item Serial",

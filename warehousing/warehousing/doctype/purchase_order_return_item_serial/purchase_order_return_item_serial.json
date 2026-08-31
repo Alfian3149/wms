@@ -18,7 +18,8 @@
   "qty_to_return",
   "current_location",
   "column_break_mxua",
-  "expire"
+  "expire",
+  "receiver"
  ],
  "fields": [
   {
@@ -93,13 +94,20 @@
    "fieldname": "site",
    "fieldtype": "Data",
    "label": "Site"
+  },
+  {
+   "columns": 1,
+   "fieldname": "receiver",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Receiver"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-27 06:27:42.380066",
+ "modified": "2026-08-31 21:13:26.502078",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Purchase Order Return Item Serial",

@@ -87,18 +87,34 @@ frappe.ui.form.on("PO Receipt Minus", {
     },
 
     get_purchase_order_receipt : function(frm, line) {
-        let fields = [
+          let fields = [
                 {
                     label: __("Filtering Options"),
                     fieldtype: "Section Break" 
                 },
-                { fieldtype: 'Data', fieldname: 'part', label: 'Part'},
+                { fieldtype: 'Data', fieldname: 'filter_part', label: 'Part', 
+                    onchange: () => {
+                        sync_filter_item(d);
+                    }
+                },
                 { fieldtype: 'Column Break' }, 
-                { fieldtype: 'Data', fieldname: 'lot_serial', label: 'Lot Serial'},
+                { fieldtype: 'Data', fieldname: 'filter_lotserial', label: 'Lot Serial', 
+                    onchange: () => {
+                        sync_filter_item(d);
+                    }
+                },
                 { fieldtype: 'Column Break' }, 
-                { fieldtype: 'Data', fieldname: 'location', label: 'Current Location'},
+                { fieldtype: 'Data', fieldname: 'filter_location', label: 'Current Location',
+                    onchange: () => {
+                        sync_filter_item(d);
+                    }
+                },
                 { fieldtype: 'Column Break' }, 
-                { fieldtype: 'Float', fieldname: 'actual_qty', label: 'Qty Change'},
+                { fieldtype: 'Data', fieldname: 'filter_receiver', label: 'Receiver',
+                    onchange: () => {
+                        sync_filter_item(d);
+                    }
+                },
                 
                 { fieldtype: 'Section Break' },
                 {
@@ -108,21 +124,24 @@ frappe.ui.form.on("PO Receipt Minus", {
                     reqd: 1,
                     allow_filter: false, 
                     dynamic_link_filters: 0,
+                    //cannot_add_rows: true,
                     fields: [
                         {fieldname: "poline", label: "PO Line", fieldtype: "Int", in_list_view: 1,  columns: 1, read_only: 1},
                         {fieldname: "part", label: "Part", fieldtype: "Link", options: 'Part Master', in_list_view: 1,  columns: 2, read_only: 1},
                         {fieldname: "lotserial", label: "Lot Serial", fieldtype: "Data", in_list_view: 1,  columns: 2, read_only: 1},
-                        {fieldname: "site", label: "Site", fieldtype: "Data", in_list_view: 1,  columns: 2, hidden: 1},
-                        {fieldname: "location", label: "Location", fieldtype: "Data", in_list_view: 1,  columns: 2, read_only: 1},
+                        {fieldname: "location", label: "Location", fieldtype: "Data", in_list_view: 1,  columns: 1, read_only: 1},
                         {fieldname: "actual_qty", label: "Qty", fieldtype: "Float", in_list_view: 1,  columns: 1, read_only: 1},
-                        {fieldname: "expire", label: "expire", fieldtype: "Date", in_list_view: 1,  columns: 2, read_only: 1},
+                        {fieldname: "status", label: "Status", fieldtype: "Data", in_list_view: 1,  columns: 1, read_only: 1},
+                        {fieldname: "expire", label: "expire", fieldtype: "Date", in_list_view: 1,  columns: 1, read_only: 1},
+                        {fieldname: "rcv", label: "Receiver", fieldtype: "Data", in_list_view: 1,  columns: 1, read_only: 1},
                     ]
                 }
             ];
 
+
             const d = new frappe.ui.Dialog({
                 title: 'Select stem serials that has been receipt',
-                size: 'large',
+                size: 'extra-large',
                 fields: fields,
                 primary_action_label: 'Get Items',
                 primary_action(values) {
@@ -149,6 +168,7 @@ frappe.ui.form.on("PO Receipt Minus", {
                             child.current_location = row.location;
                             child.site = row.site;
                             child.due_date = row.expire_date;
+                            child.receiver = row.rcv;
                         }
                     }
                     setTimeout(() => { 
@@ -185,7 +205,8 @@ frappe.ui.form.on("PO Receipt Minus", {
                                 site: item.site || "",
                                 expire: item.expire_date || "",
                                 lotserial: item.lot_serial || "",
-                                actual_qty: item.qty_on_hand || 0
+                                actual_qty: item.qty_on_hand || 0,
+                                rcv: item.receiver || ""
                             }));
 
                             d.fields_dict.purchaser_order_receipt_history.df.data = table_data;
@@ -261,3 +282,34 @@ frappe.ui.form.on('Purchase Order Line Item', {
         frm.get_field('purchase_order_line_item').grid.grid_rows_by_docname[cdn].wrapper.find('.grid-delete-row').hide();
     }
 });
+
+
+function sync_filter_item(dialog) {
+    let d = dialog || cur_dialog;
+    if (!d) return;
+
+    let f_part = (d.get_value("filter_part") || "").toString().toLowerCase().trim();
+    let f_lotserial = (d.get_value("filter_lotserial") || "").toString().toLowerCase().trim();
+    let f_location = (d.get_value("filter_location") || "").toString().toLowerCase().trim();
+    let f_receiver = (d.get_value("filter_receiver") || "").toString().toLowerCase().trim();
+
+    let grid = d.get_field('purchaser_order_receipt_history').grid;
+
+    grid.grid_rows.forEach(row => {
+        let row_part = (row.doc.part || "").toString().toLowerCase();
+        let row_lotserial = (row.doc.lotserial || "").toString().toLowerCase();
+        let row_location = (row.doc.location || "").toString().toLowerCase();
+        let row_receiver = (row.doc.rcv || "").toString().toLowerCase();
+
+        let match_part = f_part === "" || row_part.includes(f_item);
+        let match_lotserial= f_lotserial === "" || row_lotserial.includes(f_part);
+        let match_location = f_location === "" || row_location.includes(f_location);
+        let match_receiver = f_receiver === "" || row_receiver.includes(f_receiver);
+
+        if (match_part && match_lotserial && match_location && match_receiver) {
+            row.wrapper.show();
+        } else {
+            row.wrapper.hide();
+        }
+    });
+}
