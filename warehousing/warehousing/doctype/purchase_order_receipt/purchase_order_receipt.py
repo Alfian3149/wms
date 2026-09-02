@@ -42,13 +42,8 @@ class PurchaseOrderReceipt(Document):
 		data = test_internal_api(url)
 
 		year = frappe.utils.nowdate()[2:4]
-		receiver = None
-		if self.type == "Sparepart" :
-			receiver = make_autoname(f"S{year}.#####")
-		elif self.type == "Oil" :
-			receiver = make_autoname(f"B{year}.#####")
-		elif self.type == "Memo" :
-			receiver = make_autoname(f"M{year}.#####")
+		receiver = make_autoname(f"{self.prefix}{year}.#####")
+
 
 		grouped_details = {}
 		for item in self.purchase_order_receipt_item : 

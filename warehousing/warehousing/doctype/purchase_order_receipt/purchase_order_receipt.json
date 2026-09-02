@@ -10,6 +10,7 @@
   "domain",
   "purchase_order",
   "type",
+  "prefix",
   "column_break_iigy",
   "purchase_order_old",
   "site",
@@ -188,13 +189,20 @@
   },
   {
    "fieldname": "type",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Type",
-   "options": "Memo\nSparepart\nOil"
+   "options": "PO Receipt Transaction Type"
   },
   {
    "fieldname": "column_break_iigy",
    "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "type.prefix",
+   "fieldname": "prefix",
+   "fieldtype": "Data",
+   "label": "Prefix",
+   "length": 1
   }
  ],
  "grid_page_length": 50,
@@ -202,7 +210,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-31 14:53:36.226290",
+ "modified": "2026-09-01 16:11:07.941033",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Purchase Order Receipt",

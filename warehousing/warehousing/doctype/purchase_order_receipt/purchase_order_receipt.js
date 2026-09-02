@@ -74,7 +74,7 @@ frappe.ui.form.on("Purchase Order Receipt", {
             },
             freeze: true, 
             freeze_message: __("Sedang memproses Purchase Order..."),
-                callback: function(r) {
+                callback:  function(r) {
                     if (r.message) {
                         let data = r.message.dsPOResponse;
                        
@@ -87,7 +87,7 @@ frappe.ui.form.on("Purchase Order Receipt", {
                         let this_today = frappe.datetime.get_today();
                         let type = '';
                         if (data.ttpod_det && data.ttpod_det.length > 0) {
-                            data.ttpod_det.forEach(row => {
+                            data.ttpod_det.forEach(async row => {
 
                                 let child = frm.add_child('purchase_order_receipt_item');
                                 child.po_line = row.podline;
@@ -104,8 +104,18 @@ frappe.ui.form.on("Purchase Order Receipt", {
                                 child.item_type = row.pt_grouping;
                                 type = row.pt_grouping;
 
-                                if (row.pt_grouping !== "Memo") {
-                                    child.lot_serial = getLotSerialDate();
+                                let response = await frappe.db.get_value(
+                                    'PO Receipt Transaction Type',
+                                    type, 
+                                    'auto_lot_serial'  // Fieldname target
+                                );
+                                
+                                if (response && response.message) {
+                                    child.is_suggest_lot = response.message.auto_lot_serial;
+                                    if(response.message.auto_lot_serial){
+                                        child.lot_serial = getLotSerialDate();
+
+                                    }
                                 }
                             });
                         }
@@ -125,12 +135,10 @@ frappe.ui.form.on("Purchase Order Receipt", {
                             frm.set_value("shipto_address", header.line1_ship + "\n" + header.line2_ship + "\n" + header.line3_ship);
                             frm.set_value("type", type);
                         }
-                        frm.refresh_field('purchase_order_receipt_item');
                        
-
-                        setTimeout(() => { 
-                                  
-                            toggle_child_column(frm);
+                    
+                        setTimeout(() => {   
+                             frm.refresh_field('purchase_order_receipt_item');
                             
                             frm.set_df_property('purchase_order_receipt_item', 'cannot_add_rows', true);
                             frm.fields_dict['purchase_order_receipt_item'].grid.wrapper.find('.row-index').hide();
@@ -161,8 +169,8 @@ function getLotSerialDate(date = new Date()) {
 }
 
 
-function toggle_child_column(frm) {
-    /* let fields_to_disable = ['lot_serial', 'reference', 'expire', 'itm_rcpt_status'];
+/* function toggle_child_column(frm) {
+    let fields_to_disable = ['lot_serial', 'reference', 'expire', 'itm_rcpt_status'];
     let is_disabled = frm.doc.type === 'Memo' ? 1 : 0;
 
     let child_table_fieldname = 'purchase_order_receipt_item'; 
@@ -174,30 +182,19 @@ function toggle_child_column(frm) {
             is_disabled
         );
     });
-     */
+     
 
+     let child_fieldname = 'purchase_order_receipt_item'; 
 
-    const child_fieldname = 'purchase_order_receipt_item';
-    //frm.refresh_field(child_fieldname);
-    if (frm.doc[child_fieldname]) {
-        frm.doc[child_fieldname].forEach(row => {
-            frappe.model.set_df_property(
-                row.doctype,
-                row.name,
-                'lot_serial',
-                'read_only',
-                row.item_type === 'Memo' ? 1 : 0
-            );
-        });
-         setTimeout(() => { 
-            frm.refresh_field(child_fieldname);
-         }, 300);   
-    }
+    setTimeout(() => { 
+    frm.refresh_field(child_fieldname);
+    }, 100);   
+
     
-}
+} */
 
 frappe.ui.form.on("Purchase Order Receipt Item", {
-    item_type: function(frm, cdt, cdn) {
+    /* item_type: function(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
         
         // Atur status read_only pada field lotserial untuk baris ini
@@ -207,6 +204,16 @@ frappe.ui.form.on("Purchase Order Receipt Item", {
         frappe.model.set_df_property(cdt, cdn, 'expire', 'read_only', 
             row.item_type === 'Memo' ? 1 : 0
         );
+        frm.refresh_field('purchase_order_receipt_item');
+    },
+ */
+    item_type: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (row.is_suggest_lot) {
+            frappe.model.set_value(cdt, cdn, 'lot_serial', getLotSerialDate());
+        } else {
+            frappe.model.set_value(cdt, cdn, 'lot_serial', '');
+        }
         frm.refresh_field('purchase_order_receipt_item');
     },
 

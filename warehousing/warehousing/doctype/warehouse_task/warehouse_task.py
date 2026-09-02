@@ -8,7 +8,7 @@ import frappe
 from frappe.model.naming import make_autoname
 from warehousing.warehousing.specialLogic import get_multi_bin_suggestion
 import copy
-from frappe.utils import flt,getdate, get_fullname, now_datetime,  nowdate
+from frappe.utils import flt,getdate, get_fullname, now_datetime,  nowdate, add_days
 import time
 from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
 from warehousing.warehousing.doctype.inventory.inventory import update_inventory_qty
@@ -434,17 +434,16 @@ def get_physical_verification_task(status, user):
 
 @frappe.whitelist()
 def get_outstanding_physical_verification_tasks(user):
+    today = nowdate()
+    one_week_ago = add_days(today, -7)
     user_roles = frappe.get_roles(user)
     tasks = frappe.get_all("Warehouse Task", 
     filters=[
         ["task_type", "=", "Physical Verification"],
         ["status", "!=", "Completed"],
-        #["or", 
-        #    ["assign_to_user", "=", user],
-        #    ["assign_to_role", "in", user_roles]
-        #]
+        ["creation", "between", [one_week_ago, today]]
     ],
-    fields=["name", "reference_name", "date_instruction", "time_instruction", "assign_to_role"])
+    fields=["name", "reference_name", "date_instruction", "time_instruction", "assign_to_role", "creation"])
 
     order_tasks = []
     items = []
