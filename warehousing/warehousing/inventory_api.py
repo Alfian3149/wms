@@ -78,6 +78,7 @@ def get_current_qad_inventory(part, bulk_insert=False):
                         is_async=True,
                         enqueue_after_commit=False,
                         data=bulk_insert_inventory,
+                        spesify_prod_line=part
                     )   
 
                 else :
@@ -145,12 +146,15 @@ def get_inventory_detail(domain, site, location, part, lotserial, ref):
             "message": _("Terjadi kesalahan saat menghubungi QAD: {0}").format(str(e))
         }
 
-def delete_inventory_existing():
-    frappe.db.delete("Inventory")
+def delete_inventory_existing(spesify_prod_line=None):
+    if spesify_prod_line:
+        frappe.db.delete("Inventory", {"prod_line": spesify_prod_line})
+    else:
+        frappe.db.delete("Inventory")
     frappe.db.commit()
 
-def bulk_insert_inventory(data):
-    delete_inventory_existing()
+def bulk_insert_inventory(data, spesify_prod_line=None):
+    delete_inventory_existing(spesify_prod_line)
     now = frappe.utils.now()
     inventory_list = []
     for item in data["message"]:
@@ -169,6 +173,7 @@ def bulk_insert_inventory(data):
             "um_packaging": part[1] if part else None,
             "conversion_factor": part[0] if part else None,
         }) """
+        item_desc = item['ttpart_desc1'] + " " + item['ttpart_desc2']
         expire_date = parse_custom_date(item['ttexpire']) if item['ttexpire'] else None
         inventory_list.append((
             frappe.generate_hash(length=10),
@@ -177,6 +182,7 @@ def bulk_insert_inventory(data):
             now,
             item['ttsite'],
             item['ttpart'],
+            item_desc,
             item['ttlot'],
             flt(item['ttqty_oh']),
             item['ttpart_um'],
@@ -189,7 +195,7 @@ def bulk_insert_inventory(data):
             part[0] if part else 0,
         ))
     if inventory_list:
-        frappe.db.bulk_insert("Inventory", fields=["name", "owner", "creation", "modified", "site", "part", "lot_serial", "qty_on_hand", "um", "qty_per_pallet", "prod_line", "warehouse_location", "inventory_status", "expire_date", "um_packaging", "conversion_factor"], values=inventory_list)
+        frappe.db.bulk_insert("Inventory", fields=["name", "owner", "creation", "modified", "site", "part", "description", "lot_serial", "qty_on_hand", "um", "qty_per_pallet", "prod_line", "warehouse_location", "inventory_status", "expire_date", "um_packaging", "conversion_factor"], values=inventory_list)
         frappe.db.commit()
 
 def parse_custom_date(date_str):

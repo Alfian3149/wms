@@ -81,7 +81,8 @@ def update_external_transaction_status(payload, external_trans_name):
 		if frappe.db.exists("Part Master", payload.get("tr_part")) is None:
 			new_part = frappe.new_doc("Part Master")
 			new_part.part = payload.get("tr_part")
-			new_part.um = 'KG'
+			new_part.product_line = payload.get("tr_prod_line") 
+			new_part.um = payload.get("tr_um")
 			new_part.description = "AUTOCREATE"
 			new_part.qty_per_pallet = flt(0)
 			new_part.insert(ignore_permissions=True)
@@ -90,7 +91,11 @@ def update_external_transaction_status(payload, external_trans_name):
 		if frappe.db.exists("Transaction Type", payload.get("tr_type")) is None:
 			return
 
-		inv_status = payload.get("last_status") if "rct" in payload.get("tr_type").lower() else None
+		if "chl" in payload.get("tr_type").lower() or "tr" in payload.get("tr_type").lower() :
+			inv_status = payload.get("last_status") if "rct" in payload.get("tr_type").lower() else None
+		else : 
+			inv_status = payload.get("last_status")
+
 		inv_expire = payload.get("last_expire") if payload.get("last_expire") and "rct" in payload.get("tr_type").lower() else None
 		qty_chg = flt(payload.get("tr_qty_chg")) or flt(payload.get("tr_qty_loc")) or 0
 		data = {

@@ -54,7 +54,7 @@ frappe.listview_settings['Inventory'] = {
 
         if (frappe.session.user === "Administrator") {
             listview.page.add_inner_button(__('Get Current Stock'), function() {
-                frappe.confirm('Konfirmasi ini akan men-delete seluruh existing inventory web sebelum mengambil seluruh inventory dari ERP. Apakah Anda ingin tetap lanjutkan?', () => {
+                /* frappe.confirm('Konfirmasi ini akan men-delete seluruh existing inventory web sebelum mengambil seluruh inventory dari ERP. Apakah Anda ingin tetap lanjutkan?', () => {
                     frappe.call({
                         method: "warehousing.warehousing.inventory_api.get_current_qad_inventory",
                         args: {
@@ -72,7 +72,39 @@ frappe.listview_settings['Inventory'] = {
                             }
                         }
                     });
-                });
+                }); */
+                frappe.prompt([
+                    {
+                        fieldtype: 'HTML',
+                        options: `<div style="margin-bottom: 15px;" class="text-muted">
+                            Konfirmasi ini akan <b>men-delete seluruh existing inventory web</b> sebelum mengambil seluruh inventory dari ERP. Apakah Anda ingin tetap lanjutkan?
+                        </div>`
+                    },
+                    {
+                        label: __('Input Prod Line untuk spesifik data yang ingin diambil'), // Ubah label sesuai kebutuhan
+                        fieldname: 'prod_line', // Nama field untuk mengambil nilai
+                        fieldtype: 'Data',       // Tipe field (misal: Data, Select, Link)
+                        reqd: 0                  // Set 1 jika wajib diisi
+                    }
+                ], function(values) {
+                    frappe.call({
+                        method: "warehousing.warehousing.inventory_api.get_current_qad_inventory",
+                        args: {
+                            part: values.prod_line || "", // Mengambil nilai dari inputan dialog
+                            bulk_insert: true
+                        },
+                        freeze: true,
+                        freeze_message: __("Get Current Stock..."),
+                        callback: function(r) {
+                            if (r.message) {
+                                
+                                setTimeout(function() {
+                                    listview.refresh();
+                                }, 2000);
+                            }
+                        }
+                    });
+                }, __('Konfirmasi'), __('Lanjutkan'));
             });
         }
     }

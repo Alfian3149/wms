@@ -24,14 +24,13 @@
   "column_break_avig",
   "inventory_status",
   "expire_date",
-  "section_break_cxaz",
-  "id_barcode",
   "section_break_cdtd",
   "conversion_factor",
-  "column_break_solm",
   "um_packaging",
-  "column_break_fhvw",
+  "column_break_solm",
   "qty_per_pallet",
+  "column_break_fhvw",
+  "id_barcode",
   "section_break_zqjw",
   "last_printed_on",
   "column_break_gjvz",
@@ -179,13 +178,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_cxaz",
-   "fieldtype": "Section Break"
-  },
-  {
    "fetch_from": "part.description",
    "fieldname": "description",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Description"
   },
   {
@@ -197,7 +194,7 @@
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-31 15:37:29.391382",
+ "modified": "2026-09-04 01:58:32.910417",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",
