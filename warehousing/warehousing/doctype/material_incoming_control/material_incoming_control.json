@@ -5,7 +5,6 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "qad_url",
   "section_break_jvys",
   "default_site",
   "strict_when_qty_per_pallet_item_is_zero",
@@ -13,6 +12,7 @@
   "column_break_uriu",
   "rack_availability_threshold",
   "qty_to_receive_tolerance",
+  "qad_url",
   "section_break_olhc",
   "part_group"
  ],
@@ -35,7 +35,8 @@
    "default": "1000",
    "fieldname": "default_site",
    "fieldtype": "Data",
-   "label": "Default Site"
+   "label": "Default Site",
+   "reqd": 1
   },
   {
    "fieldname": "rack_availability_threshold",
@@ -65,10 +66,10 @@
    "default": "qad_api_url",
    "fieldname": "qad_url",
    "fieldtype": "Select",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "QAD Url",
-   "options": "qad_api_url\nqad_api_dev_url\nqad_api_test_url\nqad_api_prod_url",
-   "reqd": 1
+   "options": "qad_api_url\nqad_api_dev_url\nqad_api_test_url\nqad_api_prod_url"
   },
   {
    "fieldname": "section_break_jvys",
@@ -79,7 +80,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-05-18 09:33:39.621675",
+ "modified": "2026-09-04 02:43:06.815327",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Material Incoming Control",

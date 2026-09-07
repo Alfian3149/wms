@@ -191,10 +191,9 @@
   }
  ],
  "grid_page_length": 50,
- "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-04 01:58:32.910417",
+ "modified": "2026-09-04 02:53:54.832565",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",

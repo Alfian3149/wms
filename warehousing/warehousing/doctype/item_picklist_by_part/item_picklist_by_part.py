@@ -240,9 +240,9 @@ class ItemPicklistByPart(Document):
 			)
 		response = []
 		for data in item_request_list:
-			req_detail_list = frappe.db.get_list("Item Request Detail", filters={"parent": data.name, "status":['!=', 'Completed']}, fields=['name'])
+			req_detail_list = frappe.db.get_list("Item Request Detail", filters={"parent": item_req.name, "status":['!=', 'Completed']}, fields=['name'])
 			for data in req_detail_list:
-				doc = frappe.get_doc("Item Request Detail", data)
+				doc = frappe.get_doc("Item Request Detail", data.name)
 				qty_needed = flt(doc.quantity_requested) - (flt(doc.quantity_picked) + flt(doc.fullfilled_qty) + flt(doc.handovered))
 				if qty_needed > 0:
 					

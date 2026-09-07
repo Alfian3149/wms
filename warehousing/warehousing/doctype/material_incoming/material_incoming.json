@@ -411,7 +411,6 @@
   }
  ],
  "grid_page_length": 50,
- "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [
   {
@@ -423,7 +422,7 @@
    "link_fieldname": "material_incoming_link"
   }
  ],
- "modified": "2026-06-12 09:16:14.249752",
+ "modified": "2026-09-04 02:50:52.548064",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Material Incoming",
