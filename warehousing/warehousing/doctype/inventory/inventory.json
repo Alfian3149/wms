@@ -29,6 +29,8 @@
   "um_packaging",
   "column_break_solm",
   "qty_per_pallet",
+  "tf_number",
+  "tf_rmks",
   "column_break_fhvw",
   "id_barcode",
   "section_break_zqjw",
@@ -188,12 +190,22 @@
   {
    "fieldname": "column_break_kizu",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tf_number",
+   "fieldtype": "Data",
+   "label": "TF Number"
+  },
+  {
+   "fieldname": "tf_rmks",
+   "fieldtype": "Data",
+   "label": "TF Rmks"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-04 02:53:54.832565",
+ "modified": "2026-09-16 17:17:15.322106",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",

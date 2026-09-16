@@ -117,6 +117,13 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
 
     if expireDate: 
         new_inv.expire_date = expireDate
+
+    transfer = frappe.db.get_value("Transfer Single Item", {"site_from":site, "part":part,"lotserial_from":lot_serial, "location_to":whs_location}, ["remarks","remarks_optional"])
+
+    if transfer:
+        new_inv.tf_number = transfer[0]
+        new_inv.tf_rmks = transfer[1]
+
     new_inv.inventory_status = invStatus
     new_inv.insert(ignore_permissions=True)
     return new_inv.name
