@@ -15,7 +15,6 @@ import re
 
 class Inventory(Document):
     def validate(self):
-        print(f"Validating Inventory: {self.name} with qty_on_hand = {self.qty_on_hand}")
         batch, seq = parse_lot_serial(self.lot_serial)
         self.batch = int(batch) if batch else 0
         self.sequence = int(seq) if seq else 0
