@@ -10,13 +10,53 @@ import time
 from dataclasses import dataclass
 from dataclasses import asdict  
 import json
+import re
+
+
 class Inventory(Document):
-    pass
+    def validate(self):
+        print(f"Validating Inventory: {self.name} with qty_on_hand = {self.qty_on_hand}")
+        batch, seq = parse_lot_serial(self.lot_serial)
+        self.batch = int(batch) if batch else 0
+        self.sequence = int(seq) if seq else 0
+
     """ def validate(self):
         if flt(self.qty_on_hand) < 0:
             frappe.delete_doc("Inventory", self.name, force=True)
             frappe.logger().info(f"Inventory {self.name} dengan qty_on_hand = 0 telah dihapus setelah insert.") """
-        
+
+def update_inventory_batch_seq():
+
+  records = frappe.get_all(
+      "Inventory",  
+      fields=["name", "lot_serial"], 
+      filters={"lot_serial": ["is", "set"]},
+  )
+
+  total = len(records)
+  frappe.logger().info(f"Mulai update {total} record...")
+
+  for i, doc in enumerate(records):
+    batch_no, sequence = parse_lot_serial(doc.lot_serial)
+
+    if batch_no or sequence:
+      # Menggunakan db.set_value agar cepat dan tidak memicu hook berat
+      frappe.db.set_value(
+          "Inventory",
+          doc.name,
+          {"batch": int(batch_no) if batch_no else 0, "sequence": int(sequence) if sequence else 0},
+          update_modified=False,  # Set False jika tidak ingin mengubah tanggal modified
+      )
+
+    # Commit setiap 500 data agar tidak memenuhi memori DB
+    if i % 500 == 0:
+      frappe.db.commit()
+
+  # Commit terakhir untuk sisa data
+  frappe.db.commit()
+  frappe.logger().info("Update 4000+ record selesai!")
+
+
 @dataclass
 class PickingItem:
     part: str
@@ -27,6 +67,22 @@ class PickingItem:
     target_location: str
     item_group : str
     prd_line : str = None
+
+
+def parse_lot_serial(code_str):
+  if not code_str:
+    return None, None
+
+  # Pola: 6 digit tanggal, diikuti opsional (strip + 3 digit sequence atau lebih)
+  pattern = r"^(\d{6})(?:-(\d+))?$"
+  match = re.match(pattern, code_str.strip())
+
+  if match:
+    batch_no = match.group(1)
+    sequence = match.group(2)  # Akan bernilai None jika tidak ada sequence
+    return batch_no, sequence
+
+  return None, None
 
 @frappe.whitelist()
 def update_inventory_qty(doctype, doctype_link, transType, postingDate, site, part, lot_serial, reference, whs_location, qty_change, invStatus=None, expireDate=None, poNumber=None, poLine=None):
@@ -118,10 +174,10 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
     if expireDate: 
         new_inv.expire_date = expireDate
 
-    transfer = frappe.db.get_value("Transfer Single Item", {"site_from":site, "part":part,"lotserial_from":lot_serial, "location_to":whs_location}, ["remarks","remarks_optional"])
+    transfer = frappe.db.get_value("Transfer Single Item", {"site_from":site, "part":part,"lotserial_from":lot_serial, "location_to":whs_location}, ["remarks","remarks_optional", "quantity"])
 
     if transfer:
-        new_inv.tf_number = transfer[0]
+        new_inv.tf_number = transfer[0] + ":" + str(transfer[2])
         new_inv.tf_rmks = transfer[1]
 
     new_inv.inventory_status = invStatus
@@ -559,7 +615,8 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
                     AND loc.can_picking_reserved = 1 
                 ORDER BY 
                     IFNULL(inv.expire_date, '9999-12-31') ASC,
-                    inv.lot_serial ASC
+                    inv.batch ASC,
+                    inv.sequence ASC
             """, (site, item.part, "F-GOOD","P-GOOD", frappe.utils.nowdate()), as_dict=True)
 
         

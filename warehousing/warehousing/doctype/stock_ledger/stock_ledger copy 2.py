@@ -18,7 +18,6 @@ class StockLedger(Document):
 
 	def on_submit(self):
 		if self.inventory_doc_link:
-			
 			update_data = {
             'qty_on_hand': self.qty_after_transaction,
             'qty_reserved': self.reservation_after_transaction, 

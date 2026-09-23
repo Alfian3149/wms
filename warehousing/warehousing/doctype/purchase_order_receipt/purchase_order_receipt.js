@@ -41,6 +41,9 @@ frappe.ui.form.on("Purchase Order Receipt", {
                 }, 300);   
             }
         });
+        if (frm.doc.prefix === 'M') {
+            frm.set_df_property('location_receipt', 'hidden', 1);
+        } 
         
         /* setTimeout(() => {              
             frm.refresh_field('purchase_order_receipt_item');
@@ -49,6 +52,12 @@ frappe.ui.form.on("Purchase Order Receipt", {
         frm.fields_dict['purchase_order_receipt_item'].grid.wrapper.find('.row-index').hide();
         frm.fields_dict['purchase_order_receipt_item'].grid.wrapper.find('.grid-row-checkbox').hide();
         frm.fields_dict['purchase_order_receipt_item'].grid.wrapper.find('.row-check').hide(); */
+    },
+
+    prefix: function(frm) {
+        if (frm.doc.prefix === 'M') {
+            frm.set_df_property('location_receipt', 'hidden', 1);
+        } 
     },
 
     before_save(frm){

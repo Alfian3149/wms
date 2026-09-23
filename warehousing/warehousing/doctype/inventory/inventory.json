@@ -14,6 +14,8 @@
   "um",
   "reference",
   "lot_serial",
+  "batch",
+  "sequence",
   "column_break_kizu",
   "prod_line",
   "column_break_mnqd",
@@ -200,12 +202,22 @@
    "fieldname": "tf_rmks",
    "fieldtype": "Data",
    "label": "TF Rmks"
+  },
+  {
+   "fieldname": "batch",
+   "fieldtype": "Int",
+   "label": "Batch"
+  },
+  {
+   "fieldname": "sequence",
+   "fieldtype": "Int",
+   "label": "Sequence"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-16 17:17:15.322106",
+ "modified": "2026-09-22 10:07:44.512460",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Inventory",
