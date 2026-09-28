@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, getdate
+from frappe.utils import flt, getdate, now_datetime, add_to_date
 import math
 import time
 from dataclasses import dataclass
@@ -173,11 +173,23 @@ def create_inventory_record(site, part, lot_serial, reference, whs_location, ini
     if expireDate: 
         new_inv.expire_date = expireDate
 
-    transfer = frappe.db.get_value("Transfer Single Item", {"site_from":site, "part":part,"lotserial_from":lot_serial, "location_to":whs_location}, ["remarks","remarks_optional", "quantity"])
+    ten_minutes_ago = add_to_date(now_datetime(), minutes=-10)
+    transfer = frappe.db.get_value(
+    "Transfer Single Item", 
+    [
+        ["site_from", "=", site],
+        ["part", "=", part],
+        ["lotserial_from", "=", lot_serial],
+        ["location_to", "=", whs_location],
+        ["creation", ">=", ten_minutes_ago]  # Filter 10 menit terakhir
+    ], 
+    ["remarks", "remarks_optional", "quantity"])
 
+    """ transfer = frappe.db.get_value("Transfer Single Item", {"site_from":site, "part":part,"lotserial_from":lot_serial, "location_to":whs_location}, ["remarks","remarks_optional", "quantity"]) """
     if transfer:
-        new_inv.tf_number = transfer[0] + ":" + str(transfer[2])
-        new_inv.tf_rmks = transfer[1]
+        qty =  str(transfer[2]) if transfer[2] else "0"
+        new_inv.tf_number = transfer[0] + ":" + qty if transfer[0] else None
+        new_inv.tf_rmks = transfer[1] if transfer[1] else None
 
     new_inv.inventory_status = invStatus
     new_inv.insert(ignore_permissions=True)

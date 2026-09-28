@@ -28,7 +28,7 @@ frappe.ui.form.on("PO Receipt Minus", {
         frm.fields_dict['purchase_order_line_item'].grid.wrapper.find('.grid-remove-rows').hide();
         frm.fields_dict['purchase_order_line_item'].grid.wrapper.find('.row-index').hide();
         frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.grid-remove-rows').hide();
-        frm.set_df_property('receipt_minus_item_serials', 'cannot_add_rows', true);
+        //frm.set_df_property('receipt_minus_item_serials', 'cannot_add_rows', true);
 
         frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.grid-remove-rows').hide();
         frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.grid-row-checkbox').hide();
@@ -173,7 +173,7 @@ frappe.ui.form.on("PO Receipt Minus", {
                     }
                     setTimeout(() => { 
                         frm.refresh_field('receipt_minus_item_serials');
-                        frm.set_df_property('receipt_minus_item_serials', 'cannot_add_rows', true);
+                        //frm.set_df_property('receipt_minus_item_serials', 'cannot_add_rows', true);
 
                         frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.grid-remove-rows').hide();
                         frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.grid-row-checkbox').hide();
@@ -282,6 +282,34 @@ frappe.ui.form.on('Purchase Order Line Item', {
         frm.get_field('purchase_order_line_item').grid.grid_rows_by_docname[cdn].wrapper.find('.grid-delete-row').hide();
     }
 });
+
+frappe.ui.form.on('PO Receipt Minus Item Serial', {
+    receipt_minus_item_serials_add: function(frm) {
+        frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.grid-remove-rows').hide();
+        frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.grid-row-checkbox').hide();
+        frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.row-check').hide()
+        frm.fields_dict['receipt_minus_item_serials'].grid.wrapper.find('.row-index').hide()
+    },
+    po_line: function(frm, cdt, cdn) {
+        let row = frappe.get_doc(cdt, cdn);
+
+        let isLineExist = frm.doc.purchase_order_line_item.find(item => item.line === row.po_line);
+        if (!isLineExist) {
+            frappe.msgprint({
+                title: __('ERROR'),
+                indicator: 'red',
+                message: __('PO Line ' + row.po_line + ' not found in Purchase Order Line Item table.')
+            });
+            frappe.model.set_value(cdt, cdn, 'po_line', null);
+        }else {
+            let poLineItem = frm.doc.purchase_order_line_item.find(item => item.line === row.po_line);
+            frappe.model.set_value(cdt, cdn, 'part_number', poLineItem.part_number);
+        }
+        
+    }
+
+});
+
 
 
 function sync_filter_item(dialog) {
