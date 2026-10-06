@@ -927,3 +927,29 @@ def handover_confirm(task):
     #frappe.db.set_value("Item Picklist", taskdoc.reference_name, "complete_percentage", 100)
 
     return task 
+
+@frappe.whitelist()
+def validate_and_swap_batch(pick_list_id, item_code, original_batch, new_batch):
+    inventory = frappe.db.get_value("Inventory", {
+        'site': '1000',
+        'part': item_code, 
+        'lot_serial': new_batch,
+    }, ['name', 'inventory_status', 'qty_on_hand', 'qty_reserved', 'qty_handovered', 'expire_date', 'warehouse_location'], as_dict=True)
+
+    if not inventory:
+        return {
+            "status": "error",
+            "message": "Batch baru tidak ditemukan atau tidak valid."
+        }
+    
+    if inventory.inventory_status not in ['P-GOOD', 'GOOD']:
+        return {
+            "status": "error",
+            "message": f"Item yang di scan memiliki status {inventory.inventory_status} yang tidak valid untuk material produksi."
+        }
+
+    return {
+        "status": "success",
+        "message": "Batch baru valid untuk swap.",
+        "inventory": inventory
+    }

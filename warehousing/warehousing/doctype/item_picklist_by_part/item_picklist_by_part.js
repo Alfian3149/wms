@@ -363,7 +363,7 @@ function allocate_stock_details(frm) {
         }
     });
 }
-
+ 
 function old_filter_child_table_items(frm) {
     let all = frm.doc.all;
     let ingredient = frm.doc.ingredient;

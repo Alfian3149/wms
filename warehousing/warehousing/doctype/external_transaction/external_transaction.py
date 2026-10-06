@@ -117,6 +117,16 @@ def update_external_transaction_status(payload, external_trans_name):
 		init_sl.create_new()
 
 	elif payload.get("event_type") == "pt_mstr" : 
+		if frappe.db.exists("Part Master", payload.get("part")) is None:
+			new_part = frappe.new_doc("Part Master")
+			new_part.part = payload.get("part")
+			new_part.product_line = payload.get("product_line") 
+			new_part.um = payload.get("um")
+			new_part.description = "AUTOCREATE"
+			new_part.qty_per_pallet = flt(0) 
+			new_part.insert(ignore_permissions=True)
+			frappe.db.commit()
+
 		getPart = frappe.get_doc("Part Master", payload.get("part"))
 		if getPart :
 			getPart.description = payload.get("description1") + " " + payload.get("description2") 

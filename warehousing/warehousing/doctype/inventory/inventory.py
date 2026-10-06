@@ -16,7 +16,7 @@ import re
 class Inventory(Document):
     def validate(self):
         batch, seq = parse_lot_serial(self.lot_serial)
-        self.batch = int(batch) if batch else 0
+        self.batch = get_yyyymmdd_int(batch) if batch else 0
         self.sequence = int(seq) if seq else 0
 
     """ def validate(self):
@@ -43,7 +43,7 @@ def update_inventory_batch_seq():
       frappe.db.set_value(
           "Inventory",
           doc.name,
-          {"batch": int(batch_no) if batch_no else 0, "sequence": int(sequence) if sequence else 0},
+          {"batch": get_yyyymmdd_int(batch_no) if batch_no else 0, "sequence": int(sequence) if sequence else 0},
           update_modified=False,  # Set False jika tidak ingin mengubah tanggal modified
       )
 
@@ -68,6 +68,32 @@ class PickingItem:
     prd_line : str = None
 
 
+def get_yyyymmdd_int(lot_serial):
+    """Mengubah lot_serial (150926-006, 150926, dll) menjadi integer YYYYMMDD"""
+    if not lot_serial:
+        return None
+
+    # Pastikan data berupa string & hapus spasi
+    lot_str = str(lot_serial).strip()
+
+    # Ambil 6 digit pertama sebelum karakter '-' atau spasi
+    code = lot_str.split("-")[0].strip()
+
+    # Validasi panjang harus 6 digit angka (DDMMYY)
+    if len(code) == 6 and code.isdigit():
+        try:
+            # Parse format DDMMYY ke objek tanggal bawaan Frappe
+            # '26' otomatis dibaca sebagai '2026' oleh getdate dengan format %d%m%y
+            dt = getdate(
+                frappe.utils.datetime.datetime.strptime(code, "%d%m%y").date()
+            )
+
+            # Format ulang ke YYYYMMDD dan convert ke int
+            return int(dt.strftime("%Y%m%d"))
+        except Exception:
+            return None
+
+    return None
 def parse_lot_serial(code_str):
   if not code_str:
     return None, None

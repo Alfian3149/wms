@@ -10,6 +10,7 @@ from frappe.utils import getdate, nowdate, formatdate
 from frappe.utils import flt
 from warehousing.warehousing.utils.connection import get_url
 import datetime
+import re
 
 @frappe.whitelist()
 def get_current_qad_inventory(part, bulk_insert=False):
@@ -175,6 +176,8 @@ def bulk_insert_inventory(data, spesify_prod_line=None):
         }) """
         item_desc = item['ttpart_desc1'] + " " + item['ttpart_desc2']
         expire_date = parse_custom_date(item['ttexpire']) if item['ttexpire'] else None
+
+        batch, sequence = parse_lot_serial(item['ttlot'])
         inventory_list.append((
             frappe.generate_hash(length=10),
             frappe.session.user,
@@ -184,6 +187,8 @@ def bulk_insert_inventory(data, spesify_prod_line=None):
             item['ttpart'],
             item_desc,
             item['ttlot'],
+            get_yyyymmdd_int(batch) if batch else 0,
+            sequence if sequence else 0,
             flt(item['ttqty_oh']),
             item['ttpart_um'],
             flt(item['ttpart_qty_per_pallet']),
@@ -195,7 +200,7 @@ def bulk_insert_inventory(data, spesify_prod_line=None):
             part[0] if part else 0,
         ))
     if inventory_list:
-        frappe.db.bulk_insert("Inventory", fields=["name", "owner", "creation", "modified", "site", "part", "description", "lot_serial", "qty_on_hand", "um", "qty_per_pallet", "prod_line", "warehouse_location", "inventory_status", "expire_date", "um_packaging", "conversion_factor"], values=inventory_list)
+        frappe.db.bulk_insert("Inventory", fields=["name", "owner", "creation", "modified", "site", "part", "description", "lot_serial", "batch", "sequence", "qty_on_hand", "um", "qty_per_pallet", "prod_line", "warehouse_location", "inventory_status", "expire_date", "um_packaging", "conversion_factor"], values=inventory_list)
         frappe.db.commit()
 
 def parse_custom_date(date_str):
@@ -210,3 +215,44 @@ def parse_custom_date(date_str):
         return datetime.datetime.strptime(str(date_str).strip(), "%d/%m/%y").date()
     except ValueError:
         return getdate(date_str)
+
+def get_yyyymmdd_int(lot_serial):
+    """Mengubah lot_serial (150926-006, 150926, dll) menjadi integer YYYYMMDD"""
+    if not lot_serial:
+        return None
+
+    # Pastikan data berupa string & hapus spasi
+    lot_str = str(lot_serial).strip()
+
+    # Ambil 6 digit pertama sebelum karakter '-' atau spasi
+    code = lot_str.split("-")[0].strip()
+
+    # Validasi panjang harus 6 digit angka (DDMMYY)
+    if len(code) == 6 and code.isdigit():
+        try:
+            # Parse format DDMMYY ke objek tanggal bawaan Frappe
+            # '26' otomatis dibaca sebagai '2026' oleh getdate dengan format %d%m%y
+            dt = getdate(
+                frappe.utils.datetime.datetime.strptime(code, "%d%m%y").date()
+            )
+
+            # Format ulang ke YYYYMMDD dan convert ke int
+            return int(dt.strftime("%Y%m%d"))
+        except Exception:
+            return None
+
+    return None
+def parse_lot_serial(code_str):
+  if not code_str:
+    return None, None
+
+  # Pola: 6 digit tanggal, diikuti opsional (strip + 3 digit sequence atau lebih)
+  pattern = r"^(\d{6})(?:-(\d+))?$"
+  match = re.match(pattern, code_str.strip())
+
+  if match:
+    batch_no = match.group(1)
+    sequence = match.group(2)  # Akan bernilai None jika tidak ada sequence
+    return batch_no, sequence
+
+  return None, None
