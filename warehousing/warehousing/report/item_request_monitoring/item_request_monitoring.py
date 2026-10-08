@@ -110,7 +110,7 @@ def get_data(filters):
 	if status_filter == "Blank":
 		conditions.append("(detail.status IS NULL OR detail.status = '')")
 	elif status_filter == "UnCompleted":
-		conditions.append("(detail.status != 'Completed')")
+		conditions.append("(detail.status IS NULL OR detail.status != 'Completed')")
 	elif status_filter:
 		conditions.append("detail.status = %(status)s")
 		values["status"] = status_filter
