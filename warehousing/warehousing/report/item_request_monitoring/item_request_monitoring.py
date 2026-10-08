@@ -86,66 +86,68 @@ def get_columns():
 	]
 
 def get_data(filters):
-    conditions = []
-    values = {}
+	conditions = []
+	values = {}
 
-    # 1. Filter Date
-    if filters.get("from_date") and filters.get("to_date"):
-        conditions.append("parent.posting_date BETWEEN %(from_date)s AND %(to_date)s")
-        values["from_date"] = filters.get("from_date")
-        values["to_date"] = filters.get("to_date")
+	# 1. Filter Date
+	if filters.get("from_date") and filters.get("to_date"):
+		conditions.append("parent.posting_date BETWEEN %(from_date)s AND %(to_date)s")
+		values["from_date"] = filters.get("from_date")
+		values["to_date"] = filters.get("to_date")
 
-    # 2. Filter Document Name
-    if filters.get("name"):
-        conditions.append("parent.name LIKE %(name)s")
-        values["name"] = f"%{filters.get('name')}%"
+	# 2. Filter Document Name
+	if filters.get("name"):
+		conditions.append("parent.name LIKE %(name)s")
+		values["name"] = f"%{filters.get('name')}%"
 
-    # 3. Filter Part
-    if filters.get("part"):
-        conditions.append("detail.part LIKE %(part)s")
-        values["part"] = f"%{filters.get('part')}%"
+	# 3. Filter Part
+	if filters.get("part"):
+		conditions.append("detail.part LIKE %(part)s")
+		values["part"] = f"%{filters.get('part')}%"
 
-    # 4. Filter Status (Termasuk penanganan khusus "Blank")
-    status_filter = filters.get("status")
-    if status_filter == "Blank":
-        conditions.append("(detail.status IS NULL OR detail.status = '')")
-    elif status_filter:
-        conditions.append("detail.status = %(status)s")
-        values["status"] = status_filter
+	# 4. Filter Status (Termasuk penanganan khusus "Blank")
+	status_filter = filters.get("status")
+	if status_filter == "Blank":
+		conditions.append("(detail.status IS NULL OR detail.status = '')")
+	elif status_filter == "UnCompleted":
+		conditions.append("(detail.status != 'Completed')")
+	elif status_filter:
+		conditions.append("detail.status = %(status)s")
+		values["status"] = status_filter
 
-    # Build WHERE Clause
-    where_clause = ""
-    if conditions:
-        where_clause = "AND " + " AND ".join(conditions)
+	# Build WHERE Clause
+	where_clause = ""
+	if conditions:
+		where_clause = "AND " + " AND ".join(conditions)
 
-    # 5. Build Query
-    query = f"""
-        SELECT 
-            parent.name AS item_request,
-            parent.docstatus,
-            parent.owner,
-            parent.creation,
-            parent.link,
-            detail.part,
-            detail.item_group,
-            detail.prd_line,
-            detail.quantity_requested,
-            detail.quantity_picked,
-            detail.fullfilled_qty,
-            detail.handovered,
-            detail.free_qty,
-            detail.free_qty_usage,
-            detail.status
-        FROM 
-            `tabItem Request Detail` detail
-        JOIN 
-            `tabItem Request` parent ON detail.parent = parent.name
-        WHERE 
-            parent.docstatus IN (1, 2)
-            {where_clause}
-        ORDER BY 
-            parent.name desc, detail.idx asc
-    """
+	# 5. Build Query
+	query = f"""
+		SELECT 
+			parent.name AS item_request,
+			parent.docstatus,
+			parent.owner,
+			parent.creation,
+			parent.link,
+			detail.part,
+			detail.item_group,
+			detail.prd_line,
+			detail.quantity_requested,
+			detail.quantity_picked,
+			detail.fullfilled_qty,
+			detail.handovered,
+			detail.free_qty,
+			detail.free_qty_usage,
+			detail.status
+		FROM 
+			`tabItem Request Detail` detail
+		JOIN 
+			`tabItem Request` parent ON detail.parent = parent.name
+		WHERE 
+			parent.docstatus IN (1, 2)
+			{where_clause}
+		ORDER BY 
+			parent.name desc, detail.idx asc
+	"""
 
-    # 6. Eksekusi Query menggunakan 'values'
-    return frappe.db.sql(query, values, as_dict=True)
+	# 6. Eksekusi Query menggunakan 'values'
+	return frappe.db.sql(query, values, as_dict=True)

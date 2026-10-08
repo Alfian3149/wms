@@ -33,8 +33,8 @@ frappe.query_reports["Item Request Monitoring"] = {
             "fieldname": "status",
             "label": __("Status"),
             "fieldtype": "Select",
-            "options": "\nBlank\nPending\nPartially\nPicked\nCompleted",
-            "default": ""
+            "options": "\nBlank\nPending\nPartially\nPicked\nCompleted\nUnCompleted",
+            "default": "UnCompleted"
         }
 	]
 };

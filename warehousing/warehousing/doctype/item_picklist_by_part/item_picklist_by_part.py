@@ -28,7 +28,8 @@ class ItemPicklistByPart(Document):
 					total_picked = 0
 					if item_req_detail: 
 						total_picked = flt(item_req_detail.quantity_picked)  + flt(-abs(selected.quantity_picked) )  
-
+						if total_picked < 0 :
+							total_picked = 0
 					frappe.db.set_value("Item Request Detail", selected.child_name, "quantity_picked", total_picked)
 
 			task = frappe.db.get_value("Warehouse Task", {'reference_name':self.name}, ['name'], as_dict=1)
@@ -55,6 +56,9 @@ class ItemPicklistByPart(Document):
 					if item_req_detail:
 						total_picked = flt(item_req_detail.quantity_picked) + flt(selected.quantity_picked)
 					
+					if total_picked < 0:
+						total_picked = 0
+
 					frappe.db.set_value("Item Request Detail", selected.child_name, "quantity_picked", total_picked)
 
 			need_handover = 1
