@@ -903,6 +903,8 @@ def handover_qty_submit(name, qty, task, picklist):
     frappe.db.set_value("Warehouse Task Detail", name, "time_handovered", frappe.utils.now()) """ 
     
     frappe.db.commit()
+
+    others_link = frappe.db.get_value("Warehouse Task Detail", name, "others_link") or ""
     frappe.enqueue(
         "warehousing.warehousing.doctype.warehouse_task.warehouse_task.completion_handover_percentage",
         queue="default",
@@ -912,9 +914,10 @@ def handover_qty_submit(name, qty, task, picklist):
         warehouse_task_name=task,
         warehouse_task_detail_name=name,
         picklist_name=picklist,
-        item_request_detail_name=frappe.db.get_value("Warehouse Task Detail", name, ['others_link']).replace(" ", ""), 
+        item_request_detail_name=others_link.replace(" ", ""), 
         qty_confirmation=flt(qty)
     )  
+    return {"status": "success"}
 
 @frappe.whitelist()
 def handover_confirm(task):
