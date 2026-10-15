@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "request_number",
+  "mts",
   "child_name",
   "is_selected",
   "column_break_seyy",
@@ -112,13 +113,18 @@
    "fieldtype": "Link",
    "label": "Prd Line",
    "options": "Production Line Master"
+  },
+  {
+   "fieldname": "mts",
+   "fieldtype": "Data",
+   "label": "MTS"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-10 03:29:55.041775",
+ "modified": "2026-10-15 12:07:56.835202",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist Summary",

@@ -269,6 +269,7 @@ class ItemPicklistByPart(Document):
 						"fullfilled": doc.fullfilled,
 						"handovered": doc.handovered,
 						"prd_line": doc.prd_line,
+						"mts":data.link
 					})
 
 		return response

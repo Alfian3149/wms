@@ -137,6 +137,7 @@ frappe.ui.form.on("Item Picklist By Part", {
                             child.target_location = row.target_location;
                             child.need_date = row.need_date;
                             child.prd_line = row.prd_line;
+                            child.mts = row.mts;
                         }); 
                     }
                 }

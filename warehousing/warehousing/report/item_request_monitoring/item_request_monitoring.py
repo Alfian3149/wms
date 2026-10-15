@@ -21,6 +21,13 @@ def get_columns():
 			"width": 120
 		},
 		{
+			"label": "MTS",
+			"fieldname": "link",
+			"fieldtype": "Link",
+			"options": "Work Order Split",
+			"width": 100
+		},
+		{
 			"label": "Creation",
 			"fieldname": "creation",
 			"fieldtype": "Datetime",
