@@ -63,10 +63,15 @@ class ItemPicklistByPart(Document):
 
 			need_handover = 1
 			picklist_type = "Picking"
-			if self.purpose_short == "RSP" : 
+			purpose = "Picking"
+			if self.purpose_short == "RRK" : 
 				need_handover = 0
-				picklist_type = "Return"
-
+				picklist_type = "Return Rack"
+				purpose = "Return"
+			elif self.purpose_short == "RSP" : 
+				need_handover = 0
+				picklist_type = "Return Supplier"
+				purpose = "Return"
 
 			new_task = frappe.new_doc("Warehouse Task")
 			new_task.task_type = picklist_type
@@ -126,7 +131,7 @@ class ItemPicklistByPart(Document):
 			for item in self.item_picklist_detail:
 				doc_reserved_task = frappe.get_doc({
 					"doctype": "Reserved Task Entry",
-					"purpose" : "Picking",
+					"purpose" : purpose,
 					"doctype_source" : "Warehouse Task",
 					"task": new_task.name,
 					"reference_doc" : self.name,
@@ -269,7 +274,8 @@ class ItemPicklistByPart(Document):
 						"fullfilled": doc.fullfilled,
 						"handovered": doc.handovered,
 						"prd_line": doc.prd_line,
-						"mts":data.link
+						"mts":data.link,
+						"datetime":data.creation,
 					})
 
 		return response

@@ -106,6 +106,9 @@ def get_data(filters):
 	if filters.get("name"):
 		conditions.append("parent.name LIKE %(name)s")
 		values["name"] = f"%{filters.get('name')}%"
+	if filters.get("purpose"):
+		conditions.append("parent.purpose LIKE %(purpose)s")
+		values["purpose"] = f"%{filters.get('purpose')}%"
 
 	# 3. Filter Part
 	if filters.get("part"):

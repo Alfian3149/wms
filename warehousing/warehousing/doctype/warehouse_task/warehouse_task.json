@@ -54,7 +54,7 @@
    "fieldname": "task_type",
    "fieldtype": "Select",
    "label": "Task Type",
-   "options": "Picking\nPhysical Verification\nStock Transfer\nPutaway Transfer\nReturn"
+   "options": "Picking\nPhysical Verification\nStock Transfer\nPutaway Transfer\nReturn Rack\nReturn Supplier"
   },
   {
    "fieldname": "section_break_sfld",
@@ -191,7 +191,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-28 03:25:44.813823",
+ "modified": "2026-10-26 09:03:15.467338",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Warehouse Task",

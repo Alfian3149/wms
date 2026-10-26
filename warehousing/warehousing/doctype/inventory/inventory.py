@@ -511,38 +511,43 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
     request_list = json.loads(request)
     final_list = {}
     if request_type == "RSP" or request_type == "RRK" :
-        for req in request_list : 
-            itemRequest = frappe.get_doc("Item Request", req) 
-            for item in itemRequest.items:
-                
-                results.append({
-                    "site": item.site,
-                    "part": item.part,
-                    "description": item.description,
-                    "um": item.um,
-                    "amt_pallet": item.um,
-                    "item_group": item.item_group,
-                    "from_location": item.from_location,
-                    "to_location": item.target_location,
-                    "lot_serial": item.lotserial,
-                    "qty": item.quantity_requested
-                })
+        for request in request_list : 
+            item = frappe.get_doc("Item Request Detail", request.get('child_name') ) 
 
-                if item.part not in unique_items:
-                    unique_items[item.part] = PickingItem(
-                        part=item.part,
-                        site=default_site,
-                        quantity_requested=item.quantity_requested,
-                        quantity_picked=item.quantity_picked,
-                        quantity_to_pick= flt(item.quantity_requested) - flt(item.quantity_picked),
-                        target_location=item.target_location,
-                        item_group=item.item_group,
-                        prd_line=item.prd_line
-                        
-                    )
-                else:
-                    unique_items[item.part].quantity_requested += item.quantity_requested
-                    unique_items[item.part].quantity_to_pick += flt(item.quantity_requested) - flt(item.quantity_picked)
+            stock_oh = get_inventory_detail(item.site, item.part, item.lotserial, None, item.from_location)
+            if stock_oh <= 0:
+                continue  # Skip jika stok tidak tersedia
+
+            qty_request = min(stock_oh,  item.quantity_requested)
+
+            results.append({
+                "site": item.site,
+                "part": item.part,
+                "description": item.description,
+                "um": item.um,
+                "amt_pallet": item.um,
+                "item_group": item.item_group,
+                "from_location": item.from_location,
+                "to_location": "M01",
+                "lot_serial": item.lotserial,
+                "qty": qty_request
+            })
+
+            if item.part not in unique_items:
+                unique_items[item.part] = PickingItem(
+                    part=item.part,
+                    site=default_site,
+                    quantity_requested=qty_request,
+                    quantity_picked=item.quantity_picked,
+                    quantity_to_pick= flt(qty_request) - flt(item.quantity_picked),
+                    target_location="M01",
+                    item_group=item.item_group,
+                    prd_line=item.prd_line
+                    
+                )
+            else:
+                unique_items[item.part].quantity_requested += qty_request
+                unique_items[item.part].quantity_to_pick += flt(qty_request) - flt(item.quantity_picked)
         final_list = list(unique_items.values())
     else :
         for request in request_list:
@@ -623,8 +628,7 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
 
             """ if flt(total_qty_inv[0].qty) - flt(total_qty_inv[0].reserved) == 0 :
                 frappe.msgprint(f"There is no stock available for item : {item.part} .")
-                continue
- """
+                continue"""
             if qty_on_hand <= 0 :
                 frappe.msgprint(f"Stok untuk item {item.part} OH: {qty_on_hand} tidak tersedia.")
                 continue

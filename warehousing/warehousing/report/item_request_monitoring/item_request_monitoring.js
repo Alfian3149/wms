@@ -24,6 +24,13 @@ frappe.query_reports["Item Request Monitoring"] = {
             "default": ""
         },
         {
+            "fieldname": "purpose",
+            "label": __("Purpose"),
+            "fieldtype": "Select",
+            "options": "\nManufacture\nReturn Supplier\nReturn Rack",
+            "default": "Manufacture"
+        },
+        {
             "fieldname": "part",
             "label": __("Item"),
             "fieldtype": "Data",

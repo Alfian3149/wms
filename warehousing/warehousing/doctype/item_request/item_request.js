@@ -202,19 +202,27 @@ frappe.ui.form.on('Item Request', {
                     
                     frappe.db.get_doc("Inventory", inventory).then(doc => {
                         if (doc.qty_on_hand > 0){
-                            let child = frm.add_child('items');
-                            child.part = doc.part;
-                            child.um = doc.um;
-                            child.lotserial = doc.lot_serial;
-                            child.quantity_requested = doc.qty_on_hand;
-                            child.expire = doc.expire_date;
-                            child.from_location = doc.warehouse_location;
-                            child.target_location = frm.doc.target_location;
+                            const isDuplicate = (frm.doc.items || []).some(row => 
+                                row.part === doc.part && 
+                                row.lotserial === doc.lot_serial && 
+                                row.from_location === doc.warehouse_location
+                            );
 
-                            frappe.db.get_value("Part Master", doc.part, ["item_group", "description"]).then(value => {
-                                child.description = value.message.description;
-                                child.item_group = value.message.item_group;
-                            })
+                            if (!isDuplicate) {
+                                let child = frm.add_child('items');
+                                child.part = doc.part;
+                                child.um = doc.um;
+                                child.lotserial = doc.lot_serial;
+                                child.quantity_requested = doc.qty_on_hand;
+                                child.expire = doc.expire_date;
+                                child.from_location = doc.warehouse_location;
+                                child.target_location = frm.doc.target_location;
+
+                                frappe.db.get_value("Part Master", doc.part, ["item_group", "description"]).then(value => {
+                                    child.description = value.message.description;
+                                    child.item_group = value.message.item_group;
+                                })
+                            }
                         }
                         
                     });

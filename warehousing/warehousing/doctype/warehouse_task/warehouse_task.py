@@ -23,7 +23,12 @@ class WarehouseTask(Document):
         if self.task_type == "Picking" : 
             frappe.db.delete("Reserved Task Entry", filters={'task': self.name})
             frappe.db.commit()
-
+        if self.task_type == "Return Rack" : 
+            frappe.db.delete("Reserved Task Entry", filters={'task': self.name})
+            frappe.db.commit()
+        if self.task_type == "Return Supplier" : 
+            frappe.db.delete("Reserved Task Entry", filters={'task': self.name})
+            frappe.db.commit()
         if self.task_type == "Putaway Transfer" : 
             frappe.db.delete("Reserved Task Entry", filters={'task': self.name})
             frappe.db.commit()
@@ -111,7 +116,7 @@ class WarehouseTask(Document):
         self.name = make_autoname(f"TASK-{code}-{year}-.#####")
 
     def before_save(self): 
-        if self.task_type == "Putaway Transfer" or self.task_type == "Picking" :
+        if self.task_type == "Putaway Transfer" or self.task_type == "Picking" or self.task_type == "Return Rack" or self.task_type == "Return Supplier" :
             """ url = get_url()
             data = test_internal_api(url) """
             """ if data.get("status") == "failed" :
@@ -535,6 +540,19 @@ def putaway_transfer_confirm():
     doc_parent.save(ignore_permissions=True)
    
     latest_doc_parent = frappe.get_doc("Warehouse Task", doc_child.parent)
+    if latest_doc_parent.task_type == "Return Rack" or latest_doc_parent.task_type == "Return Supplier" :
+        frappe.enqueue(
+            "warehousing.warehousing.doctype.warehouse_task.warehouse_task.completion_picking_percentage",
+            queue="default",
+            timeout=300,
+            is_async=True,
+            enqueue_after_commit=False,
+            warehouse_task_name=latest_doc_parent.name,
+            picklist_name=latest_doc_parent.reference_name,
+            item_request_detail_name=doc_child.others_link.replace(" ", ""),
+            qty_confirmation=flt(data["confirmQty"])
+        )   
+
     if latest_doc_parent.status == "Completed" :
         latest_doc_parent.submit()     
 
@@ -660,8 +678,12 @@ def completion_picking_percentage(warehouse_task_name, picklist_name, item_reque
         latest_fulfilled = current_fulfilled + qty_post
 
         # Penentuan status
+
         if latest_fulfilled >= flt(request_detail.quantity_requested):
-            status = "Picked"
+            if request_detail.parent[0:3] == "MFG":
+                status = "Picked"
+            else :
+                status = "Completed"
         else: 
             status = "Partially"
 
@@ -758,7 +780,7 @@ def scan_item_putaway(item, lotserial):
             "lotserial": lotserial,                 # Filter kolom Child Table
             "status": "Pending",
             "parent": ["in", frappe.get_all("Warehouse Task", 
-                filters={"task_type": "Putaway Transfer"}, 
+                filters={"task_type": ["in", ["Putaway Transfer"]]}, 
                 pluck="name")]
             },
     fields=["name as keyId", "item as sku", "description as name", "um", "lotserial as lotSerial",  "locationsource as currentLocation", "locationsuggestion as suggestLocation", "qty_label as availableQuantity", "locationdestination as confirmLocation","qty_confirmation as confirmQty"])
@@ -886,6 +908,25 @@ def get_handover_outstanding_tasks(user):
             "items": task_items
         })
     return handoverTask
+
+@frappe.whitelist()
+def get_return_rack_tasks(task_type):
+    tasks = frappe.get_all("Warehouse Task", 
+    filters=[
+        ["task_type", "=", task_type],
+        ["docstatus", "!=", 2],
+        ["status", "!=", "Completed"]
+    ],
+    fields=["name", "reference_name", "date_instruction", "time_instruction", "assign_to_role", "users_picker","modified"],)
+
+    listTask = []
+    for data in tasks:
+        task_items = frappe.get_all("Warehouse Task Detail",
+                filters={"parent": data.name, "status": ["=", "Pending"]},
+                fields=["name as name","item as item_code", "description as item_name", "lotserial as lot_serial", "qty_label as qty", "um as uom","locationsource as current_location", "locationsuggestion as suggested_location"],order_by='item asc, lotserial asc')
+        
+        listTask.append({"task_items": task_items})
+    return {"status": "success", "data": listTask} 
 
 
 @frappe.whitelist()

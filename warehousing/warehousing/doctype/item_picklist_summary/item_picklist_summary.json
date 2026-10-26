@@ -10,6 +10,7 @@
   "mts",
   "child_name",
   "is_selected",
+  "request_datetime",
   "column_break_seyy",
   "site",
   "part",
@@ -118,13 +119,18 @@
    "fieldname": "mts",
    "fieldtype": "Data",
    "label": "MTS"
+  },
+  {
+   "fieldname": "request_datetime",
+   "fieldtype": "Datetime",
+   "label": "Request Datetime"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-10-15 12:07:56.835202",
+ "modified": "2026-10-26 11:27:27.786446",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Picklist Summary",

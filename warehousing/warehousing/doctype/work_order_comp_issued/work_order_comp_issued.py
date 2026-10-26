@@ -68,23 +68,24 @@ class WorkOrderCompIssued(Document):
                         init_sl.create_new()
                     frappe.db.commit()
                 
-                for item in self.item_issued:
-                    data = {
-                        "doctype":"Work Order Comp Issued Items",
-                        "doctype_link":item.name,
-                        "transType":"ISS-RSV",
-                        "site":"1000",
-                        "part":item.part,
-                        "lotSerial":item.lot_serial,
-                        "location":item.from_location,
-                        "qtyChg":0,
-                        "qtyReserved" : -1 * item.quantity,
-                        "postingDate":getdate(nowdate()),
-                        "poNumber":None,
-                        "poLine":None
-                    }
-                    init_sl = make_sl_entry(**data)
-                    init_sl.create_new()
+                if self.production_activity_to_be_carried_out == "Blending" :
+                    for item in self.item_issued:
+                        data = {
+                            "doctype":"Work Order Comp Issued Items",
+                            "doctype_link":item.name,
+                            "transType":"ISS-RSV",
+                            "site":"1000",
+                            "part":item.part,
+                            "lotSerial":item.lot_serial,
+                            "location":item.from_location,
+                            "qtyChg":0,
+                            "qtyReserved" : -1 * item.quantity,
+                            "postingDate":getdate(nowdate()),
+                            "poNumber":None,
+                            "poLine":None
+                        }
+                        init_sl = make_sl_entry(**data)
+                        init_sl.create_new()
 
                 if self.wo_weighing_number : 
                     frappe.db.set_value("Work Order Comp Issued", self.wo_weighing_number , "is_closed", True)

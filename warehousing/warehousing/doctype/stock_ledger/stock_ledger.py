@@ -7,6 +7,7 @@ from frappe.utils import nowdate
 from frappe.model.naming import getseries
 from frappe.utils import flt
 from warehousing.warehousing.doctype.inventory.inventory import create_inventory_record
+from frappe import _
 
 class StockLedger(Document):
 	def autoname(self):
