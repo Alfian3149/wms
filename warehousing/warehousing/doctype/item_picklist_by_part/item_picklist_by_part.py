@@ -34,10 +34,11 @@ class ItemPicklistByPart(Document):
 
 			task = frappe.db.get_value("Warehouse Task", {'reference_name':self.name}, ['name'], as_dict=1)
 			if task :
-				#frappe.db.delete("Warehouse Task", task.name)
 				doc = frappe.get_doc("Warehouse Task", task.name)
-				if doc.docstatus == 1:
-					doc.cancel()
+				if doc:
+					doc.status = "Cancelled"
+					doc.is_needed_handover = 0
+					doc.submit()
 
 				frappe.db.delete("Reserved Task Entry", filters={'task': task.name})
 				frappe.db.commit()
@@ -51,7 +52,7 @@ class ItemPicklistByPart(Document):
 		try :
 			for selected in self.selected_item:
 				if selected.quantity_picked > 0 :
-					item_req_detail = frappe.db.get_value("Item Request Detail", {'name':selected.name}, ['quantity_picked'], as_dict=1)
+					item_req_detail = frappe.db.get_value("Item Request Detail", {'name':selected.child_name}, ['quantity_picked'], as_dict=1)
 					total_picked = flt(selected.quantity_picked)
 					if item_req_detail:
 						total_picked = flt(item_req_detail.quantity_picked) + flt(selected.quantity_picked)
@@ -127,6 +128,7 @@ class ItemPicklistByPart(Document):
 
 
 			new_task.insert()
+			
 				
 			for item in self.item_picklist_detail:
 				doc_reserved_task = frappe.get_doc({

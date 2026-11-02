@@ -18,6 +18,9 @@ frappe.ui.form.on("Item Picklist By Part", {
         }      
     },
     refresh(frm) {
+        if (frm.doc.needed_date === null || frm.doc.needed_date === undefined || frm.doc.needed_date === ""){
+            frm.set_value('needed_date', frappe.datetime.nowdate());
+        }
         frm.set_df_property('selected_item', 'cannot_add_rows', true);
         frm.set_df_property('item_picklist_detail', 'cannot_add_rows', true);
         //frm.fields_dict['selected_item'].grid.cannot_add_rows = true; 

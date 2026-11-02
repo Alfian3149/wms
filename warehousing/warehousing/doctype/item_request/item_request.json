@@ -67,7 +67,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Purpose",
-   "options": "\nMaterial Transfer\nMaterial Issue\nManufacture\nReturn Supplier\nReturn Rack",
+   "options": "\nManufacture\nReturn Supplier\nReturn Rack",
    "reqd": 1
   },
   {
@@ -249,7 +249,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-10 03:27:49.240030",
+ "modified": "2026-11-02 09:00:05.391984",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Item Request",

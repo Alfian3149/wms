@@ -160,6 +160,10 @@ frappe.ui.form.on('Item Request', {
         }
         else if (frm.doc.purpose === "Manufacture"){
             frm.set_df_property("open_and_select_inventory_list","hidden", 1);
+            fields_to_hidden.forEach(field => {
+                frm.set_df_property(field,"hidden", 1);
+            });
+            frm.set_df_property('material_incoming_id', 'reqd', 0);
         }
         else {
             fields_to_hidden.forEach(field => {
