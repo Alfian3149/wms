@@ -445,7 +445,7 @@ def get_outstanding_physical_verification_tasks(user):
     tasks = frappe.get_all("Warehouse Task", 
     filters=[
         ["task_type", "=", "Physical Verification"],
-        ["status", "!=", "Completed"],
+        ["status", "not in", ["Completed", "Cancelled"]],
         ["creation", "between", [one_week_ago, today]]
     ],
     fields=["name", "reference_name", "date_instruction", "time_instruction", "assign_to_role", "creation"])
@@ -881,12 +881,8 @@ def get_handover_outstanding_tasks(user):
     tasks = frappe.get_all("Warehouse Task", 
     filters=[
         ["task_type", "=", "Picking"],
-        ["docstatus", "!=", 2],
+        ["status", "not in", ["Cancelled"]],
         ["is_needed_handover", "=", 1]
-        #["or", 
-        #    ["assign_to_user", "=", user],
-        #    ["assign_to_role", "in", user_roles]
-        #]
     ],
     fields=["name", "reference_name", "date_instruction", "time_instruction", "assign_to_role", "users_picker","modified"],)
 
