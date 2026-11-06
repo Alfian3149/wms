@@ -91,7 +91,7 @@ frappe.ui.form.on("Purchase Order Receipt", {
                             frappe.msgprint(__("Tidak terdapat item sparepart dan jasa pada purchase order ini. Silahkan input nomor order lainnya."));
                             return;
                         }
-                   
+                        console.log(data);
                         frm.clear_table('purchase_order_receipt_item');
                         let this_today = frappe.datetime.get_today();
                         let type = '';
@@ -112,6 +112,11 @@ frappe.ui.form.on("Purchase Order Receipt", {
                                 child.qty_to_receive = flt(0);
                                 child.item_type = row.pt_grouping;
                                 type = row.pt_grouping;
+
+                                if (child.description.length <= 2) {
+                                    let extractedData = row.pod_cmmt;
+                                    child.description = extractedData;
+                                }
 
                                 let response = await frappe.db.get_value(
                                     'PO Receipt Transaction Type',

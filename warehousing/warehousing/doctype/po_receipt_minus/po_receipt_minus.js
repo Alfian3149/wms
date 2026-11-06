@@ -249,6 +249,11 @@ frappe.ui.form.on("PO Receipt Minus", {
                             child.um = row.ptum;
                             child.due_date = row.pod_duedate;
                             child.net_received = flt(row.pod_qtyrcvd) - flt(row.pod_qtyrtnd);
+
+                            if (child.description.length <= 2) {
+                                let extractedData = row.pod_cmmt;
+                                child.description = extractedData;
+                            }
                         });
 
                         if (data.ttpo_mstr && data.ttpo_mstr.length > 0) {
