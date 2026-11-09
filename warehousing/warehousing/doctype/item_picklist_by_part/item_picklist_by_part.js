@@ -18,6 +18,7 @@ frappe.ui.form.on("Item Picklist By Part", {
         }      
     },
     refresh(frm) {
+        frm.set_value('sort_by', "Request");
         if (frm.doc.needed_date === null || frm.doc.needed_date === undefined || frm.doc.needed_date === ""){
             frm.set_value('needed_date', frappe.datetime.nowdate());
         }
