@@ -639,6 +639,25 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
 
             # 3. Cari detail Lot/Serial berdasarkan FIFO (Stock Ledger Entry)
             # Kita ambil baris yang memiliki balance_qty > 0
+            item_category = frappe.db.get_value("Part Master", item.part, "category")
+
+            # Tentukan aturan pengurutan (ORDER BY) berdasarkan kategori item
+            if item_category == "INGREDIENT":
+                order_clause = """
+                    ORDER BY 
+                        IFNULL(inv.expire_date, '9999-12-31') ASC,
+                        inv.batch ASC,
+                        inv.sequence ASC
+                """
+            else:
+                # Contoh jika kategori lain ingin mengutamakan expired yang terisi dulu (seperti Packaging):
+                order_clause = """
+                    ORDER BY 
+                        inv.batch ASC,
+                        inv.sequence ASC
+                """
+
+            # Eksekusi 1 Query Utama
             stocks = frappe.db.sql(f"""
                 SELECT 
                     inv.site, inv.part, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet
@@ -649,18 +668,14 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
                 WHERE 
                     inv.site = %s 
                     AND inv.part = %s 
-                    AND inv.inventory_status IN (%s, %s)
+                    AND inv.inventory_status IN ("F-GOOD", "P-GOOD", "GOOD")
                     AND (inv.expire_date > %s OR inv.expire_date IS NULL OR inv.expire_date = '')
                     AND inv.qty_on_hand > 0
                     AND loc.is_active = 1
                     AND loc.can_picking_reserved = 1 
-                ORDER BY 
-                    IFNULL(inv.expire_date, '9999-12-31') ASC,
-                    inv.batch ASC,
-                    inv.sequence ASC
-            """, (site, item.part, "F-GOOD","P-GOOD", frappe.utils.nowdate()), as_dict=True)
+                {order_clause}
+            """, (site, item.part, frappe.utils.nowdate()), as_dict=True)
 
-        
             allocated_qty = 0
             remaining_needed = 0
             for stock_oh in stocks:
