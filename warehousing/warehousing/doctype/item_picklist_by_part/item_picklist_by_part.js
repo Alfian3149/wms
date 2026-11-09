@@ -369,17 +369,61 @@ function allocate_stock_details(frm) {
     });
 }
  
-function old_filter_child_table_items(frm) {
+function filter_child_table_items(frm, sort_order = null) {
     let all = frm.doc.all;
     let ingredient = frm.doc.ingredient;
     let packaging = frm.doc.packaging;
     let others = frm.doc.others;
+    let sort_by = frm.doc.sort_by || null;
     
     if (all === 0 && ingredient === 0 && packaging === 0 && others === 0) {
         all = 1;
         frm.set_value('all', 1);
     }
+
+    // Pastikan grid di-refresh terlebih dahulu agar elemen DOM-nya terbentuk
     let cur_grid = frm.get_field('selected_item').grid;
+    cur_grid.refresh();
+
+    // ==========================================
+    // Logika Sorting Data Array
+    // ==========================================
+    if (sort_order === 'asc' || sort_order === 'desc') {
+        console.log("sorting logic");
+        frm.doc.selected_item.sort((a, b) => {
+            let valA = '';
+            let valB = '';
+
+            if (sort_by === 'Item Number'){
+                valA = (a.part || "").toString().toLowerCase();
+                valB = (b.part || "").toString().toLowerCase();
+            }
+            else if (sort_by === 'Item Group'){
+                valA = (a.item_grouping || "").toString().toLowerCase();
+                valB = (b.item_grouping || "").toString().toLowerCase();
+            }
+            else if (sort_by === 'Request'){
+                valA = (a.request_number || "").toString().toLowerCase();
+                valB = (b.request_number || "").toString().toLowerCase();
+            }
+            else if (sort_by === 'Production Line'){
+                valA = (a.prd_line || "").toString().toLowerCase();
+                valB = (b.prd_line || "").toString().toLowerCase();
+            }
+            else {
+                valA = (a.idx || 0);
+                valB = (b.idx || 0);
+            }
+
+            if (valA < valB) return sort_order === 'asc' ? -1 : 1;
+            if (valA > valB) return sort_order === 'asc' ? 1 : -1;
+            return 0;
+        });
+        
+        // Refresh ulang grid setelah sorting agar urutannya ter-update
+        cur_grid.refresh();
+    }
+    // ==========================================
 
     // 1. Kumpulkan semua kelompok grup yang sedang aktif
     let active_groups = [];
@@ -399,7 +443,6 @@ function old_filter_child_table_items(frm) {
         if (all === 1) {
             show_this_row = true;
         } else {
-            // Evaluasi apakah baris ini cocok dengan salah satu checkbox yang aktif
             let match_ingredient_or_packaging = active_groups.includes(item_group);
             let match_others = (others === 1 && item_group !== "INGREDIENT" && item_group !== "PACKAGING");
 
@@ -414,11 +457,9 @@ function old_filter_child_table_items(frm) {
             $(grid_row.wrapper).toggle(show_this_row);
         }
     });
-    setTimeout(() => { frm.refresh_field('selected_item');}, 300);
-   
 }
 
-function filter_child_table_items(frm, sort_order = null) {
+function old_filter_child_table_items(frm, sort_order = null) {
     let all = frm.doc.all;
     let ingredient = frm.doc.ingredient;
     let packaging = frm.doc.packaging;
