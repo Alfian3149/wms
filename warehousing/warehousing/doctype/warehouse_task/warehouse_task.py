@@ -8,7 +8,7 @@ import frappe
 from frappe.model.naming import make_autoname
 from warehousing.warehousing.specialLogic import get_multi_bin_suggestion
 import copy
-from frappe.utils import flt,getdate, get_fullname, now_datetime,  nowdate, add_days
+from frappe.utils import flt, getdate, get_fullname, now_datetime,  nowdate, add_days
 import time
 from frappe.desk.doctype.notification_log.notification_log import enqueue_create_notification
 from warehousing.warehousing.doctype.inventory.inventory import update_inventory_qty
@@ -615,7 +615,7 @@ def picked_confirm():
         queue="default",
         timeout=300,
         is_async=True,
-        enqueue_after_commit=False,
+        enqueue_after_commit=True,
         warehouse_task_name=latest_doc_parent.name,
         picklist_name=latest_doc_parent.reference_name,
         item_request_detail_name=doc_child.others_link.replace(" ", ""),
@@ -623,10 +623,15 @@ def picked_confirm():
 
     )   
 
-    if latest_doc_parent.status == "Completed" :
-        latest_doc_parent.submit()
+    # 4. Cek apakah seluruh child task sudah Completed sebelum melakukan submit
+    pending_tasks = frappe.db.count("Warehouse Task Detail", {
+        "parent": latest_doc_parent.name, 
+        "status": ["!=", "Completed"]
+    })
 
-        #frappe.db.set_value("Item Picklist", latest_doc_parent.reference_name, "complete_percentage", 50)
+    if pending_tasks == 0 and latest_doc_parent.docstatus == 0:
+        latest_doc_parent.reload()
+        latest_doc_parent.submit()
     return data
 
 @frappe.whitelist()
