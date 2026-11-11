@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "buffer_tollerance",
+  "use_qty_handovered_as_stock",
   "product_line_allowed"
  ],
  "fields": [
@@ -19,13 +20,19 @@
    "fieldname": "buffer_tollerance",
    "fieldtype": "Int",
    "label": "Buffer Tollerance (%)"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_qty_handovered_as_stock",
+   "fieldtype": "Check",
+   "label": "Activate Qty handovered as stock"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-04-10 05:32:16.570828",
+ "modified": "2026-11-11 08:35:00.333625",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Activity Control",

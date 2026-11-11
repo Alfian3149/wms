@@ -283,6 +283,7 @@ def search_and_reserve_stock(site, summary_items, item_status):
 
 @frappe.whitelist() 
 def get_inventory_clean_for_production(site, item, lotserial, status, qty_needed): 
+    basic_stock_from  = frappe.db.get_single_value("Work Order Activity Control", "use_qty_handovered_as_stock")
     notOk = False
     statusApi = "success"
     message = "Stock available"
@@ -309,7 +310,10 @@ def get_inventory_clean_for_production(site, item, lotserial, status, qty_needed
     """, (site, item, lotserial, status, frappe.utils.nowdate()), as_dict=True)
 
     for row in stocks:
-        available = flt(row.qty_handovered) - flt(row.qty_reserved)
+        if basic_stock_from:
+            available = flt(row.qty_handovered) - flt(row.qty_reserved)
+        else:
+            available = flt(row.qty_on_hand) - flt(row.qty_reserved)
         #not_handover_yet = frappe.db.get_list("Lot Serial Handover Yet", {"site": site, "part": row.part, "lotserial": row.lot_serial}, ["SUM(qty_on_hand) as qty"])
 
         """ total_not_handovered_yet = frappe.db.get_list("Warehouse Task Detail", {"part":row.part, "lotserial":row.lot_serial, "locationdestination":row.warehouse_location, "has_handovered": 0}, ["SUM(qty_confirmation) as qty"])

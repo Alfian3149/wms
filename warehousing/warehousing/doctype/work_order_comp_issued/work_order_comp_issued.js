@@ -297,31 +297,44 @@ frappe.ui.form.on("Work Order Comp Issued", {
                                         e.stopPropagation();
                                     }
                                     else{
+                                        console.log("r.message.inventory[0]", r.message.inventory[0]);
                                         const double_scanned_weigh = scanned_items.find(row => row.item_code === item && row.lotserial === lotSerial);
-                                        qtyAvailable = flt(r.message.inventory[0].qty_handovered) - flt(r.message.inventory[0].qty_reserved) ;
-                                        locationAvailable = r.message.inventory[0].warehouse_location;
-                                        if (double_scanned_weigh) {
-                                            d.set_value('scan_temporary', val);
-                                            frappe.show_alert({
-                                                message:__("Modifikasi data.."),
-                                                indicator:'green'
-                                            },2);
-                                        }
-                                        else{
-                                            d.set_value('scan_input', '');
-
-                                            d.set_value('scan_temporary', val);
+                                        frappe.db.get_single_value("Work Order Activity Control", "use_qty_handovered_as_stock").then(value => {
+                                          
+                                            console.log("use_qty_handovered_as_stock", value);
+                                            if (value === 1){
+                                                qtyAvailable = flt(r.message.inventory[0].qty_handovered) - flt(r.message.inventory[0].qty_reserved);
+                                            } 
+                                            else {
+                                                qtyAvailable = flt(r.message.inventory[0].qty_on_hand) - flt(r.message.inventory[0].qty_reserved);
+                                            }
                                             
-                                            const row_found = frm.doc.item_summary_to_issued.find(row => row.part === item)
-                                            scanned_items.push({ item_code: item, description: row_found.description, um:row_found.um, lotserial:lotSerial, qty_needed: row_found.qty_needed, qty_lot_available:qtyAvailable, qty_scanned: flt(0), in_location:locationAvailable,  no: scanned_items.length + 1 });
-                                            render_scan_list();
-                                        }
-                                        
-                                        setTimeout(() => {
-                                            $qty_field.focus().select();
-                                            d.set_value('scan_input', '');
-                                            d.set_value('scan_qty', '');
-                                        }, 100);
+
+                                            console.log("qtyAvailable", qtyAvailable);
+                                            locationAvailable = r.message.inventory[0].warehouse_location;
+                                            if (double_scanned_weigh) {
+                                                d.set_value('scan_temporary', val);
+                                                frappe.show_alert({
+                                                    message:__("Modifikasi data.."),
+                                                    indicator:'green'
+                                                },2);
+                                            }
+                                            else{
+                                                d.set_value('scan_input', '');
+
+                                                d.set_value('scan_temporary', val);
+                                                
+                                                const row_found = frm.doc.item_summary_to_issued.find(row => row.part === item)
+                                                scanned_items.push({ item_code: item, description: row_found.description, um:row_found.um, lotserial:lotSerial, qty_needed: row_found.qty_needed, qty_lot_available:qtyAvailable, qty_scanned: flt(0), in_location:locationAvailable,  no: scanned_items.length + 1 });
+                                                render_scan_list();
+                                            }
+                                            
+                                            setTimeout(() => {
+                                                $qty_field.focus().select();
+                                                d.set_value('scan_input', '');
+                                                d.set_value('scan_qty', '');
+                                            }, 100);
+                                        });
                                     }
                                 }
                                 
