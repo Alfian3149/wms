@@ -13,6 +13,7 @@ class InventoryValidator:
     def is_allowed_suggestion(self):
         locationMixedItemRules = frappe.db.get_value("Warehouse Location", self.location, ["allowed_mixed_items", "max_mixed_items"], as_dict=True)
 
+        print(f"Location Mixed Item Rules: {locationMixedItemRules}")
         is_allowed = False
 
         if locationMixedItemRules.allowed_mixed_items == 0:
