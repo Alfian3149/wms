@@ -785,7 +785,7 @@ def scan_item_putaway(item, lotserial):
             "lotserial": lotserial,                 # Filter kolom Child Table
             "status": "Pending",
             "parent": ["in", frappe.get_all("Warehouse Task", 
-                filters={"task_type": ["in", ["Putaway Transfer"]]}, 
+                filters={"task_type": ["in", ["Putaway Transfer", "Return Rack"]]}, 
                 pluck="name")]
             },
     fields=["name as keyId", "item as sku", "description as name", "um", "lotserial as lotSerial",  "locationsource as currentLocation", "locationsuggestion as suggestLocation", "qty_label as availableQuantity", "locationdestination as confirmLocation","qty_confirmation as confirmQty"])
