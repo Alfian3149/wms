@@ -101,7 +101,9 @@ class WarehouseTask(Document):
             "Picking": "PICK",
             "Physical Verification": "PVER",
             "Stock Transfer": "STRF",
-            "Putaway Transfer": "PTRS"
+            "Putaway Transfer": "PTRS",
+            "Return Rack": "RRCK",
+            "Return Supplier": "RSPR"
         }
 
         # 2. Ambil kode singkatnya, default ke 'GEN' jika tidak ditemukan
@@ -785,7 +787,34 @@ def scan_item_putaway(item, lotserial):
             "lotserial": lotserial,                 # Filter kolom Child Table
             "status": "Pending",
             "parent": ["in", frappe.get_all("Warehouse Task", 
-                filters={"task_type": ["in", ["Putaway Transfer", "Return Rack"]]}, 
+                filters={"task_type": ["in", ["Putaway Transfer"]]}, 
+                pluck="name")]
+            },
+    fields=["name as keyId", "item as sku", "description as name", "um", "lotserial as lotSerial",  "locationsource as currentLocation", "locationsuggestion as suggestLocation", "qty_label as availableQuantity", "locationdestination as confirmLocation","qty_confirmation as confirmQty"])
+    if task:
+        data_stok = {}
+        data_stok[item + "#" + lotserial] = task[0] 
+        return {
+            "status": "success",
+            "message": "Data berhasil ditemukan",
+            "data": data_stok
+        }
+    
+    return {
+        "status": "failed",
+        "message": f"Task tidak terdaftar di sistem.",
+        "data": None
+        }
+
+@frappe.whitelist()
+def scan_item_return_rack(item, lotserial):
+    task = frappe.get_all("Warehouse Task Detail", 
+    filters={
+            "item": item,                 # Filter kolom Child Table
+            "lotserial": lotserial,                 # Filter kolom Child Table
+            "status": "Pending",
+            "parent": ["in", frappe.get_all("Warehouse Task", 
+                filters={"task_type": ["in", ["Return Rack"]]}, 
                 pluck="name")]
             },
     fields=["name as keyId", "item as sku", "description as name", "um", "lotserial as lotSerial",  "locationsource as currentLocation", "locationsuggestion as suggestLocation", "qty_label as availableQuantity", "locationdestination as confirmLocation","qty_confirmation as confirmQty"])
@@ -916,14 +945,14 @@ def get_return_rack_tasks(task_type):
     filters=[
         ["task_type", "=", task_type],
         ["docstatus", "!=", 2],
-        ["status", "!=", "Completed"]
+        ["status", "not in", ["Completed", "Cancelled"]]
     ],
     fields=["name", "reference_name", "date_instruction", "time_instruction", "assign_to_role", "users_picker","modified"],)
 
     listTask = []
     for data in tasks:
         task_items = frappe.get_all("Warehouse Task Detail",
-                filters={"parent": data.name, "status": ["=", "Pending"]},
+                filters={"parent": data.name, "status": "Pending"},
                 fields=["name as name","item as item_code", "description as item_name", "lotserial as lot_serial", "qty_label as qty", "um as uom","locationsource as current_location", "locationsuggestion as suggested_location"],order_by='item asc, lotserial asc')
         
         listTask.append({"task_items": task_items})
