@@ -650,7 +650,9 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
             """, (site, item.part, frappe.utils.nowdate()), as_dict=True)
 
             allocated_qty = 0
+            print(f"Processing item: {item.part}, Needed Qty: {needed_qty}, Total Available: {total_available}")
             for stock_oh in stocks:
+                print(f"Processing Lot: {stock_oh.lot_serial}, Qty On Hand: {stock_oh.qty_on_hand}, location: {stock_oh.warehouse_location}")
                 if allocated_qty >= needed_qty:
                     break  # Kebutuhan sudah terpenuhi
 
@@ -661,42 +663,35 @@ def get_fifo_picklist_with_reserved_by_item(item_status, request, request_type):
                 ["SUM(qty) as qty"])
                 
                 stock_reserved = flt(res_reserved[0].qty) if res_reserved else 0
-                if stock_oh.qty_on_hand <= stock_reserved:
+                can_take_from_this_lot = flt(stock_oh.qty_on_hand) - flt(stock_reserved)
+        
+                if can_take_from_this_lot <= 0:
                     continue  # Lot ini sudah habis di-reserve, skip ke lot berikutnya
                     
-                can_take_from_this_lot = flt(stock_oh.qty_on_hand) - flt(stock_reserved)    
+                # --- PERBAIKAN LOGIKA ALOKASI MULTI-LOT ---
+                qty_per_pallet = flt(stock_oh.qty_per_pallet) if stock_oh.qty_per_pallet else 1
+                qty_per_pkg = flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1
                 
-                # --- PERBAIKAN UTAMA DI SINI ---
-                # Jika lot ini stok bersihnya mencukupi untuk sisa kebutuhan secara langsung, ambil pas sejumlah sisa.
+                part_info = frappe.db.get_value("Part Master", stock_oh.part, ["description", "um", "item_group"], as_dict=1)
+                # Jika stok di lot ini mencukupi sisa kebutuhan secara langsung tanpa perlu aturan kompleks
                 if can_take_from_this_lot >= remaining_needed:
-                    take_qty = remaining_needed
-                else:
-                    # Jika tidak cukup, baru jalankan aturan pembulatan / pallet clearance
-                    qty_per_pallet = flt(stock_oh.qty_per_pallet) if stock_oh.qty_per_pallet else 1
-                    qty_per_pkg = flt(stock_oh.conversion_factor) if stock_oh.conversion_factor else 1
-
-                    if qty_per_pallet > 0:
-                        qty_pallet = math.ceil(flt(final_needed) / qty_per_pallet) if 'final_needed' in locals() else 0
-                    else:
-                        qty_pallet = 0
-                    
-                    if can_take_from_this_lot < qty_per_pallet:
+                    if part_info.item_group == "PACKAGING" and qty_per_pallet > 1:
+                        # Jika item adalah PACKAGING, kita harus membulatkan ke Pallet
                         take_qty = can_take_from_this_lot
+                    else: # INGREDIENT ambil seusai packaging selama stoknya mencukupi
+                        rounded_qty = math.ceil(remaining_needed / qty_per_pkg) * qty_per_pkg
+                        take_qty = min(can_take_from_this_lot, rounded_qty)
+                else:
+                    # Ambil sebanyak yang bisa diambil dari lot ini untuk menutupi sisa kebutuhan
+                    # (atau terapkan pembulatan kemasan jika diperlukan)
+                    if qty_per_pkg > 1:
+                        rounded_qty = math.ceil(remaining_needed / qty_per_pkg) * qty_per_pkg
+                        take_qty = min(can_take_from_this_lot, rounded_qty)
                     else:
-                        if remaining_needed >= qty_per_pallet and qty_per_pallet > 1:
-                            take_qty = min(can_take_from_this_lot, qty_per_pallet)
-                        else:   
-                            if qty_per_pkg > 1:
-                                rounded_qty = math.ceil(remaining_needed / qty_per_pkg) * qty_per_pkg
-                                take_qty = min(can_take_from_this_lot, rounded_qty)
-                            else:
-                                take_qty = flt(remaining_needed)
-
+                        take_qty = can_take_from_this_lot
+                print(f"Item: {item.part}, Lot: {stock_oh.lot_serial}, Can Take: {can_take_from_this_lot}, Remaining Needed: {remaining_needed}, Take Qty: {take_qty}")
                 if take_qty > 0:
-                    qty_per_pallet = flt(stock_oh.qty_per_pallet) if stock_oh.qty_per_pallet else 1
                     qty_pallet = math.ceil(flt(take_qty) / qty_per_pallet) if qty_per_pallet > 0 else 0
-
-                    part_info = frappe.db.get_value("Part Master", stock_oh.part, ["description", "um", "item_group"], as_dict=1)
                     
                     results.append({
                         "site": stock_oh.site,
