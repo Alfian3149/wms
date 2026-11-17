@@ -894,7 +894,7 @@ def get_picklist_outstanding_tasks(user):
     for data in tasks:
         task_items = frappe.get_all("Warehouse Task Detail",
                 filters={"parent": data.name, "status": ["!=", "Cancelled"]},
-                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_label as quantity","qty_confirmation as receivedQty", "locationsource as sourceLocation","locationdestination as toLocation", "status", "remark"],order_by='item asc, lotserial asc')
+                fields=["name as keyId","item as sku", "um","description as name", "lotserial as lotSerial", "qty_label as quantity","qty_confirmation as receivedQty", "locationsource as sourceLocation","locationdestination as toLocation", "status", "remark"],order_by='idx asc')
 
         if len(task_items) > 0 : 
             picklist = frappe.db.get_value("Item Picklist By Part", data.reference_name, ["priority", "needed_date"], as_dict=True) 
