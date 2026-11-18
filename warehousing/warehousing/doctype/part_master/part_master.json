@@ -26,7 +26,10 @@
   "conversion_tab",
   "um_conversion_factor",
   "others_file_tab",
-  "file"
+  "file",
+  "storage_tab",
+  "note_for_storing_the_item_section",
+  "storing_notes"
  ],
  "fields": [
   {
@@ -138,12 +141,27 @@
    "fieldname": "net_weight",
    "fieldtype": "Float",
    "label": "Net Weight"
+  },
+  {
+   "fieldname": "storage_tab",
+   "fieldtype": "Tab Break",
+   "label": "Storage"
+  },
+  {
+   "fieldname": "note_for_storing_the_item_section",
+   "fieldtype": "Section Break",
+   "label": "Note for storing the Item"
+  },
+  {
+   "fieldname": "storing_notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-02 15:18:29.032862",
+ "modified": "2026-11-19 00:18:50.755213",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Part Master",

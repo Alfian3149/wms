@@ -792,8 +792,11 @@ def scan_item_putaway(item, lotserial):
             },
     fields=["name as keyId", "item as sku", "description as name", "um", "lotserial as lotSerial",  "locationsource as currentLocation", "locationsuggestion as suggestLocation", "qty_label as availableQuantity", "locationdestination as confirmLocation","qty_confirmation as confirmQty"])
     if task:
+        task_data = task[0]
+        storing_notes = frappe.db.get_value("Part Master", item, "storing_notes") or ""
+        task_data["storing_notes"] = storing_notes
         data_stok = {}
-        data_stok[item + "#" + lotserial] = task[0] 
+        data_stok[item + "#" + lotserial] = task_data
         return {
             "status": "success",
             "message": "Data berhasil ditemukan",
