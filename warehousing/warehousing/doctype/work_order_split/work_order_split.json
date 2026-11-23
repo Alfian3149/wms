@@ -47,6 +47,15 @@
   "is_create_mts",
   "calculation_request_method",
   "link_to_item_request",
+  "section_break_jhuk",
+  "packaging",
+  "column_break_zydl",
+  "ingredient",
+  "column_break_ckat",
+  "item_group",
+  "column_break_nqit",
+  "column_break_nagq",
+  "column_break_juhx",
   "section_break_ufxb",
   "work_order_split_detail",
   "tab_2_tab",
@@ -221,7 +230,8 @@
    "default": "1",
    "fieldname": "is_create_mts",
    "fieldtype": "Check",
-   "label": "Create Material Request?"
+   "label": "Create Material Request?",
+   "read_only": 1
   },
   {
    "fieldname": "required_by",
@@ -300,6 +310,49 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Work Order Old"
+  },
+  {
+   "default": "0",
+   "fieldname": "packaging",
+   "fieldtype": "Check",
+   "label": "PACKAGING"
+  },
+  {
+   "default": "0",
+   "fieldname": "ingredient",
+   "fieldtype": "Check",
+   "label": "INGREDIENT"
+  },
+  {
+   "fieldname": "section_break_jhuk",
+   "fieldtype": "Section Break",
+   "label": "Request for Packaging or Ingredient? (Mandatory)"
+  },
+  {
+   "fieldname": "column_break_zydl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ckat",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_nqit",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_nagq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_juhx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Item Group"
   }
  ],
  "grid_page_length": 50,
@@ -307,7 +360,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-09 10:36:17.207656",
+ "modified": "2026-11-16 14:53:40.627400",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Split",

@@ -1,0 +1,202 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-11-23 08:03:34.686605",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_6x3u",
+  "weighing_proses_number",
+  "column_break_xwav",
+  "new_work_order_number",
+  "column_break_njgz",
+  "qty_per_batch",
+  "section_break_atxh",
+  "site",
+  "order_date",
+  "column_break_mdjn",
+  "wo_qad",
+  "id_wo_qad",
+  "wo_status",
+  "column_break_evvs",
+  "finish_good",
+  "fg_description",
+  "fg_um",
+  "section_break_xyxf",
+  "quantity_ordered",
+  "column_break_yaoq",
+  "quantity_completed",
+  "column_break_mcws",
+  "quantity_rejected",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_6x3u",
+   "fieldtype": "Section Break",
+   "label": "Select Specification"
+  },
+  {
+   "fieldname": "weighing_proses_number",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Weighing Proses Number",
+   "options": "Work Order Comp Issued",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_xwav",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "new_work_order_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "New Work Order Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_atxh",
+   "fieldtype": "Section Break",
+   "label": "Work Order Master",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "weighing_proses_number.site",
+   "fieldname": "site",
+   "fieldtype": "Data",
+   "label": "Site"
+  },
+  {
+   "fetch_from": "weighing_proses_number.order_date",
+   "fieldname": "order_date",
+   "fieldtype": "Date",
+   "label": "Order Date"
+  },
+  {
+   "fieldname": "column_break_mdjn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "weighing_proses_number.work_order_number",
+   "fieldname": "wo_qad",
+   "fieldtype": "Data",
+   "label": "WO QAD"
+  },
+  {
+   "fetch_from": "weighing_proses_number.id",
+   "fieldname": "id_wo_qad",
+   "fieldtype": "Data",
+   "label": "ID WO QAD"
+  },
+  {
+   "fetch_from": "weighing_proses_number.work_order_status",
+   "fieldname": "wo_status",
+   "fieldtype": "Data",
+   "label": "WO Status"
+  },
+  {
+   "fieldname": "column_break_evvs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "weighing_proses_number.finish_good",
+   "fieldname": "finish_good",
+   "fieldtype": "Data",
+   "label": "Finish Good"
+  },
+  {
+   "fetch_from": "weighing_proses_number.fg_description",
+   "fieldname": "fg_description",
+   "fieldtype": "Data",
+   "label": "FG Description"
+  },
+  {
+   "fetch_from": "weighing_proses_number.um",
+   "fieldname": "fg_um",
+   "fieldtype": "Data",
+   "label": "FG UM"
+  },
+  {
+   "fieldname": "section_break_xyxf",
+   "fieldtype": "Section Break",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "weighing_proses_number.quantity_ordered",
+   "fieldname": "quantity_ordered",
+   "fieldtype": "Float",
+   "label": "Quantity Ordered"
+  },
+  {
+   "fieldname": "column_break_yaoq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "weighing_proses_number.quantity_completed",
+   "fieldname": "quantity_completed",
+   "fieldtype": "Float",
+   "label": "Quantity Completed"
+  },
+  {
+   "fieldname": "column_break_mcws",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "weighing_proses_number.quantity_rejected",
+   "fieldname": "quantity_rejected",
+   "fieldtype": "Float",
+   "label": "Quantity Rejected"
+  },
+  {
+   "fieldname": "column_break_njgz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Production Alteration",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "weighing_proses_number.qty_product_completed_to_be_issued",
+   "fieldname": "qty_per_batch",
+   "fieldtype": "Float",
+   "label": "Qty Per Batch",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-23 16:32:57.765638",
+ "modified_by": "Administrator",
+ "module": "warehousing",
+ "name": "Production Alteration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

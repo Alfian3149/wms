@@ -51,8 +51,8 @@ frappe.listview_settings['Inventory'] = {
             
 
         });
-
-        if (frappe.session.user === "Administrator") {
+        
+        if (frappe.session.user === "Administrator" || frappe.user.has_role("System Manager")) {
             listview.page.add_inner_button(__('Get Current Stock'), function() {
                 /* frappe.confirm('Konfirmasi ini akan men-delete seluruh existing inventory web sebelum mengambil seluruh inventory dari ERP. Apakah Anda ingin tetap lanjutkan?', () => {
                     frappe.call({

@@ -162,7 +162,7 @@ def get_lotserial_issue_details(work_order_split_number):
     for item in work_order_split.work_order_split_detail:
         if item.actual_required <= 0:
             continue
-        getInventory = frappe.db.get_list("Inventory", filters={"part": item.part, "warehouse_location": destination_location, "qty_on_hand": [">", 0], "inventory_status": "P-GOOD"},fields=['part', 'qty_on_hand', 'lot_serial', 'warehouse_location'], order_by='lot_serial asc')
+        getInventory = frappe.db.get_list("Inventory", filters={"part": item.part, "warehouse_location": destination_location, "qty_on_hand": [">", 0], "inventory_status": ["in", ["P-GOOD", "GOOD"]]},fields=['part', 'qty_on_hand', 'lot_serial', 'warehouse_location'], order_by='lot_serial asc')
 
         qty_required = item.actual_required
         for inventory in getInventory:
@@ -214,16 +214,33 @@ def search_and_reserve_stock(site, summary_items, item_status):
     time.sleep(2)  # Simulate processing time
     if isinstance(summary_items, str):
         summary_items = json.loads(summary_items)
+
+    basic_stock_from  = frappe.db.get_single_value("Work Order Activity Control", "use_qty_handovered_as_stock")
     reserved_items = []
     for row in summary_items:
         part = row.get("part")
         description = row.get("description")
         item_group = row.get("item_group")
-    
+
         qty_needed = flt(row.get("qty_needed")) 
+
+        if item_group == "INGREDIENT":
+            order_clause = """
+                ORDER BY 
+                    IFNULL(inv.expire_date, '9999-12-31') ASC,
+                    inv.batch ASC,
+                    inv.sequence ASC
+            """
+        else:
+            order_clause = """
+                ORDER BY 
+                    inv.batch ASC,
+                    inv.sequence ASC
+            """
+
         stocks = frappe.db.sql(f"""
             SELECT 
-                inv.site, inv.part, inv.um, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.qty_reserved, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet
+                inv.site, inv.part, inv.um, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.qty_reserved, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet, inv.inventory_status
             FROM 
                 `tabInventory` inv
             JOIN 
@@ -231,25 +248,25 @@ def search_and_reserve_stock(site, summary_items, item_status):
             WHERE 
                 inv.site = %s 
                 AND inv.part = %s 
-                AND inv.inventory_status = %s
+                AND inv.inventory_status IN ("P-GOOD", "GOOD")
                 AND (inv.expire_date > %s OR inv.expire_date IS NULL OR inv.expire_date = '')
                 AND inv.qty_on_hand > 0
                 AND loc.is_active = 1
                 AND loc.can_reserved_for_wo_comp_issued = 1 
-            ORDER BY 
-                IFNULL(inv.expire_date, '9999-12-31') ASC,
-                inv.lot_serial ASC
-        """, (site, part, item_status, frappe.utils.nowdate()), as_dict=True)
+            {order_clause}
+        """, (site, part, frappe.utils.nowdate()), as_dict=True)
 
         for stock_oh in stocks:
             if qty_needed <= 0:
                 break
             #total_not_handovered_yet = frappe.db.get_list("Lot Serial Handover Yet", {"part": stock_oh.part}, ["SUM(quantity) as qty"])
-
-            total_not_handovered_yet = frappe.db.get_list("Warehouse Task Detail", {"part":stock_oh.part, "lotserial":stock_oh.lot_serial, "locationdestination":stock_oh.warehouse_location, "has_handovered": 0}, ["SUM(qty_confirmation) as qty"])
-
-            available_qty = flt(stock_oh.qty_on_hand) - flt(stock_oh.qty_reserved) 
-            available_qty -= flt(total_not_handovered_yet[0].qty if total_not_handovered_yet and total_not_handovered_yet[0].qty else 0)
+            if basic_stock_from:
+                available_qty = flt(stock_oh.qty_handovered) - flt(stock_oh.qty_reserved)
+            else:
+                available_qty = flt(stock_oh.qty_on_hand) - flt(stock_oh.qty_reserved) 
+            
+            """ total_not_handovered_yet = frappe.db.get_list("Warehouse Task Detail", {"part":stock_oh.part, "lotserial":stock_oh.lot_serial, "locationdestination":stock_oh.warehouse_location, "has_handovered": 0}, ["SUM(qty_confirmation) as qty"])            
+            available_qty -= flt(total_not_handovered_yet[0].qty if total_not_handovered_yet and total_not_handovered_yet[0].qty else 0) """
 
             if available_qty <= 0:
                 continue
@@ -265,6 +282,7 @@ def search_and_reserve_stock(site, summary_items, item_status):
                 "quantity": take_qty,
                 "from_location": stock_oh.warehouse_location,
                 "lot_serial": stock_oh.lot_serial,
+                "inventory_status": stock_oh.inventory_status,
             })
 
             qty_needed -= take_qty
@@ -290,7 +308,7 @@ def get_inventory_clean_for_production(site, item, lotserial, status, qty_needed
     clean_iventory = []
     stocks = frappe.db.sql(f"""
             SELECT 
-                inv.name, inv.site, inv.part, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.qty_handovered, inv.qty_reserved, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet
+                inv.name, inv.site, inv.part, inv.warehouse_location, inv.lot_serial, inv.qty_on_hand, inv.qty_handovered, inv.qty_reserved, inv.expire_date, inv.conversion_factor, inv.um_packaging, inv.qty_per_pallet, inv.inventory_status
             FROM 
                 `tabInventory` inv
             JOIN 
@@ -299,7 +317,7 @@ def get_inventory_clean_for_production(site, item, lotserial, status, qty_needed
                 inv.site = %s 
                 AND inv.part = %s 
                 AND inv.lot_serial = %s
-                AND inv.inventory_status = %s
+                AND inv.inventory_status IN ("P-GOOD", "GOOD")
                 AND (inv.expire_date > %s OR inv.expire_date IS NULL OR inv.expire_date = '')
                 AND inv.qty_on_hand > 0
                 AND loc.is_active = 1
@@ -307,7 +325,7 @@ def get_inventory_clean_for_production(site, item, lotserial, status, qty_needed
             ORDER BY 
                 IFNULL(inv.expire_date, '9999-12-31') ASC,
                 inv.lot_serial ASC
-    """, (site, item, lotserial, status, frappe.utils.nowdate()), as_dict=True)
+    """, (site, item, lotserial, frappe.utils.nowdate()), as_dict=True)
 
     for row in stocks:
         if basic_stock_from:

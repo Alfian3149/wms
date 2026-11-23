@@ -5,22 +5,24 @@ frappe.ui.form.on("Work Order Comp Issued", {
     onload: function(frm) {
         frm.page.clear_primary_action();
         frm.set_df_property('mts_number', 'hidden', 1);
-        filter_child_table_items(frm);
+        //filter_child_table_items(frm);
         frm.set_df_property('work_order_split_number', 'read_only', 1);
         
         frm.set_df_property('section_break_whir', 'hidden', 1);
         frm.set_df_property('work_order_detail_section', 'hidden', 1);
 
-        frm.fields_dict['item_issued'].grid.cannot_add_rows = true;
+        frm.scroll_to_field(frm, 'production_activity_to_be_carried_out');
+        /* frm.fields_dict['item_issued'].grid.cannot_add_rows = true;
 
-
+        
         let btn = frm.get_field('get_material_stock').$wrapper.find('button');
 
         btn.on('mouseenter', function() {
             $(this).css('background-color', '#171717');
         }).on('mouseleave', function() {
             $(this).css('background-color', '#090909');
-        });
+        });*/
+        disable_child_select_all(frm, 'item_issued'); 
 
     },
     refresh(frm) {
@@ -29,19 +31,23 @@ frappe.ui.form.on("Work Order Comp Issued", {
         }
         frm.get_field('item_issued').grid.cannot_add_rows = true;
         frm.set_df_property('item_issued', 'cannot_delete_rows', true);
-        frm.refresh_field('item_issued');
+        
+        /* disable_child_select_all(frm, 'item_issued'); 
+        frm.refresh_field('item_issued');  */
 
-        frm.set_df_property('item_summary_to_issued', 'cannot_add_rows', true);
-        frm.refresh_field('item_summary_to_issued');
-        frm.fields_dict['item_summary_to_issued'].grid.wrapper.find('.grid-row-checkbox').hide();
-        frm.fields_dict['item_summary_to_issued'].grid.wrapper.find('.row-check').hide();
+        //frm.set_df_property('item_summary_to_issued', 'cannot_add_rows', true);
+        //frm.refresh_field('item_summary_to_issued');
+        //frm.fields_dict['item_issued'].grid.wrapper.find('.grid-select-all').hide();
+        //frm.fields_dict['item_issued'].grid.wrapper.find('.row-check').hide();
         
         frm.set_df_property('get_material_stock', 'hidden', 1);
         
         if (frm.doc.docstatus === 1){
             frm.page.clear_secondary_action();
         }
-    
+        
+        frm._prev_production_activity = frm.doc.production_activity_to_be_carried_out;
+
         frm.add_custom_button(__('Entry Via Scanner'), function() {
             if (frm.doc.docstatus === 1){
                 frappe.msgprint("This function only available for new document");
@@ -466,15 +472,16 @@ frappe.ui.form.on("Work Order Comp Issued", {
         });
 
         frm.events.sync_grid_selection(frm);
-
+        
         $(frm.fields_dict['item_issued'].wrapper)
             .off('click', '.grid-row')
             .on('click', '.grid-row', function(e) {
             e.stopPropagation();
-
+                       
             let cdn = $(this).attr('data-name');
             if (!cdn) return;
             let row = frappe.get_doc('Work Order Comp Issued Items', cdn);
+            console.log(row);
             let is_checked = $(this).find('input[type="checkbox"]').prop('checked') ? 1 : 0;
             frappe.model.set_value('Work Order Comp Issued Items', cdn, 'has_blendinged', is_checked);
         });
@@ -511,6 +518,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
     },
 
     validate:function(frm){
+        
         if (frm.doc.item_issued.length === 0 ){
             frappe.msgprint({
                 title: __('MESSAGE'),
@@ -522,13 +530,26 @@ frappe.ui.form.on("Work Order Comp Issued", {
             e.stopPropagation();
         }
 
+        
+        const allowed_statuses = ["P-GOOD", "GOOD"];
+        const row_found = (frm.doc.item_issued || []).find(
+            row => !allowed_statuses.includes((row.inventory_status || "").toUpperCase())
+        );
+        if (row_found) {
+            frappe.msgprint({
+                title: __('MESSAGE'),
+                indicator: 'red',
+                message: __('There is one line in the material details that has an invalid inventory status. Inventory status must be either "P-GOOD" or "GOOD". Please check it.')
+            });
+            frappe.validated = false;
+        }  
     },
 
     wo_weighing_number: async function(frm){
         if (!frm.doc.wo_weighing_number) return;
         frm.clear_table('item_summary_to_issued');
         frm.clear_table('item_issued');
-
+        
         frm.refresh();
         frappe.dom.freeze(__("Sedang proses verifikasi data..."));
 
@@ -539,7 +560,7 @@ frappe.ui.form.on("Work Order Comp Issued", {
                 // 2. Kosongkan dulu child table di current page agar tidak menumpuk jika user ganti-ganti ID
                 frm.clear_table('item_summary_to_issued');
                 frm.clear_table('item_issued');
-
+                
                 // 3. Salin/duplikasi dokumen sumber di memori lokal (untuk me-reset name/ID baris)
                 let copied_doc = frappe.model.copy_doc(source_doc);
 
@@ -602,21 +623,25 @@ frappe.ui.form.on("Work Order Comp Issued", {
                         delete target_row_detail.parentfield;
                         delete target_row_detail.parenttype; */
                         delete target_row_detail.idx;
+                        
                     });
+                    
                 }
-
-               
                 
             }
         } catch (error) {
             console.error(error);
             frappe.msgprint(__("Gagal mengambil data dokumen sumber. Pastikan ID benar."));
         } finally {
+             
             setTimeout(() => {
                 frm.refresh_field('item_summary_to_issued');
                 frm.refresh_field('item_issued');
                 frappe.dom.unfreeze();
-            }, 1500); 
+                disable_child_select_all(frm, 'item_issued'); 
+            }, 700);
+            
+        
         }
     },
 
@@ -704,8 +729,8 @@ frappe.ui.form.on("Work Order Comp Issued", {
         let data_wo_obj = data || frm.doc.wo_api ? JSON.parse(frm.doc.wo_api) : {};
         if (data_wo_obj.womstr && data_wo_obj.woddet.length > 0) {
             frm.clear_table('item_summary_to_issued');
-            frm.get_field('item_summary_to_issued').grid.cannot_add_rows = true;
-            frm.get_field('item_summary_to_issued').grid.cannot_delete_rows = true;
+            //frm.get_field('item_summary_to_issued').grid.cannot_add_rows = true;
+            //frm.get_field('item_summary_to_issued').grid.cannot_delete_rows = true;
 
             let isAnyRow = false;
             for (let d of data_wo_obj.woddet) {
@@ -746,36 +771,62 @@ frappe.ui.form.on("Work Order Comp Issued", {
     },
 
     production_activity_to_be_carried_out: function(frm) {
-        if (frm.doc.production_activity_to_be_carried_out === "Packaging") {
+        if (frm._reverting_activity) {
+            frm._reverting_activity = false;
+            return;
+        }
+
+        if (frm.doc.item_summary_to_issued && frm.doc.item_summary_to_issued.length > 0) {
+            frappe.msgprint({
+                title: __('MESSAGE'),
+                indicator: 'red',
+                message: __('You cannot change the production activity because there is already material data in the list. Please clear the list first.')
+            });
+            frm._reverting_activity = true;
+            frm.set_value('production_activity_to_be_carried_out', frm._prev_production_activity || '');
+            return;
+        }
+
+        const activity = frm.doc.production_activity_to_be_carried_out;
+
+        // Reset state dasar agar tidak nyangkut saat ganti pilihan
+        frm.set_df_property('section_break_auto_selection', 'hidden', 0);
+        frm.set_df_property('all_components_section', 'hidden', 0);
+        frm.set_df_property('work_order_split_number', 'hidden', 0);
+        frm.set_df_property('wo_weighing_number', 'hidden', 1);
+        frm.toggle_reqd('wo_weighing_number', false);
+
+        if (activity === "Packaging") {
             frm.set_df_property('qty_product_completed_to_be_issued', 'hidden', 0);
             frm.set_df_property('qty_product_completed_to_be_issued', 'read_only', 1);
             frm.set_df_property('work_order_split_number', 'read_only', 1);
             frm.set_df_property('work_order_number', 'read_only', 0);
             frm.set_df_property('all_components_section', 'hidden', 0);
             frm.set_df_property('wo_weighing_number', 'hidden', 1);
-        }
-        else if (frm.doc.production_activity_to_be_carried_out === "Weighing") {
-           // frm.set_df_property('mts_number', 'hidden', 0);
+        } else if (activity === "Weighing") {
             frm.set_df_property('work_order_split_number', 'hidden', 1);
-            frm.set_df_property('work_order_number', 'read_only', 0);
             frm.set_df_property('work_order_number', 'read_only', 0);
             frm.set_df_property('all_components_section', 'hidden', 1);
             frm.set_df_property('qty_product_completed_to_be_issued', 'read_only', 0);
             frm.set_df_property('wo_weighing_number', 'hidden', 1);
-        }
-        else {
-            
+        } else {
+            frm.set_df_property('section_break_auto_selection', 'hidden', 1);
             frm.set_df_property('wo_weighing_number', 'hidden', 0);
             frm.set_df_property('wo_weighing_number', 'read_only', 0);
             frm.toggle_reqd('wo_weighing_number', true);
             frm.set_df_property('work_order_split_number', 'read_only', 1);
             frm.set_df_property('work_order_number', 'read_only', 1);
             frm.set_df_property('qty_product_completed_to_be_issued', 'read_only', 1);
-            
         }
 
-        ubahLabelKolomChildTable(frm);
-        filter_child_table_items(frm);
+        frm._prev_production_activity = activity;
+
+        if (typeof ubahLabelKolomChildTable === 'function') {
+            ubahLabelKolomChildTable(frm);
+        }
+        if (typeof filter_child_table_items === 'function') {
+            filter_child_table_items(frm);
+        }
     },
 
     get_material_stock: function(frm) {
@@ -798,14 +849,24 @@ frappe.ui.form.on("Work Order Comp Issued", {
                     data = r.message;
                     if (data.status === "success") {
                         for (let dt of data.data) {
-                            let row = frm.add_child('item_issued');
-                            row.part = dt.part;
-                            row.um = dt.um;
-                            row.description = dt.description;
-                            row.item_group = dt.item_group;
-                            row.quantity = dt.quantity;
-                            row.from_location = dt.from_location; 
-                            row.lot_serial = dt.lot_serial;
+                            const row_exist = (frm.doc.item_issued || []).find(
+                                row =>
+                                    row.part === dt.part &&
+                                    row.lot_serial === dt.lot_serial &&
+                                    row.from_location === dt.from_location
+                            );
+
+                            if (!row_exist) {
+                                let row = frm.add_child('item_issued');
+                                row.part = dt.part;
+                                row.um = dt.um;
+                                row.description = dt.description;
+                                row.item_group = dt.item_group;
+                                row.quantity = dt.quantity;
+                                row.from_location = dt.from_location; 
+                                row.lot_serial = dt.lot_serial;
+                                row.inventory_status = dt.inventory_status;
+                            }
 
                         }
                         frm.refresh_field('item_issued');
@@ -813,6 +874,8 @@ frappe.ui.form.on("Work Order Comp Issued", {
                         setTimeout(() => {
                             recalculate_summary(frm);
                         }, 1500);
+
+                        
                     }
                     else {
                         frappe.msgprint({
@@ -836,12 +899,14 @@ frappe.ui.form.on("Work Order Comp Issued", {
 
         if(frm.doc.production_activity_to_be_carried_out !== "Packaging"){
             frm.set_df_property('qty_product_completed_to_be_issued', 'hidden', 0);
-            frm.scroll_to_field('qty_product_completed_to_be_issued');
-            frm.toggle_reqd('qty_product_completed_to_be_issued', true);
+
+            setTimeout(() => {
+                frm.scroll_to_field('qty_product_completed_to_be_issued');
+                frm.toggle_reqd('qty_product_completed_to_be_issued', true);
+            }, 1000);
+            
         }
         else {  
-
-            
             frm.toggle_reqd('qty_product_completed_to_be_issued', false);
         }
     },
@@ -952,7 +1017,15 @@ frappe.ui.form.on("Work Order Comp Issued", {
                                 promises.push(p);
                             }
                         });
-                        //await Promise.all(promises);
+
+                        
+                        await Promise.all(promises);
+                        scroll_and_guide_action(
+                            frm,
+                            'run_get_material_stock',
+                            'Selanjutnya dapat klik tombol di atas untuk menjalankan pengambilan data material stock.'
+                        );
+                        //frm.scroll_to_field('run_get_material_stock');
                         //frm.events.get_material_stock(frm);
                     }
                 }
@@ -1003,15 +1076,14 @@ frappe.ui.form.on("Work Order Comp Issued", {
                         frm.set_value("quantity_rejected", header.woqty_rjct);
                         frm.set_value("qty_product_completed_to_be_issued", data.total_received || 0);
                     }
-
-                    
+               
                     if (is_packaging){
-                       
                         if (data.tt_fg_rct.length > 0) {
                             frm.events.render_lotserial_has_been_received(frm, data);
-                            setTimeout(() => { 
+                            //karena bagian summary bisa subtitu jadi rendering material stok tidak bisa otomatis
+                            /* setTimeout(() => { 
                                 frm.events.get_material_stock(frm);
-                            }, 2000);
+                            }, 2000); */
                             frm.events.render_work_order_detail(frm,  data);
                             frm.events.render_item_summary(frm, data);     
                             
@@ -1041,6 +1113,10 @@ frappe.ui.form.on("Work Order Comp Issued", {
         });
     },
 
+    run_get_material_stock: function(frm) {
+        frm.events.get_material_stock(frm);
+    },
+
     sync_grid_selection: function(frm) {
         // Iterasi setiap baris di child table 'items'
         frm.doc.item_issued.forEach(d => {
@@ -1061,63 +1137,98 @@ frappe.ui.form.on("Work Order Comp Issued", {
     },
     
     select_ingredient__packaging_from_inventory:function(frm){
-        if (frm.doc.production_activity_to_be_carried_out !== "Packaging") return;
+        //if (frm.doc.production_activity_to_be_carried_out !== "Packaging") return;
+        if (frm.doc.item_summary_to_issued.length === 0){
+            frappe.msgprint({
+                title: __('MESSAGE'),
+                indicator: 'red',
+                message: __('Please select Work Order first before run this function.')
+            });
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
-            let d = new frappe.ui.form.MultiSelectDialog({
-                doctype: "Inventory",
-                target: this.cur_frm,
-                columns: ["name", "part", "lot_serial", "warehouse_location", "qty_on_hand"],
-                setters: {
-                    part: frm.doc.part ? frm.doc.part : null , 
-                    lot_serial: null, 
-                    warehouse_location: frappe.user.has_role('Production Operator') || frappe.user.has_role('System Manager') ?  "WH04" : null, 
-                    qty_on_hand:null,
-                }, 
-                action(selections) {
-                    if (selections.length === 0) {
-                        frappe.msgprint(__('You do not have selected row.'));
-                        return;
-                    }
+        let d = new frappe.ui.form.MultiSelectDialog({
+            doctype: "Inventory",
+            target: this.cur_frm,
+            columns: ["name", "part", "lot_serial", "warehouse_location", "qty_on_hand"],
+            setters: {
+                part: frm.doc.part ? frm.doc.part : null , 
+                lot_serial: null, 
+                warehouse_location: frappe.user.has_role('Production Operator') || frappe.user.has_role('System Manager') ?  "WH04" : null, 
+                qty_on_hand:null,
+            }, 
+            async action(selections) {
+                if (!selections || selections.length === 0) {
+                    frappe.msgprint(__('You do not have selected row.'));
+                    return;
+                }
 
-                    selections.forEach(inventory => {
-                        frappe.db.get_doc("Inventory", inventory).then(doc => {
-                            if (doc.qty_on_hand <= 0){
-                                frappe.msgprint(__('Inventory selected does not have stock'));
-                                return;
-                            }
+                try {
+                    // Ambil production_location sekali saja di luar loop
+                    const production_location = await frappe.db.get_single_value(
+                        'Work Order Activity Control',
+                        'production_location'
+                    );
+                    const target_location = (production_location || '').toUpperCase();
 
-                            if (doc.warehouse_location === 'WHO4'){
-                                const row_exist = frm.doc.item_issued.find(row => row.part === doc.part && row.lot_serial === doc.lot_serial && row.from_location === doc.warehouse_location);
-                                console.log(row_exist);
-                                if (!row_exist) {
-                                    const is_item_match = frm.doc.item_summary_to_issued.find(item => item.part === doc.part);
-                                    if (is_item_match) {
-                                        let target_row_summary = frm.add_child('item_issued');
-                                        target_row_summary.part = doc.part;
-                                        target_row_summary.um = doc.um;
-                                        target_row_summary.lot_serial = doc.lot_serial;
-                                        target_row_summary.from_location = doc.warehouse_location;
-                                        target_row_summary.item_group = is_item_match.item_group;
+                    const tasks = selections.map(async (inventory) => {
+                        const doc = await frappe.db.get_doc("Inventory", inventory);
 
-                                        frappe.db.get_value("Part Master", doc.part, "description").then(value => {
-                                            target_row_summary = value.message.description;
-                                        })
-                                        
-                                    }
-                                    
+                        if (doc.qty_on_hand <= 0) {
+                            frappe.msgprint(__('Inventory {0} does not have stock', [inventory]));
+                            return;
+                        }
+
+                        const doc_location = (doc.warehouse_location || '').toUpperCase();
+
+                        if (doc_location === target_location) {
+                            const row_exist = (frm.doc.item_issued || []).find(
+                                row =>
+                                    row.part === doc.part &&
+                                    row.lot_serial === doc.lot_serial &&
+                                    row.from_location === doc.warehouse_location
+                            );
+
+                            if (!row_exist) {
+                                const is_item_match = (frm.doc.item_summary_to_issued || []).find(
+                                    item => item.part === doc.part
+                                );
+
+                                if (is_item_match) {
+                                    let target_row = frm.add_child('item_issued');
+                                    target_row.part = doc.part;
+                                    target_row.um = doc.um;
+                                    target_row.lot_serial = doc.lot_serial;
+                                    target_row.from_location = doc.warehouse_location;
+                                    target_row.item_group = is_item_match.item_group;
+                                    target_row.quantity = doc.qty_on_hand;
+
+                                    const res = await frappe.db.get_value(
+                                        "Part Master",
+                                        doc.part,
+                                        "description"
+                                    );
+                                    target_row.description = res?.message?.description || '';
                                 }
                             }
+                        }
+                    });
 
-                        })
+                    // Tunggu seluruh proses per inventory dan pengambilan description selesai
+                    await Promise.all(tasks);
 
-                    })
+                    // Refresh child table & hitung ulang summary setelah data benar-benar masuk
                     frm.refresh_field('item_issued');
+                    recalculate_summary(frm);
                     d.dialog.hide();
-
-                    
+                } catch (error) {
+                    console.error("Error processing selected inventories:", error);
+                    frappe.msgprint(__('An error occurred while processing selected inventory items.'));
                 }
-            })
-            d.dialog.get_secondary_btn().hide();
+            }
+        })
+        d.dialog.get_secondary_btn().hide();
     }
 });
 
@@ -1128,7 +1239,7 @@ frappe.ui.form.on('Work Order Comp Issued Items', {
         let qtyAvailable = 0;
         let isNotOk = false;
 
-        console.log(row.quantity );
+        
         await frappe.db.get_value("Inventory", {"part": row.part, "lot_serial": row.lot_serial, "warehouse_location": row.from_location}, ["qty_on_hand", "qty_handovered", "qty_reserved"]).then(doc => {
             qtyAvailable = flt(doc.message.qty_handovered) - flt(doc.message.qty_reserved);
             if (row.quantity > qtyAvailable) {
@@ -1161,6 +1272,125 @@ frappe.ui.form.on('Work Order Comp Issued Items', {
     },
 
 });
+
+frappe.ui.form.on('Work Order Comp Issued Summary', {
+    qty_needed: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (row.qty_needed <= 0) {
+            frappe.msgprint({
+                title: __('MESSAGE'),
+                indicator: 'red',
+                message: __('Qty Needed cannot be negative.')
+            });
+            frappe.model.set_value(cdt, cdn, 'qty_needed', 0);
+            frappe.validated = false;
+        }
+    },
+    part: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        frappe.model.set_value(cdt, cdn, 'qty_full_required', 0);
+        frappe.model.set_value(cdt, cdn, 'qty_full_issued', 0);
+        frappe.model.set_value(cdt, cdn, 'fulfillment_qty', 0);
+        
+        frm.refresh_field('item_summary_to_issued');
+        scroll_to_child_field(frm, 'item_summary_to_issued', cdn, 'qty_needed');
+    }
+});
+
+function disable_child_select_all(frm, child_fieldname) {
+    const grid = frm.fields_dict[child_fieldname]?.grid;
+    if (!grid || !grid.wrapper) return;
+
+    console.log('Disabling select all checkbox for child table:', child_fieldname);
+    // Target spesifik checkbox di header saja (.grid-heading-row)
+    const $headerCheck = grid.wrapper.find('.grid-heading-row .grid-row-check');
+
+    // Gunakan capture phase (true) agar event bawaan Frappe grid di-intercept lebih dulu
+    const headerEl = $headerCheck.get(0);
+    if (headerEl && !headerEl.dataset.selectAllDisabled) {
+        headerEl.dataset.selectAllDisabled = '1';
+        headerEl.addEventListener(
+            'click',
+            function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                headerEl.checked = false;
+                return false;
+            },
+            true
+        );
+    }
+
+    $headerCheck
+        .prop('checked', false)
+        .css({
+            'pointer-events': 'none',
+            'opacity': '0.35',
+            'cursor': 'not-allowed'
+        });
+}
+
+function scroll_and_guide_action(frm, fieldname, guide_text) {
+    frm.scroll_to_field(fieldname);
+
+    const field = frm.get_field(fieldname);
+    if (!field || !field.$wrapper) return;
+
+    // Hapus panduan lama jika sudah ada agar tidak menumpuk
+    field.$wrapper.find('.custom-action-guide').remove();
+
+    const $guide = $(`
+        <div class="custom-action-guide text-muted small" style="margin-top: 6px; padding: 6px 10px; background: var(--bg-light-gray, #f4f5f6); border-left: 3px solid var(--primary, #2490ef); border-radius: 4px;">
+            ${frappe.utils.escape_html(guide_text)}
+        </div>
+    `);
+
+    field.$wrapper.append($guide);
+
+    // Otomatis hapus teks panduan setelah tombol/field diklik
+    field.$wrapper.off('click.actionGuide').on('click.actionGuide', () => {
+        $guide.fadeOut(200, () => $guide.remove());
+    });
+}
+
+
+
+function scroll_to_child_field(frm, table_fieldname, cdn, target_fieldname) {
+    const grid = frm.fields_dict[table_fieldname]?.grid;
+    if (!grid) return;
+
+    const grid_row = grid.grid_rows_by_docname?.[cdn];
+    if (!grid_row) return;
+
+    // Tunggu DOM/grid selesai update setelah refresh_field
+    requestAnimationFrame(() => {
+        const $row = grid_row.$row;
+        const $wrapper = grid.$wrapper.find('.grid-body');
+        const $cell = $row?.find(`[data-fieldname="${target_fieldname}"]`);
+
+        if ($cell && $cell.length) {
+            // 1. Scroll horizontal pada wrapper grid menuju posisi kolom target
+            if ($wrapper.length) {
+                const wrapper_el = $wrapper.get(0);
+                const cell_el = $cell.get(0);
+                const target_left =
+                    cell_el.offsetLeft - wrapper_el.clientWidth / 2 + cell_el.clientWidth / 2;
+
+                wrapper_el.scrollTo({
+                    left: Math.max(0, target_left),
+                    behavior: 'smooth'
+                });
+            }
+
+            // 2. Fokuskan ke input/elemen di dalam kolom tersebut (jika sedang terbuka/editable)
+            const $input = $cell.find('input, select, textarea').filter(':visible').first();
+            if ($input.length) {
+                $input.trigger('focus');
+            }
+        }
+    });
+}
 
 
 function total_qty_by_item(frm, item_passed){

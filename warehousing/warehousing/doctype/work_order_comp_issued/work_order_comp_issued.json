@@ -43,6 +43,8 @@
   "section_break_plet",
   "get_material_stock",
   "item_summary_to_issued",
+  "section_break_auto_selection",
+  "run_get_material_stock",
   "section_break_cedb",
   "select_ingredient__packaging_from_inventory",
   "item_issued"
@@ -272,8 +274,17 @@
   {
    "fieldname": "select_ingredient__packaging_from_inventory",
    "fieldtype": "Button",
-   "hidden": 1,
-   "label": "Select Ingredient / Packaging From Inventory "
+   "label": "Klik Manual Selection Material Stock"
+  },
+  {
+   "fieldname": "run_get_material_stock",
+   "fieldtype": "Button",
+   "label": "Run Auto Selection Material Stock"
+  },
+  {
+   "fieldname": "section_break_auto_selection",
+   "fieldtype": "Section Break",
+   "label": "AUTO SELECTION BY FIFO"
   }
  ],
  "grid_page_length": 50,
@@ -281,7 +292,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-05 09:09:17.461009",
+ "modified": "2026-11-20 10:58:46.621675",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Comp Issued",

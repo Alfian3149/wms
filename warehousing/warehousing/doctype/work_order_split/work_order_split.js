@@ -2,13 +2,71 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Work Order Split', {
+    validate: function(frm) {
+        if (frm.doc.quantity_to_be_produced_immediately <= 0) {
+            frm.scroll_to_field('quantity_to_be_produced_immediately');
+            frappe.throw(__('Quantity to be produced immediately must be greater than 0.'));
+        }
+
+        if (frm.doc.packaging && frm.doc.ingredient) {
+            frm.scroll_to_field('packaging');
+            frappe.throw(__('Hanya bisa memilih satu opsi antara Packaging dan Ingredient.'));
+        }
+        else if (!frm.doc.packaging && !frm.doc.ingredient) {
+            frm.scroll_to_field('packaging');
+            frappe.throw(__('harus memilih salah satu opsi antara Packaging dan Ingredient.'));
+        }
+    },
+    before_submit: function(frm) {
+        if (!frm.doc.work_order_split_detail || frm.doc.work_order_split_detail.length === 0) return;
+
+        let show_packaging = frm.doc.packaging;
+        let show_ingredient = frm.doc.ingredient;
+
+        // Jika salah satu checkbox aktif, filter dan buang baris yang tidak sesuai
+        if (show_packaging || show_ingredient) {
+            frm.doc.work_order_split_detail = frm.doc.work_order_split_detail.filter(row => {
+                let item_group = row.item_group; // Sesuaikan dengan nama field group di child table Anda
+                
+                if (show_packaging) {
+                    return item_group === 'PACKAGING'; // Hanya simpan yang group-nya PACKAGING
+                }
+                if (show_ingredient) {
+                    return item_group === 'INGREDIENT'; // Hanya simpan yang group-nya INGREDIENT
+                }
+                return true;
+            });
+
+            // Refresh tampilan tabel setelah dibersihkan
+            frm.refresh_field('work_order_split_detail');
+        }
+    },
     onload: function(frm) {
         if (frm.is_new()) {
             frm.clear_table("work_order_split_detail");
             frm.refresh_field("work_order_split_detail");
         }
+        if (frm.doc.docstatus === 1) {
+            frm.trigger('load_wo_history');
+        }
     },
 	refresh(frm) {
+        setTimeout(() => {
+            let pkg_checkbox = frm.fields_dict['packaging']?.$input;
+            let ing_checkbox = frm.fields_dict['ingredient']?.$input;
+
+            if (pkg_checkbox) {
+                pkg_checkbox.css('accent-color', '#3b82f6'); // Warna Biru untuk Packaging
+            }
+            if (ing_checkbox) {
+                ing_checkbox.css('accent-color', '#10b981'); // Warna Hijau untuk Ingredient
+            }
+        }, 500);
+        
+        if (frm.doc.work_order_split_detail && frm.doc.work_order_split_detail.length > 0) {
+            filter_child_table_items(frm);
+        }
+        
         //frm.set_df_property('work_order_split_detail', 'cannot_add_rows', true);
         if (frm.doc.docstatus === 0 && !frm.is_new()) {
             frm.page.set_primary_action(__('Submit'), function() {
@@ -35,14 +93,12 @@ frappe.ui.form.on('Work Order Split', {
                 frm.set_value("qty_in_tonnase",0);
                 //frm.set_value("shopfloor_location","");
                 frm.trigger('fetch_workorder_from_qad');
-
             }
-            
 	    });  
 	 
 	    frm.fields_dict['quantity_to_be_produced_immediately'].$input.on('blur', async function() {
 	        if(frm.doc.quantity_to_be_produced_immediately > 0 && frm.doc.work_order){
-                try {
+                /* try {
                     const response = await frappe.db.get_list('Work Order Split', {
                         filters: {
                             'work_order': frm.doc.work_order,
@@ -71,14 +127,31 @@ frappe.ui.form.on('Work Order Split', {
                     } 
                     else {
                         frm.set_value("qty_in_tonnase", flt(frm.doc.quantity_to_be_produced_immediately) * flt(frm.doc.fg_netwt) / 1000);
-                        frm.trigger('fetch_simulated_picklist_item');         
+                        frm.trigger('fetch_simulated_picklist_item');
+                        
                     }     
 
                 } catch (error) {
                     console.error("Gagal mengambil data dari Work Order Split:", error);
-                }
+                } */
+                frm.set_value("qty_in_tonnase", flt(frm.doc.quantity_to_be_produced_immediately) * flt(frm.doc.fg_netwt) / 1000);
+                frm.trigger('fetch_simulated_picklist_item');
 	        }
 	    });
+
+        setTimeout(() => {
+            let pkg = frm.fields_dict['packaging']?.$input;
+            let ing = frm.fields_dict['ingredient']?.$input;
+            if (pkg) pkg.css('accent-color', '#3b82f6'); // Biru
+            if (ing) ing.css('accent-color', '#10b981'); // Hijau
+        }, 300);
+
+        /* frm.fields_dict['packaging'].$input.on('blur', async function() {
+            filter_child_table_items(frm);
+        });
+        frm.fields_dict['ingredient'].$input.on('blur', async function() {
+            filter_child_table_items(frm);
+        }); */
 	    
 	    /* if (frm.doc.shopfloor_location){
 	        frm.trigger('get_availablity_stock');
@@ -119,7 +192,7 @@ frappe.ui.form.on('Work Order Split', {
             });
 
             if (response && response.message) {
-                let data = response.message.ttdet_table || [];
+                let data = (response.message.ttdet_table || []); // Filter hanya baris dengan qty_req > 0
 
                 // Ganti .forEach menjadi for...of agar bisa menggunakan AWAIТ di dalam loop
                 for (let api_row of data) {
@@ -190,6 +263,7 @@ frappe.ui.form.on('Work Order Split', {
 
                 // 5. Refresh UI Child Table setelah loop SELESAI semua
                 frm.refresh_field('work_order_split_detail');
+                frm.scroll_to_field('packaging');
                 
                 /* setTimeout(() => { 
                     frm.trigger('get_availablity_stock');
@@ -244,8 +318,6 @@ frappe.ui.form.on('Work Order Split', {
         });
         
         frm.refresh_field('work_order_split_detail');
-        
-
     },
         
     fetch_workorder_from_qad(frm){
@@ -355,9 +427,10 @@ frappe.ui.form.on('Work Order Split', {
                             <tr>
                                 <td class="bg-light" style="width: 30%;">
                                     <b><a href="/app/work-order-split/${row.name}">${row.name}</a></b><br>
+                                    <small><b>Finish Good & Qty Entered: ${row.finish_good} | ${Number(row.quantity_to_be_produced_immediately).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 3 })}  ${row.um} </b>   </small> <br>
                                     <small>Request Date: ${frappe.datetime.str_to_user(row.posting_date)}</small><br>
                                     <small>Status: ${row.status}</small><br>
-                                    <b>Request : <a href="/app/item-request/${row.link_to_item_request}">${row.link_to_item_request}</a></b>
+                                    <b>Request Link : <a href="/app/item-request/${row.link_to_item_request}">${row.link_to_item_request}</a></b>
                                 </td>
                                 <td >
                                     <table class="table table-sm p-1" style="border:none;">
@@ -382,6 +455,48 @@ frappe.ui.form.on('Work Order Split', {
             }
         });
     },
+
+   packaging: function(frm) {
+        if (frm._is_changing) return;
+        frm._is_changing = true;
+
+        validation_qty_produced_immediately(frm).then(() => {
+            frm.set_value("item_group", "PACKAGING");
+            if (frm.doc.packaging) {
+                frm.set_value("ingredient", 0).then(() => {
+                    frm._is_changing = false;
+                    filter_child_table_items(frm);
+                });
+            } else {
+                frm._is_changing = false;
+                filter_child_table_items(frm);
+            }
+        }).catch((error) => {
+            console.error("Error during validation:", error);
+            frm._is_changing = false;
+        });
+    },
+
+    ingredient: function(frm) {
+        if (frm._is_changing) return;
+        frm._is_changing = true;
+
+        validation_qty_produced_immediately(frm).then(() => {
+            frm.set_value("item_group", "INGREDIENT");
+            if (frm.doc.ingredient) {
+                frm.set_value("packaging", 0).then(() => {
+                    frm._is_changing = false;
+                    filter_child_table_items(frm);
+                });
+            } else {
+                frm._is_changing = false;
+                filter_child_table_items(frm);
+            }
+        }).catch((error) => {
+            console.error("Error during validation:", error);
+            frm._is_changing = false;
+        });
+    }
 
 })
 
@@ -491,8 +606,7 @@ frappe.ui.form.on('Work Order Split Detail', {
         await frappe.model.set_value(row.doctype, row.name, 'free_qty', qty_free);
 
         console.log("test");
-    }
-
+    },
 })
 
 function calculateQtyRequiredByPackaging(qtyRequired, qtyPackaging) {
@@ -505,4 +619,94 @@ function calculateQtyRequiredByPackaging(qtyRequired, qtyPackaging) {
     let qtyRequest = jumlahKemasan * qtyPackaging;
     
     return qtyRequest;
+}
+
+function filter_child_table_items(frm) {
+    let all = 0;
+    let is_packaging = frm.doc.packaging;
+    let is_ingredient = frm.doc.ingredient;
+    
+    let cur_grid = frm.get_field('work_order_split_detail').grid;
+    
+    let active_groups = [];
+    if (is_ingredient === 1) active_groups.push("INGREDIENT");
+    if (is_packaging === 1) active_groups.push("PACKAGING");
+    if (is_ingredient === 0 && is_packaging === 0) all = 1; 
+
+    // Gunakan map atau langsung iterasi grid rows yang sudah ada tanpa melakukan cur_grid.refresh()
+    if (cur_grid.grid_rows) {
+        cur_grid.grid_rows.forEach(grid_row => {
+            if (!grid_row.doc) return;
+
+            let item_group = (grid_row.doc.item_group || "").toUpperCase().trim();
+            let show_this_row = false;
+
+            if (all === 1) {
+                show_this_row = true;
+            } else {
+                show_this_row = active_groups.includes(item_group);
+            }
+
+            // Sembunyikan atau tampilkan elemen baris di UI secara langsung
+            if (grid_row.row) {
+                $(grid_row.row).toggle(show_this_row);
+            } else if (grid_row.wrapper) {
+                $(grid_row.wrapper).toggle(show_this_row);
+            }
+        });
+    }
+}
+
+async function validation_qty_produced_immediately(frm) {
+    if (!frm.doc.packaging && !frm.doc.ingredient) {
+        return; // Stop execution if any of the required fields are missing
+    }
+
+    if (flt(frm.doc.quantity_to_be_produced_immediately) <= 0) {
+        frappe.msgprint({
+            title: __('MESSAGE'),
+            indicator: 'red',
+            message: __('Quantity to be produced immediately must be greater than 0.')
+        });
+        return;
+    }
+
+    // Program akan BERHENTI DI SINI sampai data dari database benar-benar selesai diambil
+    const response = await frappe.db.get_list('Work Order Split', {
+        filters: {
+            'work_order': frm.doc.work_order,
+            'packaging': frm.doc.packaging,
+            'ingredient': frm.doc.ingredient,
+            'docstatus': 1
+        },
+        fields: ['quantity_to_be_produced_immediately', 'quantity_ordered', 'quantity_completed', 'um']
+    });
+            
+    let totalInputed = 0;
+    if (response && response.length > 0) {
+        totalInputed = response.reduce((sum, row) => sum + (row.quantity_to_be_produced_immediately || 0), 0);
+    }
+    
+    let totalQtyAllowed = flt(frm.doc.quantity_ordered) + flt(((frm.doc.quantity_ordered * 10) / 100));
+    let qtyAllowed = totalQtyAllowed - flt(totalInputed);
+    
+    if (totalQtyAllowed < flt(frm.doc.quantity_to_be_produced_immediately) + flt(totalInputed)) {
+        let group = frm.doc.packaging ? "Packaging" : "Ingredient";
+        
+        frm.set_value("packaging", 0);
+        frm.set_value("ingredient", 0);
+        frm.scroll_to_field('quantity_to_be_produced_immediately');
+
+        // Perbaikan pada variabel pesan (menghindari error syntax penulisan template literal)
+        let maxAllowedDisplay = Number(qtyAllowed).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+        let accumulatedDisplay = Number(totalInputed).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+
+        frappe.msgprint({
+            title: __('MESSAGE'),
+            indicator: 'red',
+            message: __('Qty input over than allowed. You have accumulated qty for ' + group + ': ' + accumulatedDisplay + '. So, Maximal Qty that can be entered for ' + group + ' is only' + maxAllowedDisplay)
+        }); 
+        
+        return; // Stop further execution if the condition is met
+    } 
 }

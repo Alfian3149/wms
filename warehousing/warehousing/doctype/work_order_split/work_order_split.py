@@ -7,6 +7,7 @@ from frappe.utils import flt
 from warehousing.warehousing.utils.wo_validation import WorkOrderValidator
 from frappe import _
 from frappe.model.naming import getseries
+import time
 class WorkOrderSplit(Document):
 	def autoname(self):
 		year = frappe.utils.nowdate()[:4][-2:] #2 digit year
@@ -39,8 +40,8 @@ class WorkOrderSplit(Document):
 				"qty_per_pallet": self.fg_qty_per_pallet
 				})
 			new_item.insert()
-		validator = WorkOrderValidator(self.work_order)
-		validator.qty_tobe_produced(self.quantity_to_be_produced_immediately)
+		""" validator = WorkOrderValidator(self.work_order)
+		validator.qty_tobe_produced(self.quantity_to_be_produced_immediately) """
 		
 		if self.status == "Completed": 
 			for row in self.work_order_split_detail:
@@ -64,9 +65,10 @@ class WorkOrderSplit(Document):
 		new_item.insert()
 
 
-	def on_submit(self): 
+	def db_update(self): 
 
 		if self.is_create_mts:
+			time.sleep(1)
 			any_qty_requested = frappe.db.exists("Work Order Split Detail", {"parent": self.name, "qty_confirm": [">", 0]})
 			
 			if any_qty_requested :
@@ -169,12 +171,11 @@ def get_stock_availability_in_production(site, part, warehouse_location, wo_numb
 @frappe.whitelist() 
 def get_material_transfer_slip_history_by_wo(work_order):
 	getList = frappe.db.get_list("Work Order Split", filters={'work_order':work_order}, fields=['work_order', 'name', 'work_order_split_detail', 'posting_date', 'finish_good', 'fg_description', 'um', 'status', 'quantity_to_be_produced_immediately', 'quantity_ordered', 'quantity_completed', 'quantity_rejected', 'shopfloor_location', 'link_to_item_request'],
-	order_by='posting_date desc',
-	
+	order_by='name desc',
 	)
 
 	for doc in getList:
-		doc["items"] = frappe.db.get_all("Work Order Split Detail", filters={"parent":doc.name, "qty_confirm": [">", 0]}, fields=["part","qty_confirm","description", "um", "item_group"])
+		doc["items"] = frappe.db.get_all("Work Order Split Detail", filters={"parent":doc.name, "qty_confirm": [">", 0]}, fields=["part","qty_confirm","description", "um", "item_group"],order_by="idx asc")
 
 	return getList
 
@@ -208,4 +209,5 @@ def get_work_order_split_detail(component):
 	qty_can_be_used = flt(total_free) - flt(total_usage)
 
 	return qty_can_be_used
+
 

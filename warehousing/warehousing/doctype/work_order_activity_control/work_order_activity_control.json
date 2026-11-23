@@ -7,6 +7,7 @@
  "field_order": [
   "buffer_tollerance",
   "use_qty_handovered_as_stock",
+  "production_location",
   "product_line_allowed"
  ],
  "fields": [
@@ -26,13 +27,19 @@
    "fieldname": "use_qty_handovered_as_stock",
    "fieldtype": "Check",
    "label": "Activate Qty handovered as stock"
+  },
+  {
+   "fieldname": "production_location",
+   "fieldtype": "Link",
+   "label": "Production Location",
+   "options": "Warehouse Location"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-11-11 08:35:00.333625",
+ "modified": "2026-11-19 11:24:44.818315",
  "modified_by": "Administrator",
  "module": "warehousing",
  "name": "Work Order Activity Control",
