@@ -893,24 +893,29 @@ frappe.ui.form.on("Work Order Comp Issued", {
         frm.trigger('get_work_order_details');
     }, */
 
-    work_order_number: async function(frm) {
+    work_order_number: function(frm) {
         if (frm.doc.production_activity_to_be_carried_out === "Blending") return;
-        frm.trigger('fetch_workorder_from_qad');
 
-        if(frm.doc.production_activity_to_be_carried_out !== "Packaging"){
-            frm.set_df_property('qty_product_completed_to_be_issued', 'hidden', 0);
+        const field = frm.fields_dict && frm.fields_dict['work_order_number'];
+        if (!field || !field.$input || !field.$input.length) return;
 
-            setTimeout(() => {
-                frm.scroll_to_field('qty_product_completed_to_be_issued');
-                frm.toggle_reqd('qty_product_completed_to_be_issued', true);
-            }, 1000);
-            
-        }
-        else {  
-            frm.toggle_reqd('qty_product_completed_to_be_issued', false);
+        // Pasang listener blur sekali saja per elemen input agar tidak menumpuk
+        if (!field.$input.attr('data-wo-blur-bound')) {
+            field.$input.attr('data-wo-blur-bound', '1');
+
+            field.$input.on('blur', function() {
+                const current_val = (frm.doc.work_order_number || "").trim();
+                if (!current_val) return;
+
+                // Hindari memproses ulang jika nilai WO tidak berubah sejak terakhir diproses
+                if (frm._last_processed_wo_number === current_val) return;
+                frm._last_processed_wo_number = current_val;
+
+                run_work_order_number_effect(frm);
+            });
         }
     },
-    
+        
     display_work_order_details: function(frm) {
         let container = frm.get_field('html_wo_detail').$wrapper;
     },
@@ -1296,6 +1301,23 @@ frappe.ui.form.on('Work Order Comp Issued Summary', {
         scroll_to_child_field(frm, 'item_summary_to_issued', cdn, 'qty_needed');
     }
 });
+
+function run_work_order_number_effect(frm) {
+    if (frm.doc.production_activity_to_be_carried_out === "Blending") return;
+
+    frm.trigger('fetch_workorder_from_qad');
+
+    if (frm.doc.production_activity_to_be_carried_out !== "Packaging") {
+        frm.set_df_property('qty_product_completed_to_be_issued', 'hidden', 0);
+
+        setTimeout(() => {
+            frm.scroll_to_field('qty_product_completed_to_be_issued');
+            frm.toggle_reqd('qty_product_completed_to_be_issued', true);
+        }, 500);
+    } else {
+        frm.toggle_reqd('qty_product_completed_to_be_issued', false);
+    }
+}
 
 function disable_child_select_all(frm, child_fieldname) {
     const grid = frm.fields_dict[child_fieldname]?.grid;

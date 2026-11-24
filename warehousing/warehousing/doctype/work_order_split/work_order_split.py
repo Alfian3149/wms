@@ -65,7 +65,7 @@ class WorkOrderSplit(Document):
 		new_item.insert()
 
 
-	def db_update(self): 
+	def on_submit(self): 
 
 		if self.is_create_mts:
 			time.sleep(1)

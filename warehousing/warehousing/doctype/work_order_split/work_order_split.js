@@ -18,6 +18,8 @@ frappe.ui.form.on('Work Order Split', {
         }
     },
     before_submit: function(frm) {
+        frm.set_value("calculation_request_method", 2);
+        frm.set_value("status", "Submitted");
         if (!frm.doc.work_order_split_detail || frm.doc.work_order_split_detail.length === 0) return;
 
         let show_packaging = frm.doc.packaging;
@@ -38,7 +40,7 @@ frappe.ui.form.on('Work Order Split', {
             });
 
             // Refresh tampilan tabel setelah dibersihkan
-            frm.refresh_field('work_order_split_detail');
+           frm.refresh_field('work_order_split_detail');
         }
     },
     onload: function(frm) {
@@ -72,9 +74,6 @@ frappe.ui.form.on('Work Order Split', {
             frm.page.set_primary_action(__('Submit'), function() {
                 frappe.confirm('Are you sure you want to proceed?',
                 () => {
-                    frm.set_value("calculation_request_method", 2);
-                    frm.set_value("status", "Submitted");
-
                     frm.save('Submit');
                 }, () => {
                     'Continue',
@@ -84,8 +83,10 @@ frappe.ui.form.on('Work Order Split', {
         
         }
 	    frm.fields_dict['work_order'].$input.on('blur', function() {
+            if (frm.doc.work_order === "" ) { return;}
 
-	        if (frm.is_new() && frm.doc.work_order !== frm.doc.work_order_old){
+            
+	        if (frm.is_new() && frm.doc.work_order !== "" && frm.doc.work_order !== frm.doc.work_order_old){
                 frm.clear_table("work_order_split_detail");
                 frm.refresh_field("work_order_split_detail");
 
@@ -144,14 +145,14 @@ frappe.ui.form.on('Work Order Split', {
             let ing = frm.fields_dict['ingredient']?.$input;
             if (pkg) pkg.css('accent-color', '#3b82f6'); // Biru
             if (ing) ing.css('accent-color', '#10b981'); // Hijau
-        }, 300);
+        }, 300); 
 
-        /* frm.fields_dict['packaging'].$input.on('blur', async function() {
+        frm.fields_dict['packaging'].$input.on('blur', async function() {
             filter_child_table_items(frm);
         });
         frm.fields_dict['ingredient'].$input.on('blur', async function() {
             filter_child_table_items(frm);
-        }); */
+        }); 
 	    
 	    /* if (frm.doc.shopfloor_location){
 	        frm.trigger('get_availablity_stock');
@@ -203,7 +204,7 @@ frappe.ui.form.on('Work Order Split', {
                     if (target_row) {
                         // Set nilai awal dari API
                         frappe.model.set_value(target_row.doctype, target_row.name, 'ori_cur_req', api_row.ttdet_qty_req);
-
+                        frappe.model.set_value(target_row.doctype, target_row.name,  "qty_confirm", 0);
                         // Hitung requirement awal dengan buffer tolerance
                         let required = flt(api_row.ttdet_qty_req) + (flt(api_row.ttdet_qty_req) * flt(buffer_tolerance) / 100);
                          // Set nilai actual required akhir
@@ -249,8 +250,10 @@ frappe.ui.form.on('Work Order Split', {
                                 frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty', free_qty_to_given);
                             }
                         }
+                        console.log(api_row.ttdet_component + " SINI");
                         console.log("PART : " + api_row.ttdet_component  + " " +  required + " - " + free_qty_can_used + " - " + min_requested + " - " + base_requested + " - " + qty_request_by_pack);
 
+                
                         frappe.model.set_value(target_row.doctype, target_row.name,  "qty_confirm", qty_request_by_pack);
                         /* if (target_row.availability > 0 && required > 0) {
                             let percent = cint(flt(target_row.availability / required * 100, 0));
