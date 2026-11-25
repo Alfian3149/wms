@@ -84,7 +84,7 @@ frappe.ui.form.on('Work Order Split', {
         }
 	    frm.fields_dict['work_order'].$input.on('blur', function() {
             if (frm.doc.work_order === "" ) { return;}
-
+            
             
 	        if (frm.is_new() && frm.doc.work_order !== "" && frm.doc.work_order !== frm.doc.work_order_old){
                 frm.clear_table("work_order_split_detail");
@@ -99,6 +99,12 @@ frappe.ui.form.on('Work Order Split', {
 	 
 	    frm.fields_dict['quantity_to_be_produced_immediately'].$input.on('blur', async function() {
 	        if(frm.doc.quantity_to_be_produced_immediately > 0 && frm.doc.work_order){
+                if (frm.doc.quantity_to_be_produced_immediately !== frm._prev_uantity_to_be_produced_immediately ){
+                    frm.set_value("qty_in_tonnase", flt(frm.doc.quantity_to_be_produced_immediately) * flt(frm.doc.fg_netwt) / 1000);
+                    frm.trigger('fetch_simulated_picklist_item');
+                }
+
+                frm._prev_uantity_to_be_produced_immediately = frm.doc.quantity_to_be_produced_immediately;
                 /* try {
                     const response = await frappe.db.get_list('Work Order Split', {
                         filters: {
@@ -135,8 +141,7 @@ frappe.ui.form.on('Work Order Split', {
                 } catch (error) {
                     console.error("Gagal mengambil data dari Work Order Split:", error);
                 } */
-                frm.set_value("qty_in_tonnase", flt(frm.doc.quantity_to_be_produced_immediately) * flt(frm.doc.fg_netwt) / 1000);
-                frm.trigger('fetch_simulated_picklist_item');
+                
 	        }
 	    });
 
@@ -194,7 +199,7 @@ frappe.ui.form.on('Work Order Split', {
 
             if (response && response.message) {
                 let data = (response.message.ttdet_table || []); // Filter hanya baris dengan qty_req > 0
-
+                let promises = [];
                 // Ganti .forEach menjadi for...of agar bisa menggunakan AWAIТ di dalam loop
                 for (let api_row of data) {
                     
@@ -250,11 +255,12 @@ frappe.ui.form.on('Work Order Split', {
                                 frappe.model.set_value(target_row.doctype, target_row.name, 'free_qty', free_qty_to_given);
                             }
                         }
-                        console.log(api_row.ttdet_component + " SINI");
-                        console.log("PART : " + api_row.ttdet_component  + " " +  required + " - " + free_qty_can_used + " - " + min_requested + " - " + base_requested + " - " + qty_request_by_pack);
+                        //console.log(api_row.ttdet_component + " SINI");
+                        //console.log("PART : " + api_row.ttdet_component  + " " +  required + " - " + free_qty_can_used + " - " + min_requested + " - " + base_requested + " - " + qty_request_by_pack);
 
                 
-                        frappe.model.set_value(target_row.doctype, target_row.name,  "qty_confirm", qty_request_by_pack);
+                         let p  = frappe.model.set_value(target_row.doctype, target_row.name,  "qty_confirm", qty_request_by_pack);
+                         promises.push(p);
                         /* if (target_row.availability > 0 && required > 0) {
                             let percent = cint(flt(target_row.availability / required * 100, 0));
                             frappe.model.set_value(target_row.doctype, target_row.name, 'availability_in_percent', percent);
@@ -262,11 +268,19 @@ frappe.ui.form.on('Work Order Split', {
                             frappe.model.set_value(target_row.doctype, target_row.name, 'availability_in_percent', 0);
                         } */
                     }
+                    frm.refresh_field('work_order_split_detail');
                 }
-
-                // 5. Refresh UI Child Table setelah loop SELESAI semua
-                frm.refresh_field('work_order_split_detail');
+                await Promise.all(promises);
                 frm.scroll_to_field('packaging');
+                // 5. Refresh UI Child Table setelah loop SELESAI semua
+                
+                /* scroll_and_guide_action(
+                    frm,
+                    'packaging',
+                    'Pilih grup material yang akan diminta.'
+                ); */
+
+                
                 
                 /* setTimeout(() => { 
                     frm.trigger('get_availablity_stock');
@@ -612,6 +626,30 @@ frappe.ui.form.on('Work Order Split Detail', {
     },
 })
 
+function scroll_and_guide_action(frm, fieldname, guide_text) {
+    frm.scroll_to_field(fieldname);
+
+    const field = frm.get_field(fieldname);
+    if (!field || !field.$wrapper) return;
+
+    // Hapus panduan lama jika sudah ada agar tidak menumpuk
+    field.$wrapper.find('.custom-action-guide').remove();
+
+    const $guide = $(`
+        <div class="custom-action-guide text-muted small" style="margin-top: 6px; padding: 6px 10px; background: var(--bg-light-gray, #f4f5f6); border-left: 3px solid var(--primary, #2490ef); border-radius: 4px;">
+            ${frappe.utils.escape_html(guide_text)}
+        </div>
+    `);
+
+    field.$wrapper.append($guide);
+
+    // Otomatis hapus teks panduan setelah tombol/field diklik
+    field.$wrapper.off('click.actionGuide').on('click.actionGuide', () => {
+        $guide.fadeOut(200, () => $guide.remove());
+    });
+}
+
+
 function calculateQtyRequiredByPackaging(qtyRequired, qtyPackaging) {
     if (qtyPackaging <= 0) return qtyRequired; // Validasi agar tidak terjadi pembagian dengan nol
     
@@ -707,7 +745,7 @@ async function validation_qty_produced_immediately(frm) {
         frappe.msgprint({
             title: __('MESSAGE'),
             indicator: 'red',
-            message: __('Qty input over than allowed. You have accumulated qty for ' + group + ': ' + accumulatedDisplay + '. So, Maximal Qty that can be entered for ' + group + ' is only' + maxAllowedDisplay)
+            message: __('Qty input over than allowed. You have accumulated qty for ' + group + ': ' + accumulatedDisplay + '. So, Maximal Qty that can be entered for ' + group + ' is only ' + maxAllowedDisplay)
         }); 
         
         return; // Stop further execution if the condition is met

@@ -65,6 +65,22 @@ class WorkOrderSplit(Document):
 		new_item.insert()
 
 
+	def before_submit(self):
+		group = None
+		if self.packaging == 1: 
+			group = "PACKAGING"
+		
+		if self.ingredient == 1:
+			group = "INGREDIENT"
+
+		filtered_items = []
+		for row in self.work_order_split_detail:
+			if (row.qty_confirm > 0 and row.item_group == group):
+				filtered_items.append(row)
+
+		# Ganti isi child table dengan list hasil filter
+		self.set("work_order_split_detail", filtered_items)
+
 	def on_submit(self): 
 
 		if self.is_create_mts:
